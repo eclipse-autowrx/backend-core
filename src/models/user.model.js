@@ -3,6 +3,30 @@ const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const { toJSON, paginate } = require('./plugins');
 const { roles } = require('../config/roles');
+const { timestamp } = require('./utils.model');
+
+const rolesSchema = mongoose.Schema(
+  {
+    model_contributor: {
+      type: [String],
+      default: [],
+    },
+    tenant_admin: {
+      type: [String],
+      default: [],
+    },
+    model_member: {
+      type: [String],
+      default: [],
+    },
+  },
+  { _id: false },
+);
+
+const userInfo = mongoose.Schema({
+  email: String,
+  providerId: String,
+});
 
 const userSchema = mongoose.Schema(
   {
@@ -35,7 +59,15 @@ const userSchema = mongoose.Schema(
       enum: roles,
       default: 'user',
     },
-    isEmailVerified: {
+    roles: {
+      type: rolesSchema,
+      default: {
+        model_contributor: [],
+        tenant_admin: [],
+        model_member: [],
+      },
+    },
+    emailVerified: {
       type: Boolean,
       default: false,
     },
@@ -58,10 +90,28 @@ const userSchema = mongoose.Schema(
       required: false,
       trim: true,
     },
+    created_time: {
+      type: timestamp,
+      default: {
+        _seconds: Math.floor(Date.now() / 1000),
+        _nanoseconds: 0,
+      },
+    },
+    provider: {
+      type: String,
+      default: 'email',
+      trim: true,
+    },
+    uid: {
+      type: String,
+    },
+    providerData: {
+      type: [userInfo],
+    },
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // add plugin that converts mongoose to json

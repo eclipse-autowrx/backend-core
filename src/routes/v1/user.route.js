@@ -4,7 +4,25 @@ const validate = require('../../middlewares/validate');
 const userValidation = require('../../validations/user.validation');
 const userController = require('../../controllers/user.controller');
 
+const { registerNewUser } = require('../../controllers/userControllers/registerNewUser');
+const { createUserByProvider } = require('../../controllers/userControllers/createUserByProvider');
+const { getGithubAccessToken } = require('../../controllers/userControllers/getGithubAccessToken');
+const { listAllFeature } = require('../../controllers/userControllers/listAllFeature');
+const { listAllUser } = require('../../controllers/userControllers/listAllUser');
+const { listAllUserBasic } = require('../../controllers/userControllers/listAllUserBasic');
+const { resetPassword } = require('../../controllers/userControllers/resetPassword');
+const { initFeatureList } = require('../../controllers/userControllers/initFeatureList');
+
 const router = express.Router();
+
+router.post('/registerNewUser', registerNewUser);
+router.post('/createUserByProvider', createUserByProvider);
+router.get('/getGithubAccessToken', getGithubAccessToken);
+router.get('/listAllFeature', listAllFeature);
+router.get('/listAllUser', listAllUser);
+router.get('/listAllUserBasic', listAllUserBasic);
+router.post('/resetPassword', resetPassword);
+router.post('/initFeatureList', initFeatureList);
 
 router
   .route('/')
