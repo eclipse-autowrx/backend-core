@@ -12,17 +12,27 @@ const { listAllUser } = require('../../controllers/userControllers/listAllUser')
 const { listAllUserBasic } = require('../../controllers/userControllers/listAllUserBasic');
 const { resetPassword } = require('../../controllers/userControllers/resetPassword');
 const { initFeatureList } = require('../../controllers/userControllers/initFeatureList');
+const { summaryCountData } = require('../../controllers/userControllers/summaryCountData');
+const { summaryListData } = require('../../controllers/userControllers/summaryListData');
+const { updateFeature } = require('../../controllers/userControllers/updateFeature');
+const { updateUser } = require('../../controllers/userControllers/updateUser');
+const { createUser } = require('../../controllers/userControllers/createUser');
 
 const router = express.Router();
 
 router.post('/registerNewUser', registerNewUser);
-router.post('/createUserByProvider', createUserByProvider);
 router.get('/getGithubAccessToken', getGithubAccessToken);
 router.get('/listAllFeature', listAllFeature);
 router.get('/listAllUser', listAllUser);
 router.get('/listAllUserBasic', listAllUserBasic);
 router.post('/resetPassword', resetPassword);
 router.post('/initFeatureList', initFeatureList);
+router.get('/summaryCountData', summaryCountData);
+router.get('/summaryListData', summaryListData);
+router.put('/updateFeature', updateFeature);
+router.post('/updateUser', updateUser);
+router.get('/createUser', createUser);
+router.get('/createUserByProvider', createUserByProvider);
 
 router
   .route('/')

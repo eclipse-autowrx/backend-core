@@ -6,6 +6,8 @@ const prototypesRoute = require('./prototypes.route');
 const docsRoute = require('./docs.route');
 const emailsRoute = require('./email.route');
 const logsRoute = require('./log.route');
+const discussionsRoute = require('./discussion.route');
+const feedbacksRoute = require('./feedback.route');
 const config = require('../../config/config');
 
 const router = express.Router();
@@ -34,6 +36,14 @@ const defaultRoutes = [
   {
     path: '/logs',
     route: logsRoute,
+  },
+  {
+    path: '/discussions',
+    route: discussionsRoute,
+  },
+  {
+    path: '/feedbacks',
+    route: feedbacksRoute,
   },
 ];
 

@@ -1,25 +1,23 @@
 const { Timestamp } = require('firebase-admin/firestore');
 const { db } = require('../../config/firebase');
-const { TENANT_ID } = require('../permissions/index');
+const { TENANT_ID } = require('../permissions');
 
+// Controller function to create a user or check if one exists based on provider
 const createUserByProvider = async (req, res) => {
   try {
-    const { name, email, image_file, uid, provider } = req.body;
-
-    // Validate UID
-    if (!uid || typeof uid !== 'string' || uid.trim() === '') {
-      return res.status(400).json({ error: 'UID is required and must be a non-empty string.' });
-    }
+    const { name, email, image_file, uid, provider } = req.query; // or req.body for POST requests
 
     const user = await db.collection('user').doc(uid).get();
     if (user.exists) {
-      return res.status(200).json({
+      // Return if user already exists
+      return res.status(200).send({
         existed: true,
         email: user.data()?.email,
         name: user.data()?.name,
       });
     }
 
+    // Create new user document in Firestore
     await db
       .collection('user')
       .doc(uid)
@@ -27,23 +25,22 @@ const createUserByProvider = async (req, res) => {
         tenant_id: TENANT_ID,
         uid,
         roles: {},
-        name: (name || email) ?? '',
+        name: name || email,
         email,
-        image_file: image_file ?? '',
-        provider: provider ?? '',
+        image_file: image_file || '',
+        provider: provider || 'email', // Default to 'email' if no provider specified
         created_time: Timestamp.now(),
       });
 
-    res.status(200).json({
+    // Respond with new user details
+    return res.status(200).send({
       existed: false,
       email,
       name,
     });
   } catch (error) {
-    res.status(400).json({ error: String(error) });
+    return res.status(400).send(error.toString());
   }
 };
 
-module.exports = {
-  createUserByProvider,
-};
+module.exports = { createUserByProvider };
