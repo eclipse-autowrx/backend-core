@@ -17,6 +17,7 @@ const { summaryListData } = require('../../controllers/userControllers/summaryLi
 const { updateFeature } = require('../../controllers/userControllers/updateFeature');
 const { updateUser } = require('../../controllers/userControllers/updateUser');
 const { createUser } = require('../../controllers/userControllers/createUser');
+const { deleteUser } = require('../../controllers/userControllers/deleteUser');
 
 const router = express.Router();
 
@@ -33,6 +34,7 @@ router.put('/updateFeature', updateFeature);
 router.post('/updateUser', updateUser);
 router.get('/createUser', createUser);
 router.get('/createUserByProvider', createUserByProvider);
+router.delete('/deleteUser', deleteUser);
 
 router
   .route('/')
