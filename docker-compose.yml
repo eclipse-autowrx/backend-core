@@ -28,6 +28,7 @@ services:
 volumes:
   dbdata:
 
+
 networks:
   node-network:
     driver: bridge
