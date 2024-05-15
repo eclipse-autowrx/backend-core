@@ -8,6 +8,7 @@ const emailsRoute = require('./email.route');
 const logsRoute = require('./log.route');
 const discussionsRoute = require('./discussion.route');
 const feedbacksRoute = require('./feedback.route');
+const pluginsRoute = require('./plugin.route');
 const config = require('../../config/config');
 
 const router = express.Router();
@@ -44,6 +45,10 @@ const defaultRoutes = [
   {
     path: '/feedbacks',
     route: feedbacksRoute,
+  },
+  {
+    path: '/plugins',
+    route: pluginsRoute,
   },
 ];
 
