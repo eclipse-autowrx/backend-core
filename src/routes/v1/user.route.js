@@ -1,4 +1,5 @@
 const express = require('express');
+const { FieldPath } = require('firebase-admin/firestore');
 const auth = require('../../middlewares/auth');
 const validate = require('../../middlewares/validate');
 const userValidation = require('../../validations/user.validation');
@@ -18,6 +19,7 @@ const { updateFeature } = require('../../controllers/userControllers/updateFeatu
 const { updateUser } = require('../../controllers/userControllers/updateUser');
 const { createUser } = require('../../controllers/userControllers/createUser');
 const { deleteUser } = require('../../controllers/userControllers/deleteUser');
+const { db } = require('../../config/firebase');
 
 const router = express.Router();
 
@@ -35,6 +37,38 @@ router.post('/updateUser', updateUser);
 router.get('/createUser', createUser);
 router.get('/createUserByProvider', createUserByProvider);
 router.delete('/deleteUser', deleteUser);
+router.get('/getUser/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const user = (await db.collection('user').doc(userId).get()).data();
+    res.send(user);
+  } catch (error) {
+    res.status(400).send('error');
+    // eslint-disable-next-line no-console
+    console.log('error', error);
+  }
+});
+router.get('/getUsers/:tenantId', async (req, res) => {
+  try {
+    const { tenantId } = req.params;
+    const { modelId, roleType } = req.query;
+
+    const users = [];
+    let query = db.collection('user').where('tenant_id', '==', tenantId);
+    if (modelId) {
+      query = query.where(new FieldPath('roles', roleType), 'array-contains', modelId);
+    }
+    const response = await query.get();
+    response.forEach((doc) => {
+      users.push(doc.data());
+    });
+    res.send(users);
+  } catch (error) {
+    res.status(400).send('error');
+    // eslint-disable-next-line no-console
+    console.log('error', error);
+  }
+});
 
 router
   .route('/')

@@ -11,6 +11,20 @@ router.get('/listReleasedPrototypes', listReleasedPrototypes);
 router.get('/listAllPrototypes', listAllPrototypes);
 router.post('/updatePrototypeUsedAPIs', updatePrototypeUsedAPIs);
 router.get('/recentPrototypes/:userId', getRecentPrototypes);
+router.put('/savePrototypeCode/:prototypeId', async (req, res) => {
+  try {
+    const { prototypeId } = req.params;
+    const { code } = req.body;
+    await db.collection('project').doc(prototypeId).update({
+      code,
+    });
+    res.send('Code saved successfully');
+  } catch (error) {
+    res.status(400).json({ error: String(error) });
+    // eslint-disable-next-line no-console
+    console.log('error', error);
+  }
+});
 router.get('/', async (req, res) => {
   const { model_id } = req.query; // Assuming model_id is sent in the body of the POST request
 
@@ -19,6 +33,57 @@ router.get('/', async (req, res) => {
     res.send(response.docs.map((doc) => doc.data()));
   } catch (error) {
     res.status(400).json({ error: String(error) });
+  }
+});
+router.put('/savePrototypeSkeleton/:prototypeId', async (req, res) => {
+  try {
+    const { prototypeId } = req.params;
+    const { skeleton } = req.body;
+    await db.collection('project').doc(prototypeId).update({
+      skeleton,
+    });
+    res.send('Saved prototypes skeleton successfully');
+  } catch (error) {
+    res.status(400).send('error');
+    // eslint-disable-next-line no-console
+    console.log('error', error);
+  }
+});
+router.put('/saveWidgetConfig/:prototypeId', async (req, res) => {
+  try {
+    const { prototypeId } = req.params;
+    const { widgetConfig } = req.body;
+    await db.collection('project').doc(prototypeId).update({
+      widget_config: widgetConfig,
+    });
+    res.send('Saved prototypes widgetConfig successfully');
+  } catch (error) {
+    res.status(400).send('error');
+    // eslint-disable-next-line no-console
+    console.log('error', error);
+  }
+});
+router.get('/getPrototypes', async (req, res) => {
+  try {
+    const prototypes = [];
+    let { modelIds } = req.query;
+
+    let query = db.collection('project');
+
+    if (modelIds) {
+      modelIds = modelIds.split(',');
+      query = query.where('model_id', 'in', modelIds.slice(0, 30));
+    }
+
+    const response = await query.get();
+    response.forEach((doc) => {
+      prototypes.push(doc.data());
+    });
+    res.send(prototypes);
+  } catch (error) {
+    res.status(400).send('error');
+    // eslint-disable-next-line no-console
+    console.log('error', error);
   }
 });
 module.exports = router;
