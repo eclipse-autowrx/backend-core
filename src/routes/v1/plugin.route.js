@@ -1,3 +1,4 @@
+const { Timestamp } = require('firebase-admin/firestore');
 const express = require('express');
 const { db } = require('../../config/firebase');
 
@@ -47,6 +48,24 @@ router.get('/', async (req, res) => {
     res.send(response.docs.map((doc) => doc.data()));
   } catch (error) {
     res.status(400).json({ error: String(error) });
+  }
+});
+
+router.post('/newPlugin', async (req, res) => {
+  try {
+    const newPluginRef = db.collection('plugin').doc();
+    const data = req.body;
+    data.id = newPluginRef.id;
+    data.created = {
+      created_time: Timestamp.now(),
+      user_uid: req.body.userId,
+    };
+    await newPluginRef.set(req.body);
+    res.send(newPluginRef.id);
+  } catch (error) {
+    res.status(400).send('error');
+    // eslint-disable-next-line no-console
+    console.log('error', error);
   }
 });
 

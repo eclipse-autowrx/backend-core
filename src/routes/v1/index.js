@@ -11,6 +11,7 @@ const feedbacksRoute = require('./feedback.route');
 const pluginsRoute = require('./plugin.route');
 const tagsRoute = require('./tag.route');
 const mediasRoute = require('./media.route');
+const addOnsRoute = require('./addOn.route');
 const config = require('../../config/config');
 
 const router = express.Router();
@@ -59,6 +60,10 @@ const defaultRoutes = [
   {
     path: '/medias',
     route: mediasRoute,
+  },
+  {
+    path: '/addOns',
+    route: addOnsRoute,
   },
 ];
 

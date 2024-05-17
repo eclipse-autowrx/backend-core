@@ -69,6 +69,25 @@ router.get('/getUsers/:tenantId', async (req, res) => {
     console.log('error', error);
   }
 });
+router.put('/updateSelf', async (req, res) => {
+  try {
+    const { userId } = req.body;
+    const user = db.collection('user').doc(userId);
+    const data = {};
+    if (req.body.image_file) {
+      data.image_file = req.body.image_file;
+    }
+    if (req.body.name) {
+      data.name = req.body.name;
+    }
+    await user.update(data);
+    res.send('success');
+  } catch (error) {
+    res.status(400).send('error');
+    // eslint-disable-next-line no-console
+    console.log('error', error);
+  }
+});
 
 router
   .route('/')

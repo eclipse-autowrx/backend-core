@@ -1,3 +1,4 @@
+const { Timestamp } = require('firebase-admin/firestore');
 const express = require('express');
 const { listReleasedPrototypes } = require('../../controllers/prototypeControllers/listReleasedPrototypes');
 const { updatePrototypeUsedAPIs } = require('../../controllers/prototypeControllers/updatePrototypeUsedAPIs');
@@ -80,6 +81,35 @@ router.get('/getPrototypes', async (req, res) => {
       prototypes.push(doc.data());
     });
     res.send(prototypes);
+  } catch (error) {
+    res.status(400).send('error');
+    // eslint-disable-next-line no-console
+    console.log('error', error);
+  }
+});
+router.post('/newPrototype', async (req, res) => {
+  try {
+    const newDocRef = db.collection('project').doc();
+    const data = req.body;
+    data.id = newDocRef.id;
+    data.created = {
+      created_time: Timestamp.now(),
+      user_uid: req.body.userId,
+    };
+    await newDocRef.set(req.body);
+    res.send(newDocRef.id);
+  } catch (error) {
+    res.status(400).send('error');
+    // eslint-disable-next-line no-console
+    console.log('error', error);
+  }
+});
+router.put('/updatePrototype/:prototypeId', async (req, res) => {
+  try {
+    const { prototypeId } = req.params;
+    const data = req.body;
+    await db.collection('project').doc(prototypeId).update(data);
+    res.send('Updated prototype successfully');
   } catch (error) {
     res.status(400).send('error');
     // eslint-disable-next-line no-console
