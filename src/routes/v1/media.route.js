@@ -27,8 +27,6 @@ router.post('/:tenantId', async (req, res) => {
     const currMedia = (await db.collection('media').doc(tenantId).get()).data() || {};
     currMedia.media = { ...currMedia?.media, ...JSON.parse(media) };
 
-    console.log('currMedia', currMedia.media);
-
     await db.collection('media').doc(tenantId).set({
       media: currMedia.media,
     });
