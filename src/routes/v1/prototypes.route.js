@@ -116,4 +116,15 @@ router.put('/updatePrototype/:prototypeId', async (req, res) => {
     console.log('error', error);
   }
 });
+router.delete('/:prototypeId', async (req, res) => {
+  try {
+    const { prototypeId } = req.params;
+    await db.collection('project').doc(prototypeId).delete();
+    res.send('Deleted prototype successfully');
+  } catch (error) {
+    res.status(400).send('error');
+    // eslint-disable-next-line no-console
+    console.log('error', error);
+  }
+});
 module.exports = router;

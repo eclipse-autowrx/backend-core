@@ -12,6 +12,9 @@ const pluginsRoute = require('./plugin.route');
 const tagsRoute = require('./tag.route');
 const mediasRoute = require('./media.route');
 const addOnsRoute = require('./addOn.route');
+const apisRoute = require('./api.route');
+const issuesRoute = require('./issue.route');
+const surveysRoute = require('./survey.route');
 const config = require('../../config/config');
 
 const router = express.Router();
@@ -64,6 +67,18 @@ const defaultRoutes = [
   {
     path: '/addOns',
     route: addOnsRoute,
+  },
+  {
+    path: '/apis',
+    route: apisRoute,
+  },
+  {
+    path: '/issues',
+    route: issuesRoute,
+  },
+  {
+    path: '/surveys',
+    route: surveysRoute,
   },
 ];
 

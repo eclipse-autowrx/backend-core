@@ -33,8 +33,8 @@ router.get('/getModels', async (req, res) => {
     }
 
     const response = await query.get();
-    response.forEach((doc) => {
-      models.push(doc.data());
+    response.forEach((d) => {
+      models.push(d.data());
     });
     res.send(models);
   } catch (error) {
@@ -121,9 +121,109 @@ router.post('/newModel', async (req, res) => {
 router.put('/updateModel/:modelId', async (req, res) => {
   try {
     const { modelId } = req.params;
-    const data = req.body;
-    await db.collection('model').doc(modelId).update(data);
+    const { custom_apis, ...data } = req.body;
+    if (custom_apis) {
+      const modelRef = db.collection('model').doc(modelId);
+      const docSnap = await modelRef.get();
+
+      const parsedCustomApis = JSON.parse(custom_apis);
+
+      const newCustomApis = docSnap.data().custom_apis || {};
+
+      Object.entries(parsedCustomApis).forEach(([nesting, value]) => {
+        newCustomApis[nesting] = {
+          ...newCustomApis[nesting],
+          ...value,
+        };
+      });
+
+      await db.collection('model').doc(modelId).update({
+        custom_apis: newCustomApis,
+      });
+    } else {
+      await db.collection('model').doc(modelId).update(data);
+    }
     res.send('Updated model successfully');
+  } catch (error) {
+    res.status(400).send('error');
+    // eslint-disable-next-line no-console
+    console.log('error', error);
+  }
+});
+router.put('/updateTag/:modelId', async (req, res) => {
+  try {
+    const { modelId } = req.params;
+    const { tag, tagCategory, tagDetail } = req.body;
+    const modelRef = db.collection('model').doc(modelId);
+    const docSnap = await modelRef.get();
+    const existingModel = docSnap.data();
+    const existingTag = existingModel?.tags?.find((t) => t.tag === tag.name && t.tagCategoryId === tagCategory.id);
+
+    if (existingTag) {
+      return res.status(400).send('Tag already exists');
+    }
+
+    const newTags = existingModel?.tags ? [...existingModel.tags, tagDetail] : [tagDetail];
+    await modelRef.update({ tags: newTags });
+    res.send('Updated tag successfully');
+  } catch (error) {
+    res.status(400).send('error');
+    // eslint-disable-next-line no-console
+    console.log('error', error);
+  }
+});
+router.put('/roughUpdateTag/:modelId', async (req, res) => {
+  try {
+    const { modelId } = req.params;
+    const { tags } = req.body;
+    await db.collection('model').doc(modelId).update({ tags });
+    res.send('Updated tag successfully');
+  } catch (error) {
+    res.status(400).send('error');
+    // eslint-disable-next-line no-console
+    console.log('error', error);
+  }
+});
+
+const divideNodeName = (node_name) => {
+  const parts = node_name.split('.');
+  const [nesting, name] = [parts.slice(0, -1).join('.'), parts.slice(-1)[0]];
+
+  return [nesting, name];
+};
+
+router.delete('/deleteApi/:modelId', async (req, res) => {
+  try {
+    const { node_name } = req.query;
+    const { modelId } = req.params;
+    const modelRef = db.collection('model').doc(modelId);
+    const model = (await modelRef.get()).data();
+    const custom_apis = model.custom_apis ?? {};
+    const [nesting, name] = divideNodeName(node_name);
+
+    // eslint-disable-next-line no-restricted-syntax
+    const newCustomApis = Object.keys(custom_apis).reduce((acc, key) => {
+      const value = custom_apis[key];
+      if (nesting === key) {
+        const newValue = {};
+        Object.entries(value).forEach(([k, v]) => {
+          if (k !== name) {
+            newValue[k] = v;
+          }
+        });
+        if (Object.keys(newValue).length) {
+          return { ...acc, [key]: newValue };
+        }
+        return acc;
+      }
+
+      if (key === node_name || key.startsWith(`${node_name}.`)) return acc;
+
+      return { ...acc, [key]: custom_apis[key] };
+    }, {});
+
+    await modelRef.update({ custom_apis: newCustomApis });
+    res.send('Deleted api successfully');
   } catch (error) {
     res.status(400).send('error');
     // eslint-disable-next-line no-console

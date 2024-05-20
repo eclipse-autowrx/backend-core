@@ -29,10 +29,10 @@ app.use(cookies());
 app.use(helmet());
 
 // parse json request body
-app.use(express.json({ limit: '50mb' }));
+app.use(express.json({ limit: '50mb', strict: false }));
 
 // parse urlencoded request body
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb', parameterLimit: 10000 }));
 
 // sanitize request data
 app.use(xss());
