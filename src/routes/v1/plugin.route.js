@@ -69,4 +69,30 @@ router.post('/newPlugin', async (req, res) => {
   }
 });
 
+router.put('/updatePlugin/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const pluginRef = db.collection('plugin').doc(id);
+    await pluginRef.update(req.body);
+    res.send('Update success');
+  } catch (error) {
+    res.status(400).send('error');
+    // eslint-disable-next-line no-console
+    console.log('error', error);
+  }
+});
+
+router.delete('/deletePlugin/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const pluginRef = db.collection('plugin').doc(id);
+    await pluginRef.delete();
+    res.send('Delete success');
+  } catch (error) {
+    res.status(400).send('error');
+    // eslint-disable-next-line no-console
+    console.log('error', error);
+  }
+});
+
 module.exports = router;

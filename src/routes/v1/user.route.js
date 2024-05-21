@@ -88,6 +88,36 @@ router.put('/updateSelf', async (req, res) => {
     console.log('error', error);
   }
 });
+router.put('/updateRoles/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { mode } = req.query;
+
+    const userRef = db.collection('user').doc(userId);
+    const user = (await userRef.get()).data();
+    const { role, modelId } = req.body;
+    const oldRoles = (user.roles || {})[role] || [];
+
+    const set = new Set(oldRoles);
+    if (mode === 'delete' && set.has(modelId)) {
+      set.delete(modelId);
+    } else {
+      set.add(modelId);
+    }
+
+    await userRef.update({
+      roles: {
+        ...user.roles,
+        [role]: Array.from(set),
+      },
+    });
+    res.send('success');
+  } catch (error) {
+    res.status(400).send('error');
+    // eslint-disable-next-line no-console
+    console.log('error', error);
+  }
+});
 
 router
   .route('/')

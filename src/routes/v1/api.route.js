@@ -12,7 +12,10 @@ router.get('/', async (req, res) => {
     const api = [];
     const snapshot = await query.get();
     snapshot.forEach((doc) => {
-      api.push(doc.data());
+      api.push({
+        id: doc.id,
+        ...doc.data(),
+      });
     });
     res.send(api);
   } catch (error) {
@@ -37,7 +40,7 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
   try {
     const api = req.body;
-    await db.collection('api').doc(req.params.id).set(api);
+    await db.collection('api').doc(req.params.id).update(api);
     res.send('Updated');
   } catch (error) {
     res.status(400).send('error');
