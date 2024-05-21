@@ -44,7 +44,13 @@ app.use(compression());
 // enable cors
 app.use(
   cors({
-    origin: 'http://localhost:8888',
+    origin: [
+      /localhost:\d+/,
+      /\.digitalauto\.tech$/,
+      /\.digitalauto\.asia$/,
+      /\.digital\.auto$/,
+      'https://digitalauto.netlify.app',
+    ],
     credentials: true,
   })
 );
