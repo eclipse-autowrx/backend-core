@@ -65,10 +65,44 @@ const getRecentPrototypes = async (userId) => {
 
     return results;
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('Error fetching prototypes:', error.message);
     throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'An error occurred while fetching prototypes');
   }
 };
 
-module.exports = { getRecentPrototypes };
+/**
+ * Query for users
+ * @param {Object} filter - Mongo filter
+ * @param {Object} options - Query options
+ * @param {string} [options.sortBy] - Sort option in the format: sortField:(desc|asc)
+ * @param {number} [options.limit] - Maximum number of results per page (default = 10)
+ * @param {number} [options.page] - Current page (default = 1)
+ * @returns {Promise<QueryResult>}
+ */
+const queryPrototypes = async (filter, options) => {
+  const retPrototypes = [];
+
+  let query = db.collection('project');
+
+  Object.keys(filter).forEach((key) => {
+    query = query.where(key, 'in', filter[key].split(',').slice(0, 30));
+  });
+
+  const prototypes = await query.select('description', 'name', 'model_id', 'image_file', 'tags', 'apis', 'rated_by').get();
+
+  if (!prototypes.empty) {
+    prototypes.forEach((prototype) => {
+      retPrototypes.push({
+        id: prototype.id,
+        description: prototype.data().description,
+        name: prototype.data().name,
+        model_id: prototype.data().model_id,
+        image_file: prototype.data().image_file,
+        tags: prototype.data().tags,
+      });
+    });
+  }
+
+  return retPrototypes;
+};
+
+module.exports = { getRecentPrototypes, queryPrototypes };

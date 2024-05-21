@@ -1,15 +1,16 @@
 const { Timestamp } = require('firebase-admin/firestore');
 const express = require('express');
-const { listReleasedPrototypes } = require('../../controllers/prototypeControllers/listReleasedPrototypes');
 const { updatePrototypeUsedAPIs } = require('../../controllers/prototypeControllers/updatePrototypeUsedAPIs');
-const { listAllPrototypes } = require('../../controllers/prototypeControllers/listAllPrototypes');
 const { getRecentPrototypes } = require('../../controllers/prototypeControllers/getRecentPrototypes');
 const { db } = require('../../config/firebase');
+const { prototypeController } = require('../../controllers');
+const { prototypeValidation } = require('../../validations');
+const validate = require('../../middlewares/validate');
 
 const router = express.Router();
 
-router.get('/listReleasedPrototypes', listReleasedPrototypes);
-router.get('/listAllPrototypes', listAllPrototypes);
+router.route('/').get(validate(prototypeValidation.listPrototypes), prototypeController.listPrototypes);
+
 router.post('/updatePrototypeUsedAPIs', updatePrototypeUsedAPIs);
 router.get('/recentPrototypes/:userId', getRecentPrototypes);
 router.put('/savePrototypeCode/:prototypeId', async (req, res) => {
