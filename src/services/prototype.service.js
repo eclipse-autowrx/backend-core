@@ -81,28 +81,77 @@ const getRecentPrototypes = async (userId) => {
 const queryPrototypes = async (filter, options) => {
   const retPrototypes = [];
 
+  const { fields, ...restFilter } = filter;
+
+  const fieldsArr = fields ? fields.split(',') : [];
+
   let query = db.collection('project');
 
-  Object.keys(filter).forEach((key) => {
-    query = query.where(key, 'in', filter[key].split(',').slice(0, 30));
+  Object.keys(restFilter).forEach((key) => {
+    query = query.where(key, 'in', restFilter[key].split(',').slice(0, 30));
   });
 
-  const prototypes = await query.select('description', 'name', 'model_id', 'image_file', 'tags', 'apis', 'rated_by').get();
+  if (fieldsArr.length > 0) {
+    query = query.select(...fieldsArr);
+  }
+
+  const prototypes = await query.get();
 
   if (!prototypes.empty) {
     prototypes.forEach((prototype) => {
-      retPrototypes.push({
-        id: prototype.id,
-        description: prototype.data().description,
-        name: prototype.data().name,
-        model_id: prototype.data().model_id,
-        image_file: prototype.data().image_file,
-        tags: prototype.data().tags,
-      });
+      retPrototypes.push(prototype.data());
     });
   }
 
   return retPrototypes;
 };
 
-module.exports = { getRecentPrototypes, queryPrototypes };
+/**
+ *
+ * @param {string} id
+ * @param {Object} prototypeBody
+ * @returns {Promise<Object>}
+ */
+const updatePrototypeById = async (id, prototypeBody) => {
+  const prototypeRef = db.collection('project').doc(id);
+  const prototype = await prototypeRef.get();
+
+  if (!prototype.exists) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Prototype not found');
+  }
+
+  const result = await prototypeRef.update(prototypeBody);
+
+  return result;
+};
+
+/**
+ *
+ * @param {Object} prototypeBody
+ * @returns {Promise<string>}
+ */
+const createPrototype = async (prototypeBody) => {
+  const newDocRef = db.collection('project').doc();
+  const { userId, ...data } = prototypeBody;
+  data.id = newDocRef.id;
+  data.created = {
+    created_time: new Date(),
+    user_uid: userId,
+  };
+  await newDocRef.set(data);
+
+  return newDocRef.id;
+};
+
+const deletePrototypeById = async (id) => {
+  const prototypeRef = db.collection('project').doc(id);
+  const prototype = await prototypeRef.get();
+
+  if (!prototype.exists) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Prototype not found');
+  }
+
+  await prototypeRef.delete();
+};
+
+module.exports = { getRecentPrototypes, queryPrototypes, updatePrototypeById, createPrototype, deletePrototypeById };
