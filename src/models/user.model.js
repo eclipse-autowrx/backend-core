@@ -20,7 +20,7 @@ const rolesSchema = mongoose.Schema(
       default: [],
     },
   },
-  { _id: false },
+  { _id: false }
 );
 
 const userInfo = mongoose.Schema({
@@ -80,11 +80,6 @@ const userSchema = mongoose.Schema(
       required: true,
       trim: true,
     },
-    provider: {
-      type: String,
-      required: true,
-      trim: true,
-    },
     image_file: {
       type: String,
       required: false,
@@ -99,7 +94,7 @@ const userSchema = mongoose.Schema(
     },
     provider: {
       type: String,
-      default: 'email',
+      default: 'Email',
       trim: true,
     },
     uid: {
@@ -111,7 +106,7 @@ const userSchema = mongoose.Schema(
   },
   {
     timestamps: true,
-  },
+  }
 );
 
 // add plugin that converts mongoose to json

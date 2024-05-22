@@ -4,7 +4,10 @@ const { authService, userService, tokenService, emailService } = require('../ser
 const config = require('../config/config');
 
 const register = catchAsync(async (req, res) => {
-  const user = await userService.createUser(req.body);
+  const user = await userService.createUser({
+    ...req.body,
+    provider: 'Email',
+  });
   const tokens = await tokenService.generateAuthTokens(user);
   res.cookie('token', tokens.refresh.token, {
     expires: tokens.refresh.expires,
