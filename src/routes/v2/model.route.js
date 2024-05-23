@@ -14,7 +14,7 @@ router
 router
   .route('/:id')
   .get(validate(modelValidation.getModel), modelController.getModel)
-  .put(auth(), validate(modelValidation.updateModel), modelController.updateModel)
+  .patch(auth(), validate(modelValidation.updateModel), modelController.updateModel)
   .delete(auth(), validate(modelValidation.deleteModel), modelController.deleteModel);
 
 module.exports = router;

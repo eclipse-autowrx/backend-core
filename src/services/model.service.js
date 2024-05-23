@@ -7,17 +7,17 @@ const ApiError = require('../utils/ApiError');
  *
  * @param {string} userId
  * @param {Object} modelBody
- * @returns {Promise<Model>}
+ * @returns {Promise<string>}
  */
 const createModel = async (userId, modelBody) => {
-  const user = await userService.getUserById(userId);
+  // const user = await userService.getUserById(userId);
 
-  if (!user.isSystemAdmin) {
-    const count = await Model.countDocuments({ created_by: userId });
-    if (count >= 3) {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'Users are limited to 3 models');
-    }
-  }
+  // if (!user.isSystemAdmin) {
+  //   const count = await Model.countDocuments({ created_by: userId });
+  //   if (count >= 3) {
+  //     throw new ApiError(httpStatus.BAD_REQUEST, 'Users are limited to 3 models');
+  //   }
+  // }
 
   const model = await Model.create({
     ...modelBody,

@@ -46,7 +46,7 @@ const paginate = (schema) => {
 
     if (Object.keys(filter).length > 0) {
       match = Object.keys(filter).reduce((acc, key) => {
-        acc[key] = filter[key].split(',');
+        acc[key] = typeof filter[key] === 'string' ? filter[key].split(',') : filter[key];
         return acc;
       }, {});
     }

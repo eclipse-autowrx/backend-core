@@ -18,15 +18,15 @@ const descriptionSchema = mongoose.Schema(
   {
     problem: {
       type: String,
-      max: 4096,
+      max: 4095,
     },
     says_who: {
       type: String,
-      max: 4096,
+      max: 4095,
     },
     solution: {
       type: String,
-      max: 4096,
+      max: 4095,
     },
     status: {
       type: String,
@@ -160,9 +160,8 @@ const prototypeSchema = mongoose.Schema({
   widget_config: {
     type: String,
   },
-  lastViewed: {
+  last_viewed: {
     type: Date,
-    default: Date.now,
   },
   rated_by: {
     type: Map,
@@ -179,11 +178,21 @@ const prototypeSchema = mongoose.Schema({
   partner_logo: {
     type: String,
   },
+  created_by: {
+    type: mongoose.SchemaTypes.ObjectId,
+    ref: 'User',
+    required: true,
+  },
 });
 
 // add plugin that converts mongoose to json
 prototypeSchema.plugin(toJSON);
 prototypeSchema.plugin(paginate);
+
+prototypeSchema.statics.existsPrototypeInModel = async function (model_id, name, excludeId) {
+  const prototype = await this.findOne({ name, model_id, _id: { $ne: excludeId } });
+  return !!prototype;
+};
 
 /**
  * @typedef Prototype

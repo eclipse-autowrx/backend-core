@@ -127,7 +127,7 @@ router
 router
   .route('/self')
   .get(auth(), userController.getSelf)
-  .put(auth(), validate(userValidation.updateSelfUser), userController.updateSelf);
+  .patch(auth(), validate(userValidation.updateSelfUser), userController.updateSelf);
 
 router
   .route('/:userId')
