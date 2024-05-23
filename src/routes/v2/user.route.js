@@ -1,0 +1,370 @@
+const express = require('express');
+const { FieldPath } = require('firebase-admin/firestore');
+const auth = require('../../middlewares/auth');
+const validate = require('../../middlewares/validate');
+const userValidation = require('../../validations/user.validation');
+const userController = require('../../controllers/user.controller');
+
+const { registerNewUser } = require('../../controllers/userControllers/registerNewUser');
+const { createUserByProvider } = require('../../controllers/userControllers/createUserByProvider');
+const { getGithubAccessToken } = require('../../controllers/userControllers/getGithubAccessToken');
+const { listAllFeature } = require('../../controllers/userControllers/listAllFeature');
+const { listAllUser } = require('../../controllers/userControllers/listAllUser');
+const { listAllUserBasic } = require('../../controllers/userControllers/listAllUserBasic');
+const { resetPassword } = require('../../controllers/userControllers/resetPassword');
+const { initFeatureList } = require('../../controllers/userControllers/initFeatureList');
+const { summaryCountData } = require('../../controllers/userControllers/summaryCountData');
+const { summaryListData } = require('../../controllers/userControllers/summaryListData');
+const { updateFeature } = require('../../controllers/userControllers/updateFeature');
+const { updateUser } = require('../../controllers/userControllers/updateUser');
+const { createUser } = require('../../controllers/userControllers/createUser');
+const { deleteUser } = require('../../controllers/userControllers/deleteUser');
+const { db } = require('../../config/firebase');
+
+const router = express.Router();
+
+router.post('/registerNewUser', registerNewUser);
+router.get('/getGithubAccessToken', getGithubAccessToken);
+router.get('/listAllFeature', listAllFeature);
+router.get('/listAllUser', listAllUser);
+router.get('/listAllUserBasic', listAllUserBasic);
+router.post('/resetPassword', resetPassword);
+router.post('/initFeatureList', initFeatureList);
+router.get('/summaryCountData', summaryCountData);
+router.get('/summaryListData', summaryListData);
+router.put('/updateFeature', updateFeature);
+router.post('/updateUser', updateUser);
+router.get('/createUser', createUser);
+router.get('/createUserByProvider', createUserByProvider);
+router.delete('/deleteUser', deleteUser);
+router.get('/getUser/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const user = (await db.collection('user').doc(userId).get()).data();
+    res.send(user);
+  } catch (error) {
+    res.status(400).send('error');
+    // eslint-disable-next-line no-console
+    console.log('error', error);
+  }
+});
+router.get('/getUsers/:tenantId', async (req, res) => {
+  try {
+    const { tenantId } = req.params;
+    const { modelId, roleType } = req.query;
+
+    const users = [];
+    let query = db.collection('user').where('tenant_id', '==', tenantId);
+    if (modelId) {
+      query = query.where(new FieldPath('roles', roleType), 'array-contains', modelId);
+    }
+    const response = await query.get();
+    response.forEach((doc) => {
+      users.push(doc.data());
+    });
+    res.send(users);
+  } catch (error) {
+    res.status(400).send('error');
+    // eslint-disable-next-line no-console
+    console.log('error', error);
+  }
+});
+router.put('/updateSelf', async (req, res) => {
+  try {
+    const { userId } = req.body;
+    const user = db.collection('user').doc(userId);
+    const data = {};
+    if (req.body.image_file) {
+      data.image_file = req.body.image_file;
+    }
+    if (req.body.name) {
+      data.name = req.body.name;
+    }
+    await user.update(data);
+    res.send('success');
+  } catch (error) {
+    res.status(400).send('error');
+    // eslint-disable-next-line no-console
+    console.log('error', error);
+  }
+});
+router.put('/updateRoles/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { mode } = req.query;
+
+    const userRef = db.collection('user').doc(userId);
+    const user = (await userRef.get()).data();
+    const { role, modelId } = req.body;
+    const oldRoles = (user.roles || {})[role] || [];
+
+    const set = new Set(oldRoles);
+    if (mode === 'delete' && set.has(modelId)) {
+      set.delete(modelId);
+    } else {
+      set.add(modelId);
+    }
+
+    await userRef.update({
+      roles: {
+        ...user.roles,
+        [role]: Array.from(set),
+      },
+    });
+    res.send('success');
+  } catch (error) {
+    res.status(400).send('error');
+    // eslint-disable-next-line no-console
+    console.log('error', error);
+  }
+});
+
+router
+  .route('/')
+  .post(auth('manageUsers'), validate(userValidation.createUser), userController.createUser)
+  .get(auth('getUsers'), validate(userValidation.getUsers), userController.getUsers);
+
+router
+  .route('/self')
+  .get(auth(), userController.getSelf)
+  .put(auth(), validate(userValidation.updateSelfUser), userController.updateSelf);
+
+router
+  .route('/:userId')
+  .get(auth('getUsers'), validate(userValidation.getUser), userController.getUser)
+  .patch(auth('manageUsers'), validate(userValidation.updateUser), userController.updateUser)
+  .delete(auth('manageUsers'), validate(userValidation.deleteUser), userController.deleteUser);
+
+module.exports = router;
+
+/**
+ * @swagger
+ * tags:
+ *   name: Users
+ *   description: User management and retrieval
+ */
+
+/**
+ * @swagger
+ * /users:
+ *   post:
+ *     summary: Create a user
+ *     description: Only admins can create other users.
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - email
+ *               - password
+ *               - role
+ *             properties:
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: must be unique
+ *               password:
+ *                 type: string
+ *                 format: password
+ *                 minLength: 8
+ *                 description: At least one number and one letter
+ *               role:
+ *                  type: string
+ *                  enum: [user, admin]
+ *             example:
+ *               name: fake name
+ *               email: fake@example.com
+ *               password: password1
+ *               role: user
+ *     responses:
+ *       "201":
+ *         description: Created
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/User'
+ *       "400":
+ *         $ref: '#/components/responses/DuplicateEmail'
+ *       "401":
+ *         $ref: '#/components/responses/Unauthorized'
+ *       "403":
+ *         $ref: '#/components/responses/Forbidden'
+ *
+ *   get:
+ *     summary: Get all users
+ *     description: Only admins can retrieve all users.
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: name
+ *         schema:
+ *           type: string
+ *         description: User name
+ *       - in: query
+ *         name: role
+ *         schema:
+ *           type: string
+ *         description: User role
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *         description: sort by query in the form of field:desc/asc (ex. name:asc)
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *         default: 10
+ *         description: Maximum number of users
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Page number
+ *     responses:
+ *       "200":
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 results:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/User'
+ *                 page:
+ *                   type: integer
+ *                   example: 1
+ *                 limit:
+ *                   type: integer
+ *                   example: 10
+ *                 totalPages:
+ *                   type: integer
+ *                   example: 1
+ *                 totalResults:
+ *                   type: integer
+ *                   example: 1
+ *       "401":
+ *         $ref: '#/components/responses/Unauthorized'
+ *       "403":
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+/**
+ * @swagger
+ * /users/{id}:
+ *   get:
+ *     summary: Get a user
+ *     description: Logged in users can fetch only their own user information. Only admins can fetch other users.
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User id
+ *     responses:
+ *       "200":
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/User'
+ *       "401":
+ *         $ref: '#/components/responses/Unauthorized'
+ *       "403":
+ *         $ref: '#/components/responses/Forbidden'
+ *       "404":
+ *         $ref: '#/components/responses/NotFound'
+ *
+ *   patch:
+ *     summary: Update a user
+ *     description: Logged in users can only update their own information. Only admins can update other users.
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User id
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: must be unique
+ *               password:
+ *                 type: string
+ *                 format: password
+ *                 minLength: 8
+ *                 description: At least one number and one letter
+ *             example:
+ *               name: fake name
+ *               email: fake@example.com
+ *               password: password1
+ *     responses:
+ *       "200":
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/User'
+ *       "400":
+ *         $ref: '#/components/responses/DuplicateEmail'
+ *       "401":
+ *         $ref: '#/components/responses/Unauthorized'
+ *       "403":
+ *         $ref: '#/components/responses/Forbidden'
+ *       "404":
+ *         $ref: '#/components/responses/NotFound'
+ *
+ *   delete:
+ *     summary: Delete a user
+ *     description: Logged in users can delete only themselves. Only admins can delete other users.
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User id
+ *     responses:
+ *       "200":
+ *         description: No content
+ *       "401":
+ *         $ref: '#/components/responses/Unauthorized'
+ *       "403":
+ *         $ref: '#/components/responses/Forbidden'
+ *       "404":
+ *         $ref: '#/components/responses/NotFound'
+ */

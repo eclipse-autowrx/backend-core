@@ -2,6 +2,9 @@ module.exports.authService = require('./auth.service');
 module.exports.emailService = require('./email.service');
 module.exports.tokenService = require('./token.service');
 module.exports.userService = require('./user.service');
+module.exports.modelLegacyService = require('./model.legacy.service');
+module.exports.prototypeLegacyService = require('./prototype.legacy.service');
+module.exports.tagService = require('./tag.service');
+
 module.exports.modelService = require('./model.service');
 module.exports.prototypeService = require('./prototype.service');
-module.exports.tagService = require('./tag.service');

@@ -3,22 +3,24 @@ const express = require('express');
 // const { updatePrototypeUsedAPIs } = require('../../controllers/prototypeControllers/updatePrototypeUsedAPIs');
 // const { getRecentPrototypes } = require('../../controllers/prototypeControllers/getRecentPrototypes');
 // const { db } = require('../../config/firebase');
-const { prototypeController } = require('../../controllers');
-const { prototypeValidation } = require('../../validations');
+const { prototypeLegacyController: prototypeController } = require('../../controllers');
+const { prototypeLegacyValidation } = require('../../validations');
 const validate = require('../../middlewares/validate');
 
 const router = express.Router();
 
 router
   .route('/')
-  .get(validate(prototypeValidation.listPrototypes), prototypeController.listPrototypes)
-  .post(validate(prototypeValidation.createPrototype), prototypeController.createPrototype);
+  .get(validate(prototypeLegacyValidation.listPrototypes), prototypeController.listPrototypes)
+  .post(validate(prototypeLegacyValidation.createPrototype), prototypeController.createPrototype);
 router
   .route('/:id')
-  .put(validate(prototypeValidation.updatePrototype), prototypeController.updatePrototype)
-  .delete(validate(prototypeValidation.deletePrototype), prototypeController.deletePrototype);
+  .put(validate(prototypeLegacyValidation.updatePrototype), prototypeController.updatePrototype)
+  .delete(validate(prototypeLegacyValidation.deletePrototype), prototypeController.deletePrototype);
 
-router.route('/recent').get(validate(prototypeValidation.getRecentPrototypes), prototypeController.getRecentPrototypes);
+router
+  .route('/recent')
+  .get(validate(prototypeLegacyValidation.getRecentPrototypes), prototypeController.getRecentPrototypes);
 // router.post('/updatePrototypeUsedAPIs', updatePrototypeUsedAPIs);
 // router.get('/recentPrototypes/:userId', getRecentPrototypes);
 // router.put('/savePrototypeCode/:prototypeId', async (req, res) => {

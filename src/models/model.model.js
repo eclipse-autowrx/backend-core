@@ -1,11 +1,31 @@
 const mongoose = require('mongoose');
-const { toJSON } = require('./plugins');
-const { visibilityTypes } = require('../config/visibility');
+const { toJSON, paginate } = require('./plugins');
+const { visibilityTypes } = require('../config/enums');
+
+const tagSchema = mongoose.Schema(
+  {
+    tag: {
+      type: String,
+      required: true,
+    },
+    tagCategoryId: {
+      type: String,
+      required: true,
+    },
+    tagCategoryName: {
+      type: String,
+      required: true,
+    },
+  },
+  {
+    _id: false,
+  }
+);
 
 const modelSchema = mongoose.Schema(
   {
     custom_apis: {
-      type: Map,
+      type: Object,
     },
     cvi: {
       type: String,
@@ -15,18 +35,19 @@ const modelSchema = mongoose.Schema(
       type: String,
       required: true,
       trim: true,
+      maxLength: 255,
     },
     model_home_image_file: {
       type: String,
     },
     model_files: {
-      type: Map,
-      required: true,
+      type: Object,
     },
     name: {
       type: String,
       required: true,
       trim: true,
+      maxLength: 255,
     },
     visibility: {
       type: String,
@@ -42,11 +63,12 @@ const modelSchema = mongoose.Schema(
       type: String,
       required: true,
       trim: true,
+      maxLength: 255,
     },
     property: {
       type: String,
     },
-    createdBy: {
+    created_by: {
       type: mongoose.SchemaTypes.ObjectId,
       ref: 'User',
       required: true,
@@ -55,7 +77,7 @@ const modelSchema = mongoose.Schema(
       type: String,
     },
     tags: {
-      type: [Map],
+      type: [tagSchema],
     },
   },
   {
@@ -65,6 +87,7 @@ const modelSchema = mongoose.Schema(
 
 // add plugin that converts mongoose to json
 modelSchema.plugin(toJSON);
+modelSchema.plugin(paginate);
 
 /**
  * @typedef Model

@@ -1,7 +1,7 @@
 const express = require('express');
 const validate = require('../../middlewares/validate');
-const modelValidation = require('../../validations/model.validation');
-const modelController = require('../../controllers/model.controller');
+const modelValidation = require('../../validations/model.legacy.validation');
+const { modelLegacyController } = require('../../controllers');
 // const auth = require('../../middlewares/auth');
 // const { listModelLite } = require('../../controllers/modelControllers/listModelLite');
 // const { db } = require('../../config/firebase');
@@ -10,14 +10,14 @@ const router = express.Router();
 
 router
   .route('/')
-  .get(validate(modelValidation.listModels), modelController.listModels)
-  .post(validate(modelValidation.createModel), modelController.createModel);
+  .get(validate(modelValidation.listModels), modelLegacyController.listModels)
+  .post(validate(modelValidation.createModel), modelLegacyController.createModel);
 router
   .route('/:id')
-  .get(validate(modelValidation.getModel), modelController.getModel)
-  .put(validate(modelValidation.updateModel), modelController.updateModel);
-router.route('/:id/tag').put(validate(modelValidation.updateTag), modelController.updateTag);
-router.route('/:id/api').delete(validate(modelValidation.deleteApi), modelController.deleteApi);
+  .get(validate(modelValidation.getModel), modelLegacyController.getModel)
+  .put(validate(modelValidation.updateModel), modelLegacyController.updateModel);
+router.route('/:id/tag').put(validate(modelValidation.updateTag), modelLegacyController.updateTag);
+router.route('/:id/api').delete(validate(modelValidation.deleteApi), modelLegacyController.deleteApi);
 
 // .delete(validate(modelValidation.deleteModel), modelController.deleteModel);
 

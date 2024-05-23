@@ -1,6 +1,6 @@
 const Joi = require('joi');
 const { visibilityTypes } = require('../config/enums');
-const { jsonString, slug, objectId } = require('./custom.validation');
+const { jsonString, slug } = require('./custom.validation');
 
 const createModel = {
   body: Joi.object().keys({
@@ -27,6 +27,12 @@ const createModel = {
   }),
 };
 
+const getModel = {
+  params: Joi.object().keys({
+    id: Joi.string().required(),
+  }),
+};
+
 const listModels = {
   query: Joi.object().keys({
     name: Joi.string(),
@@ -35,8 +41,7 @@ const listModels = {
     vehicle_category: Joi.string(),
     main_api: Joi.string(),
     fields: Joi.string(),
-    id: Joi.string().custom(objectId),
-    created_by: Joi.string().custom(objectId),
+    id: Joi.string(),
     sortBy: Joi.string(),
     limit: Joi.number().integer(),
     page: Joi.number().integer(),
@@ -45,45 +50,65 @@ const listModels = {
 
 const updateModel = {
   body: Joi.object().keys({
-    custom_apis: Joi.string().custom(jsonString),
-    cvi: Joi.string().custom(jsonString),
-    main_api: Joi.string().max(255),
+    custom_apis: Joi.string().allow(''),
+    cvi: Joi.string(),
+    main_api: Joi.string(),
     model_home_image_file: Joi.string().allow(''),
     model_files: Joi.object(),
-    name: Joi.string().max(255),
+    name: Joi.string(),
     visibility: Joi.string().valid(...Object.values(visibilityTypes)),
-    vehicle_category: Joi.string().max(255),
-    property: Joi.string().custom(jsonString),
-    skeleton: Joi.string().custom(jsonString),
+    tenant_id: Joi.string(),
+    vehicle_category: Joi.string(),
+    property: Joi.string().allow(null, ''),
+    skeleton: Joi.string().allow(null, ''),
     tags: Joi.array().items(
       Joi.object().keys({
-        tag: Joi.string().required(),
-        tagCategoryId: Joi.string().required().custom(slug),
-        tagCategoryName: Joi.string().required(),
+        tag: Joi.string(),
+        tagCategoryId: Joi.string(),
+        tagCategoryName: Joi.string(),
       })
     ),
   }),
   params: Joi.object().keys({
-    id: Joi.string().custom(objectId),
+    id: Joi.string().required(),
   }),
 };
 
-const getModel = {
+const updateTag = {
+  body: Joi.alternatives()
+    .try(
+      Joi.object({
+        tag: Joi.object().required(),
+        tagCategory: Joi.object().required(),
+        tagDetail: Joi.object().required(),
+      }),
+      Joi.object({
+        tags: Joi.array().items(Joi.any()).required(),
+      })
+    )
+    .required(),
   params: Joi.object().keys({
-    id: Joi.string().custom(objectId),
+    id: Joi.string().required(),
+  }),
+  query: Joi.object().keys({
+    rough: Joi.boolean().default(false),
   }),
 };
 
-const deleteModel = {
+const deleteApi = {
   params: Joi.object().keys({
-    id: Joi.string().custom(objectId),
+    id: Joi.string().required(),
+  }),
+  query: Joi.object().keys({
+    node_name: Joi.string().required(),
   }),
 };
 
 module.exports = {
   createModel,
+  getModel,
   listModels,
   updateModel,
-  getModel,
-  deleteModel,
+  updateTag,
+  deleteApi,
 };

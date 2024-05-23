@@ -17,6 +17,7 @@ const paginate = (schema) => {
    * @param {string} [options.populate] - Populate data fields. Hierarchy of fields should be separated by (.). Multiple populating criteria should be separated by commas (,)
    * @param {number} [options.limit] - Maximum number of results per page (default = 10)
    * @param {number} [options.page] - Current page (default = 1)
+   * @param {number} [options.fields] - Fields to select
    * @returns {Promise<QueryResult>}
    */
   schema.statics.paginate = async function (filter, options) {
@@ -36,8 +37,22 @@ const paginate = (schema) => {
     const page = options.page && parseInt(options.page, 10) > 0 ? parseInt(options.page, 10) : 1;
     const skip = (page - 1) * limit;
 
-    const countPromise = this.countDocuments(filter).exec();
-    let docsPromise = this.find(filter).sort(sort).skip(skip).limit(limit);
+    let match = {};
+
+    if ('id' in filter) {
+      filter._id = filter.id;
+      delete filter.id;
+    }
+
+    if (Object.keys(filter).length > 0) {
+      match = Object.keys(filter).reduce((acc, key) => {
+        acc[key] = filter[key].split(',');
+        return acc;
+      }, {});
+    }
+
+    const countPromise = this.countDocuments(match).exec();
+    let docsPromise = this.find(match).sort(sort).skip(skip).limit(limit);
 
     if (options.populate) {
       options.populate.split(',').forEach((populateOption) => {
@@ -48,6 +63,10 @@ const paginate = (schema) => {
             .reduce((a, b) => ({ path: b, populate: a }))
         );
       });
+    }
+
+    if (options.fields) {
+      docsPromise = docsPromise.select(options.fields.split(',').join(' '));
     }
 
     docsPromise = docsPromise.exec();
