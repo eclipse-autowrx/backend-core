@@ -78,9 +78,29 @@ const updatePrototypeById = async (id, updateBody, userId) => {
   return prototype;
 };
 
+/**
+ *
+ * @param {string} id
+ * @param {string} userId
+ * @returns {Promise<void>}
+ */
+const deletePrototypeById = async (id, userId) => {
+  const prototype = await getPrototypeById(id);
+  if (!prototype) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Prototype not found');
+  }
+
+  if (String(prototype.created_by) !== String(userId)) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
+  }
+
+  await prototype.remove();
+};
+
 module.exports = {
   createPrototype,
   queryPrototypes,
   getPrototypeById,
   updatePrototypeById,
+  deletePrototypeById,
 };

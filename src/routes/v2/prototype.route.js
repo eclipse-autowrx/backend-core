@@ -14,6 +14,7 @@ router
 router
   .route('/:id')
   .get(validate(prototypeValidation.getPrototype), prototypeController.getPrototype)
-  .patch(auth(), validate(prototypeValidation.updatePrototype), prototypeController.updatePrototype);
+  .patch(auth(), validate(prototypeValidation.updatePrototype), prototypeController.updatePrototype)
+  .delete(auth(), validate(prototypeValidation.deletePrototype), prototypeController.deletePrototype);
 
 module.exports = router;

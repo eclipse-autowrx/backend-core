@@ -24,9 +24,15 @@ const updatePrototype = catchAsync(async (req, res) => {
   res.send(prototype);
 });
 
+const deletePrototype = catchAsync(async (req, res) => {
+  await prototypeService.deletePrototypeById(req.params.id, req.user.id);
+  res.status(204).send();
+});
+
 module.exports = {
   createPrototype,
   listPrototypes,
   getPrototype,
   updatePrototype,
+  deletePrototype,
 };

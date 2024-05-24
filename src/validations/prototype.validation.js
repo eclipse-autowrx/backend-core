@@ -122,11 +122,11 @@ const updatePrototype = {
   }),
 };
 
-const getRecentPrototypes = {
-  query: Joi.object().keys({
-    userId: Joi.string().required(),
-  }),
-};
+// const getRecentPrototypes = {
+//   query: Joi.object().keys({
+//     userId: Joi.string().required(),
+//   }),
+// };
 
 const deletePrototype = {
   params: Joi.object().keys({
@@ -139,4 +139,5 @@ module.exports = {
   createPrototype,
   getPrototype,
   updatePrototype,
+  deletePrototype,
 };
