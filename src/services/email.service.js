@@ -1,16 +1,6 @@
-const nodemailer = require('nodemailer');
+const { default: axios } = require('axios');
 const config = require('../config/config');
-const logger = require('../config/logger');
 const { resetPasswordTemplate } = require('../utils/emailTemplates');
-
-const transport = nodemailer.createTransport(config.email.smtp);
-/* istanbul ignore next */
-if (config.env !== 'test') {
-  transport
-    .verify()
-    .then(() => logger.info('Connected to email server'))
-    .catch(() => logger.warn('Unable to connect to email server. Make sure you have configured the SMTP options in .env'));
-}
 
 /**
  * Send an email
@@ -20,8 +10,28 @@ if (config.env !== 'test') {
  * @returns {Promise}
  */
 const sendEmail = async (to, subject, html) => {
-  const msg = { from: config.email.from, to, subject, html };
-  await transport.sendMail(msg);
+  await axios.post(
+    `${config.brevo.baseUrl}/smtp/email`,
+    {
+      sender: {
+        name: 'digital.auto',
+        email: 'playground@digital.auto',
+      },
+      to: [
+        {
+          name: 'user',
+          email: to,
+        },
+      ],
+      subject,
+      htmlContent: html,
+    },
+    {
+      headers: {
+        'api-key': config.brevo.apiKey,
+      },
+    }
+  );
 };
 
 /**
@@ -33,7 +43,7 @@ const sendEmail = async (to, subject, html) => {
 const sendResetPasswordEmail = async (to, token) => {
   const subject = 'Reset password';
   // replace this url with the link to the reset password page of your front-end app
-  const resetPasswordUrl = `http://localhost:8888/reset-password?token=${token}`;
+  const resetPasswordUrl = `${config.client.baseUrl}/reset-password?token=${token}`;
   const html = resetPasswordTemplate(to, resetPasswordUrl);
   await sendEmail(to, subject, html);
 };
@@ -55,7 +65,6 @@ If you did not create an account, then ignore this email.`;
 };
 
 module.exports = {
-  transport,
   sendEmail,
   sendResetPasswordEmail,
   sendVerificationEmail,

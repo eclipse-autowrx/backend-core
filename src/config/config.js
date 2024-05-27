@@ -25,6 +25,9 @@ const envVarsSchema = Joi.object()
     EMAIL_FROM: Joi.string().description('the from field in the emails sent by the app'),
     CACHE_BASE_URL: Joi.string().required().description('Cache base url'),
     LOG_BASE_URL: Joi.string().required().description('Log base url'),
+    CLIENT_BASE_URL: Joi.string().description('Client base url').default('http://localhost:3000'),
+    BREVO_API_KEY: Joi.string().required().description('Brevo API key'),
+    BREVO_BASE_URL: Joi.string().required().description('Brevo base url'),
   })
   .unknown();
 
@@ -70,4 +73,11 @@ module.exports = {
   },
   cacheBaseUrl: envVars.CACHE_BASE_URL,
   logBaseUrl: envVars.LOG_BASE_URL,
+  client: {
+    baseUrl: envVars.CLIENT_BASE_URL,
+  },
+  brevo: {
+    apiKey: envVars.BREVO_API_KEY,
+    baseUrl: envVars.BREVO_BASE_URL,
+  },
 };
