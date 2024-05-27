@@ -6,7 +6,6 @@ const register = {
     email: Joi.string().required().email(),
     password: Joi.string().required().custom(password),
     name: Joi.string().required(),
-    tenant_id: Joi.string().required(),
   }),
 };
 
@@ -49,7 +48,6 @@ const legacyRegister = {
     email: Joi.string().required().email(),
     pwd: Joi.string().required().custom(password),
     name: Joi.string().required(),
-    tenant_id: Joi.string().required(),
   }),
 };
 

@@ -3,7 +3,6 @@ const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const { toJSON, paginate } = require('./plugins');
 const { roles } = require('../config/roles');
-const { timestamp } = require('./utils.model');
 
 const rolesSchema = mongoose.Schema(
   {
@@ -75,22 +74,10 @@ const userSchema = mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    tenant_id: {
-      type: String,
-      required: true,
-      trim: true,
-    },
     image_file: {
       type: String,
       required: false,
       trim: true,
-    },
-    created_time: {
-      type: timestamp,
-      default: {
-        _seconds: Math.floor(Date.now() / 1000),
-        _nanoseconds: 0,
-      },
     },
     provider: {
       type: String,
@@ -100,7 +87,7 @@ const userSchema = mongoose.Schema(
     uid: {
       type: String,
     },
-    providerData: {
+    provider_data: {
       type: [userInfo],
     },
   },

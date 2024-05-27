@@ -21,20 +21,10 @@ const createUser = {
     roles: rolesSchema,
     emailVerified: Joi.boolean().default(false),
     isSystemAdmin: Joi.boolean().default(false),
-    tenant_id: Joi.string().required().trim(),
     provider: Joi.string().required().trim().default('email'),
     image_file: Joi.string().optional().trim(),
-    created_time: Joi.object()
-      .keys({
-        _seconds: Joi.number().required(),
-        _nanoseconds: Joi.number().required(),
-      })
-      .default({
-        _seconds: Math.floor(Date.now() / 1000),
-        _nanoseconds: 0,
-      }),
     uid: Joi.string().optional(),
-    providerData: Joi.array().items(userInfo),
+    provider_data: Joi.array().items(userInfo),
   }),
 };
 
@@ -75,7 +65,6 @@ const updateSelfUser = {
       name: Joi.string(),
       role: Joi.string(),
       isEmailVerified: Joi.boolean(),
-      tenant_id: Joi.string(),
       image_file: Joi.string(),
     })
     .min(1),
