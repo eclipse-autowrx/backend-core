@@ -135,6 +135,10 @@ router
   .patch(auth('manageUsers'), validate(userValidation.updateUser), userController.updateUser)
   .delete(auth('manageUsers'), validate(userValidation.deleteUser), userController.deleteUser);
 
+if (process.env.NODE_ENV === 'development') {
+  router.route('/self/promote').post(auth(), userController.selfPromote);
+}
+
 module.exports = router;
 
 /**

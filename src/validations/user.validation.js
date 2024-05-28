@@ -1,5 +1,6 @@
 const Joi = require('joi');
 const { password, objectId } = require('./custom.validation');
+const { roles } = require('../config/roles');
 
 const rolesSchema = Joi.object().keys({
   model_contributor: Joi.array().items(Joi.string()).default([]),
@@ -17,10 +18,11 @@ const createUser = {
     name: Joi.string().required().trim(),
     email: Joi.string().required().email().trim(),
     password: Joi.string().required().custom(password),
-    role: Joi.string().required().valid('user', 'admin'),
+    role: Joi.string()
+      .required()
+      .valid(...roles),
     roles: rolesSchema,
-    emailVerified: Joi.boolean().default(false),
-    isSystemAdmin: Joi.boolean().default(false),
+    email_verified: Joi.boolean().default(false),
     provider: Joi.string().required().trim().default('email'),
     image_file: Joi.string().optional().trim(),
     uid: Joi.string().optional(),

@@ -37,7 +37,7 @@ const registerNewUser = async (req, res) => {
 
     const userRecord = await auth.createUser({
       email: request.email,
-      emailVerified: false,
+      email_verified: false,
       password: request.pwd,
     });
 

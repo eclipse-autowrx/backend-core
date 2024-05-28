@@ -12,7 +12,7 @@ const ApiError = require('../utils/ApiError');
 const createModel = async (userId, modelBody) => {
   // const user = await userService.getUserById(userId);
 
-  // if (!user.isSystemAdmin) {
+  // if (user.role !== 'admin') {
   //   const count = await Model.countDocuments({ created_by: userId });
   //   if (count >= 3) {
   //     throw new ApiError(httpStatus.BAD_REQUEST, 'Users are limited to 3 models');
@@ -65,7 +65,7 @@ const updateModelById = async (id, updateBody, userId) => {
   if (!model) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Model not found');
   }
-  if (!user.isSystemAdmin && String(model.created_by) !== String(userId)) {
+  if (user.role !== 'admin' && String(model.created_by) !== String(userId)) {
     throw new ApiError(httpStatus.FORBIDDEN, "You don't have permission to update this model");
   }
   Object.assign(model, updateBody);
@@ -86,7 +86,7 @@ const deleteModelById = async (id, userId) => {
     throw new ApiError(httpStatus.NOT_FOUND, 'Model not found');
   }
   const user = await userService.getUserById(userId);
-  if (!user.isSystemAdmin && String(model.created_by) !== String(userId)) {
+  if (user.role !== 'admin' && String(model.created_by) !== String(userId)) {
     throw new ApiError(httpStatus.FORBIDDEN, "You don't have permission to delete this model");
   }
 

@@ -25,7 +25,7 @@ const createUser = async (req, res) => {
 
     const userRecord = await auth.createUser({
       email,
-      emailVerified: true,
+      email_verified: true,
       password,
     });
 

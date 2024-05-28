@@ -44,6 +44,13 @@ const deleteUser = catchAsync(async (req, res) => {
   res.status(httpStatus.NO_CONTENT).send();
 });
 
+const selfPromote = catchAsync(async (req, res) => {
+  const user = await userService.updateUserById(req.user.id, {
+    role: 'admin',
+  });
+  res.send(user);
+});
+
 module.exports = {
   createUser,
   getUsers,
@@ -52,4 +59,5 @@ module.exports = {
   deleteUser,
   getSelf,
   updateSelf,
+  selfPromote,
 };

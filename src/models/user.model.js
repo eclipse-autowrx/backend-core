@@ -66,11 +66,7 @@ const userSchema = mongoose.Schema(
         model_member: [],
       },
     },
-    emailVerified: {
-      type: Boolean,
-      default: false,
-    },
-    isSystemAdmin: {
+    email_verified: {
       type: Boolean,
       default: false,
     },
