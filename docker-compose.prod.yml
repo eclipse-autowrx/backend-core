@@ -1,0 +1,6 @@
+version: '3'
+
+services:
+  playground-be:
+    container_name: playground-be-prod
+    command: yarn start
