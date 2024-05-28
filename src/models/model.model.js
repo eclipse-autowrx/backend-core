@@ -54,11 +54,6 @@ const modelSchema = mongoose.Schema(
       required: true,
       enums: Object.values(visibilityTypes),
     },
-    tenant_id: {
-      type: String,
-      required: true,
-      trim: true,
-    },
     vehicle_category: {
       type: String,
       required: true,

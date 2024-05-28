@@ -17,7 +17,6 @@ const createModel = {
     visibility: Joi.string()
       .valid(...Object.values(visibilityTypes))
       .required(),
-    tenant_id: Joi.string().required().max(255),
     vehicle_category: Joi.string().required().max(255),
     property: Joi.string().custom(jsonString),
     skeleton: Joi.string().custom(jsonString),
