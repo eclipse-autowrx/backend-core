@@ -27,10 +27,6 @@ const modelSchema = mongoose.Schema(
     custom_apis: {
       type: Object,
     },
-    cvi: {
-      type: String,
-      required: true,
-    },
     main_api: {
       type: String,
       required: true,
@@ -53,11 +49,6 @@ const modelSchema = mongoose.Schema(
       type: String,
       required: true,
       enums: Object.values(visibilityTypes),
-    },
-    tenant_id: {
-      type: String,
-      required: true,
-      trim: true,
     },
     vehicle_category: {
       type: String,
