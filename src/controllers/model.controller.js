@@ -1,14 +1,21 @@
 const httpStatus = require('http-status');
-const { modelService } = require('../services');
+const { modelService, apiService } = require('../services');
 const catchAsync = require('../utils/catchAsync');
 const pick = require('../utils/pick');
 const ApiError = require('../utils/ApiError');
 
 const createModel = catchAsync(async (req, res) => {
+  const { cvi, custom_apis, ...reqBody } = req.body;
   const model = await modelService.createModel(req.user.id, {
-    ...req.body,
-    ...(req.body.custom_apis && { custom_apis: JSON.parse(req.body.custom_apis) }),
+    ...reqBody,
+    ...(reqBody.custom_apis && { custom_apis: JSON.parse(reqBody.custom_apis) }),
   });
+  await apiService.createApi({
+    model: model._id,
+    cvi: JSON.parse(cvi),
+    created_by: req.user.id,
+  });
+
   res.status(httpStatus.CREATED).send(model);
 });
 

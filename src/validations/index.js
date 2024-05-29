@@ -4,3 +4,4 @@ module.exports.modelValidation = require('./model.validation');
 module.exports.prototypeLegacyValidation = require('./prototype.legacy.validation');
 module.exports.prototypeValidation = require('./prototype.validation');
 module.exports.tagValidation = require('./tag.validation');
+module.exports.apiValidation = require('./api.validation');

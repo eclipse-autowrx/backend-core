@@ -3,6 +3,7 @@ const authRoute = require('./auth.route');
 const userRoute = require('./user.route');
 const modelRoute = require('./model.route');
 const prototypeRoute = require('./prototype.route');
+const apiRoute = require('./api.route');
 
 const router = express.Router();
 
@@ -22,6 +23,10 @@ const defaultRoutes = [
   {
     path: '/prototypes',
     route: prototypeRoute,
+  },
+  {
+    path: '/apis',
+    route: apiRoute,
   },
 ];
 

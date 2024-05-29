@@ -16,8 +16,8 @@ const createModel = {
     name: Joi.string().required().max(255),
     visibility: Joi.string()
       .valid(...Object.values(visibilityTypes))
-      .required(),
-    vehicle_category: Joi.string().required().max(255),
+      .default('private'),
+    vehicle_category: Joi.string().default('Passenger cars').max(255),
     property: Joi.string().custom(jsonString),
     skeleton: Joi.string().custom(jsonString),
     tags: Joi.array().items(
@@ -47,25 +47,27 @@ const listModels = {
 };
 
 const updateModel = {
-  body: Joi.object().keys({
-    custom_apis: Joi.string().custom(jsonString),
-    cvi: Joi.string().custom(jsonString),
-    main_api: Joi.string().max(255),
-    model_home_image_file: Joi.string().allow(''),
-    model_files: Joi.object(),
-    name: Joi.string().max(255),
-    visibility: Joi.string().valid(...Object.values(visibilityTypes)),
-    vehicle_category: Joi.string().max(255),
-    property: Joi.string().custom(jsonString),
-    skeleton: Joi.string().custom(jsonString),
-    tags: Joi.array().items(
-      Joi.object().keys({
-        tag: Joi.string().required(),
-        tagCategoryId: Joi.string().required().custom(slug),
-        tagCategoryName: Joi.string().required(),
-      })
-    ),
-  }),
+  body: Joi.object()
+    .keys({
+      custom_apis: Joi.string().custom(jsonString),
+      cvi: Joi.string().custom(jsonString),
+      main_api: Joi.string().max(255),
+      model_home_image_file: Joi.string().allow(''),
+      model_files: Joi.object(),
+      name: Joi.string().max(255),
+      visibility: Joi.string().valid(...Object.values(visibilityTypes)),
+      vehicle_category: Joi.string().max(255),
+      property: Joi.string().custom(jsonString),
+      skeleton: Joi.string().custom(jsonString),
+      tags: Joi.array().items(
+        Joi.object().keys({
+          tag: Joi.string().required(),
+          tagCategoryId: Joi.string().required().custom(slug),
+          tagCategoryName: Joi.string().required(),
+        })
+      ),
+    })
+    .min(1),
   params: Joi.object().keys({
     id: Joi.string().custom(objectId),
   }),

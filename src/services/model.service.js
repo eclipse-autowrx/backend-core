@@ -59,12 +59,10 @@ const getModelById = async (id) => {
  */
 const updateModelById = async (id, updateBody, userId) => {
   const model = await getModelById(id);
-
-  const user = await userService.getUserById(userId);
-
   if (!model) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Model not found');
   }
+  const user = await userService.getUserById(userId);
   if (user.role !== 'admin' && String(model.created_by) !== String(userId)) {
     throw new ApiError(httpStatus.FORBIDDEN, "You don't have permission to update this model");
   }

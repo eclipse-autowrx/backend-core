@@ -27,10 +27,6 @@ const modelSchema = mongoose.Schema(
     custom_apis: {
       type: Object,
     },
-    cvi: {
-      type: String,
-      required: true,
-    },
     main_api: {
       type: String,
       required: true,
