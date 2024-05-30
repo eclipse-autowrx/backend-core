@@ -17,4 +17,8 @@ router
   .patch(auth(), validate(modelValidation.updateModel), modelController.updateModel)
   .delete(auth(), validate(modelValidation.deleteModel), modelController.deleteModel);
 
+router
+  .route('/:id/permissions')
+  .post(auth(), validate(modelValidation.addAuthorizedUser), modelController.addAuthorizedUser);
+
 module.exports = router;
