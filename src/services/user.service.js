@@ -31,7 +31,7 @@ const queryUsers = async (filter, options) => {
 /**
  * Get user by id
  * @param {ObjectId} id
- * @returns {Promise<User>}
+ * @returns {Promise<import('../models/user.model').User>}
  */
 const getUserById = async (id) => {
   return User.findById(id);
