@@ -5,10 +5,10 @@ services:
     build: .
     image: playground-be
     environment:
-      - PORT=8080
+      - PORT=9800
       - MONGODB_URL=mongodb://playground-db:27017/playground-be
     ports:
-      - '8080:8080'
+      - '9800:9800'
     depends_on:
       - playground-db
     volumes:

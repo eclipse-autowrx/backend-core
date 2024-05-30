@@ -22,10 +22,15 @@ const rolesSchema = mongoose.Schema(
   { _id: false }
 );
 
-const userInfo = mongoose.Schema({
-  email: String,
-  providerId: String,
-});
+const userInfo = mongoose.Schema(
+  {
+    email: String,
+    providerId: String,
+  },
+  {
+    _id: false,
+  }
+);
 
 const userSchema = mongoose.Schema(
   {
@@ -126,7 +131,32 @@ userSchema.pre('save', async function (next) {
 });
 
 /**
- * @typedef User
+ * @typedef {Object} UserRoles
+ * @property {string[]} model_contributor - List of model contributors
+ * @property {string[]} tenant_admin - List of tenant admins
+ * @property {string[]} model_member - List of model members
+ */
+
+/**
+ * @typedef {Object} UserInfo
+ * @property {string} email - The email of the user
+ * @property {string} providerId - The provider ID of the user
+ */
+
+/**
+ * @typedef {Object} User
+ * @property {string} name
+ * @property {string} email
+ * @property {string} password
+ * @property {string} role
+ * @property {UserRoles} roles
+ * @property {boolean} email_verified
+ * @property {string} [image_file]
+ * @property {string} provider
+ * @property {string} uid
+ * @property {UserInfo[]} provider_data
+ * @property {Date} createdAt
+ * @property {Date} updatedAt
  */
 const User = mongoose.model('User', userSchema);
 
