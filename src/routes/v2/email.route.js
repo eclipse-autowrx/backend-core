@@ -12,7 +12,14 @@ if (config.env === 'development') {
     validate(emailValidation.sendEmail),
     catchAsync(async (req, res) => {
       const { to, subject, content } = req.body;
-      await emailService.sendEmail(to, subject, content);
+      let html;
+      try {
+        html = JSON.parse(content);
+      } catch (error) {
+        html = content;
+      }
+      html = html.replace(/&lt;/g, '<');
+      await emailService.sendEmail(to, subject, html);
       res.status(200).send();
     })
   );
