@@ -10,3 +10,4 @@ module.exports.modelService = require('./model.service');
 module.exports.prototypeService = require('./prototype.service');
 module.exports.apiService = require('./api.service');
 module.exports.permissionService = require('./permission.service');
+module.exports.discussionService = require('./discussion.service');
