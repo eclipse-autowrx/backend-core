@@ -40,7 +40,19 @@ const listDiscussions = catchAsync(async (req, res) => {
   res.send(discussions);
 });
 
+const updateDiscussion = catchAsync(async (req, res) => {
+  const discussion = await discussionService.updateDiscussionById(req.params.id, req.body, req.user.id);
+  res.send(discussion);
+});
+
+const deleteDiscussion = catchAsync(async (req, res) => {
+  await discussionService.deleteDiscussionById(req.params.id, req.user.id);
+  res.status(httpStatus.NO_CONTENT).send();
+});
+
 module.exports = {
   createDiscussion,
   listDiscussions,
+  updateDiscussion,
+  deleteDiscussion,
 };

@@ -1,4 +1,6 @@
+const httpStatus = require('http-status');
 const Discussion = require('../models/discussion.model');
+const ApiError = require('../utils/ApiError');
 
 /**
  *
@@ -34,8 +36,49 @@ const listDiscussions = async (filter) => {
   return discussions;
 };
 
+/**
+ *
+ * @param {Object} discussionId
+ * @param {Object} updateBody
+ * @param {string} userId
+ * @returns {Promise<Discussion.Discussion>}
+ */
+const updateDiscussionById = async (discussionId, updateBody, userId) => {
+  const discussion = await Discussion.findById(discussionId);
+  if (!discussion) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Discussion not found');
+  }
+
+  if (String(discussion.created_by) !== userId) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
+  }
+
+  Object.assign(discussion, updateBody);
+  await discussion.save();
+  return discussion;
+};
+
+/**
+ *
+ * @param {*} discussionId
+ * @param {*} userId
+ * @returns {Promise<void>}
+ */
+const deleteDiscussionById = async (discussionId, userId) => {
+  const discussion = await Discussion.findById(discussionId);
+  if (!discussion) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Discussion not found');
+  }
+  if (String(discussion.created_by) !== userId) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
+  }
+  return Promise.all([discussion.remove(), Discussion.deleteMany({ parent: discussionId })]);
+};
+
 module.exports = {
   createDiscussion,
   queryDiscussions,
   listDiscussions,
+  updateDiscussionById,
+  deleteDiscussionById,
 };

@@ -24,7 +24,26 @@ const listDiscussions = {
   }),
 };
 
+const updateDiscussion = {
+  params: Joi.object().keys({
+    id: Joi.required().custom(objectId),
+  }),
+  body: Joi.object()
+    .keys({
+      content: Joi.string().max(2000),
+    })
+    .min(1),
+};
+
+const deleteDiscussion = {
+  params: Joi.object().keys({
+    id: Joi.required().custom(objectId),
+  }),
+};
+
 module.exports = {
   createDiscussion,
   listDiscussions,
+  updateDiscussion,
+  deleteDiscussion,
 };

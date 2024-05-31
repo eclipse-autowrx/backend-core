@@ -11,4 +11,9 @@ router
   .post(auth(), validate(discussionValidation.createDiscussion), discussionController.createDiscussion)
   .get(validate(discussionValidation.listDiscussions), discussionController.listDiscussions);
 
+router
+  .route('/:id')
+  .patch(auth(), validate(discussionValidation.updateDiscussion), discussionController.updateDiscussion)
+  .delete(auth(), validate(discussionValidation.deleteDiscussion), discussionController.deleteDiscussion);
+
 module.exports = router;
