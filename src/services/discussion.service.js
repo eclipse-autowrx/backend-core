@@ -24,7 +24,18 @@ const queryDiscussions = async (filter, options) => {
   return discussions;
 };
 
+/**
+ *
+ * @param {Object} filter
+ * @returns {Promise<Discussion.Discussion[]>}
+ */
+const listDiscussions = async (filter) => {
+  const discussions = await Discussion.find(filter);
+  return discussions;
+};
+
 module.exports = {
   createDiscussion,
   queryDiscussions,
+  listDiscussions,
 };
