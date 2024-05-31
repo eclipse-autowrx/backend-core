@@ -13,7 +13,7 @@ const createDiscussion = catchAsync(async (req, res) => {
 });
 
 const listDiscussions = catchAsync(async (req, res) => {
-  const filter = pick(req.query, ['ref', 'ref_type', 'id']);
+  const filter = pick(req.query, ['ref', 'ref_type', 'id', 'parent']);
   const options = pick(req.query, ['sortBy', 'limit', 'page', 'fields', 'populate']);
   const discussions = await discussionService.queryDiscussions(filter, options);
   res.send(discussions);

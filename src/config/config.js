@@ -59,6 +59,7 @@ module.exports = {
       secure: true,
       httpOnly: true,
       sameSite: 'None',
+      domain: 'localhost',
     },
   },
   email: {

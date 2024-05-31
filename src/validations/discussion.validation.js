@@ -15,6 +15,7 @@ const listDiscussions = {
     ref: Joi.string().custom(objectId),
     ref_type: Joi.string(),
     id: Joi.string().custom(objectId),
+    parent: Joi.string().custom(objectId),
     sortBy: Joi.string(),
     limit: Joi.number().integer(),
     page: Joi.number().integer(),
