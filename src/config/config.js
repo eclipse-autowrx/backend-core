@@ -58,7 +58,7 @@ module.exports = {
       // TODO: change this to true when deploy
       secure: true,
       httpOnly: true,
-      sameSite: 'None'
+      sameSite: 'None',
     },
   },
   email: {
@@ -80,5 +80,10 @@ module.exports = {
   brevo: {
     apiKey: envVars.BREVO_API_KEY,
     baseUrl: envVars.BREVO_BASE_URL,
+  },
+  constraints: {
+    model: {
+      maximumAuthorizedUsers: 1000,
+    },
   },
 };

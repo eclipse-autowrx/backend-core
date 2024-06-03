@@ -1,5 +1,5 @@
 const httpStatus = require('http-status');
-const { modelService, apiService } = require('../services');
+const { modelService, apiService, permissionService } = require('../services');
 const catchAsync = require('../utils/catchAsync');
 const pick = require('../utils/pick');
 const ApiError = require('../utils/ApiError');
@@ -31,7 +31,19 @@ const getModel = catchAsync(async (req, res) => {
   if (!model) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Model not found');
   }
-  res.send(model);
+  const contributors = await permissionService.listAuthorizedUser({
+    role: 'model_contributor',
+    id: req.params.id,
+  });
+  const members = await permissionService.listAuthorizedUser({
+    role: 'model_member',
+    id: req.params.id,
+  });
+  res.send({
+    ...model.toJSON(),
+    contributors,
+    members,
+  });
 });
 
 const updateModel = catchAsync(async (req, res) => {
@@ -51,10 +63,16 @@ const deleteModel = catchAsync(async (req, res) => {
   res.status(httpStatus.NO_CONTENT).send();
 });
 
+const addAuthorizedUser = catchAsync(async (req, res) => {
+  await modelService.addAuthorizedUser(req.params.id, req.body);
+  res.status(httpStatus.CREATED).send();
+});
+
 module.exports = {
   createModel,
   listModels,
   getModel,
   updateModel,
   deleteModel,
+  addAuthorizedUser,
 };

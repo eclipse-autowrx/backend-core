@@ -7,3 +7,4 @@ module.exports.tagController = require('./tag.controller');
 module.exports.modelController = require('./model.controller');
 module.exports.prototypeController = require('./prototype.controller');
 module.exports.apiController = require('./api.controller');
+module.exports.discussionController = require('./discussion.controller');

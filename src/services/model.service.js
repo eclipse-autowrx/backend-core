@@ -91,10 +91,46 @@ const deleteModelById = async (id, userId) => {
   await model.remove();
 };
 
+/**
+ *
+ * @param {string} id
+ * @param {{
+ *  role: 'model_contributor' | 'model_member',
+ *  userId: string,
+ * }} roleBody
+ * @returns {Promise<void>}
+ */
+const addAuthorizedUser = async (id, roleBody) => {
+  await userService.updateUserById(roleBody.userId, {
+    $addToSet: {
+      [`roles.${roleBody.role}`]: id,
+    },
+  });
+};
+
+/**
+ *
+ * @param {string} id
+ * @param {{
+ *  role: 'model_contributor' | 'model_member',
+ *  userId: string,
+ * }} roleBody
+ * @returns {Promise<void>}
+ */
+const deleteAuthorizedUser = async (id, roleBody) => {
+  await userService.updateUserById(roleBody.userId, {
+    $pull: {
+      [`roles.${roleBody.role}`]: id,
+    },
+  });
+};
+
 module.exports = {
   createModel,
   queryModels,
   getModelById,
   updateModelById,
   deleteModelById,
+  addAuthorizedUser,
+  deleteAuthorizedUser,
 };

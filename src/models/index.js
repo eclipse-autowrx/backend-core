@@ -3,3 +3,4 @@ module.exports.User = require('./user.model');
 module.exports.Model = require('./model.model');
 module.exports.Prototype = require('./prototype.model');
 module.exports.Api = require('./api.model');
+module.exports.Discussion = require('./discussion.model');

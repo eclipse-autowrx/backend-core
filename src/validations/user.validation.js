@@ -19,11 +19,11 @@ const createUser = {
     email: Joi.string().required().email().trim(),
     password: Joi.string().required().custom(password),
     role: Joi.string()
-      .required()
-      .valid(...roles),
+      .valid(...roles)
+      .default('user'),
     roles: rolesSchema,
     email_verified: Joi.boolean().default(false),
-    provider: Joi.string().required().trim().default('email'),
+    provider: Joi.string().trim().default('email'),
     image_file: Joi.string().optional().trim(),
     uid: Joi.string().optional(),
     provider_data: Joi.array().items(userInfo),
@@ -55,6 +55,7 @@ const updateUser = {
       email: Joi.string().email(),
       password: Joi.string().custom(password),
       name: Joi.string(),
+      role: Joi.string().valid(...roles),
     })
     .min(1),
 };
@@ -65,8 +66,7 @@ const updateSelfUser = {
       email: Joi.string().email(),
       password: Joi.string().custom(password),
       name: Joi.string(),
-      role: Joi.string(),
-      isEmailVerified: Joi.boolean(),
+      is_email_verified: Joi.boolean(),
       image_file: Joi.string(),
     })
     .min(1),
