@@ -32,7 +32,7 @@ const queryDiscussions = async (filter, options) => {
  * @returns {Promise<Discussion.Discussion[]>}
  */
 const listDiscussions = async (filter) => {
-  const discussions = await Discussion.find(filter);
+  const discussions = await Discussion.find(filter).populate('created_by');
   return discussions;
 };
 
