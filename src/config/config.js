@@ -37,7 +37,7 @@ if (error) {
   throw new Error(`Config validation error: ${error.message}`);
 }
 
-module.exports = {
+const config = {
   env: envVars.NODE_ENV,
   port: envVars.PORT,
   mongoose: {
@@ -50,7 +50,8 @@ module.exports = {
   },
   jwt: {
     secret: envVars.JWT_SECRET,
-    accessExpirationMinutes: envVars.JWT_ACCESS_EXPIRATION_MINUTES,
+    accessExpirationValue: envVars.JWT_ACCESS_EXPIRATION_MINUTES,
+    accessExpirationUnit: 'minutes',
     refreshExpirationDays: envVars.JWT_REFRESH_EXPIRATION_DAYS,
     resetPasswordExpirationMinutes: envVars.JWT_RESET_PASSWORD_EXPIRATION_MINUTES,
     verifyEmailExpirationMinutes: envVars.JWT_VERIFY_EMAIL_EXPIRATION_MINUTES,
@@ -87,3 +88,9 @@ module.exports = {
     },
   },
 };
+
+if (config.env === 'development') {
+  config.jwt.accessExpirationUnit = 'days';
+}
+
+module.exports = config;

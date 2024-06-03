@@ -493,7 +493,7 @@ describe('Auth middleware', () => {
 
   test('should call next with unauthorized error if the token is not an access token', async () => {
     await insertUsers([userOne]);
-    const expires = moment().add(config.jwt.accessExpirationMinutes, 'minutes');
+    const expires = moment().add(config.jwt.accessExpirationValue, 'minutes');
     const refreshToken = tokenService.generateToken(userOne._id, expires, tokenTypes.REFRESH);
     const req = httpMocks.createRequest({ headers: { Authorization: `Bearer ${refreshToken}` } });
     const next = jest.fn();
@@ -508,7 +508,7 @@ describe('Auth middleware', () => {
 
   test('should call next with unauthorized error if access token is generated with an invalid secret', async () => {
     await insertUsers([userOne]);
-    const expires = moment().add(config.jwt.accessExpirationMinutes, 'minutes');
+    const expires = moment().add(config.jwt.accessExpirationValue, 'minutes');
     const accessToken = tokenService.generateToken(userOne._id, expires, tokenTypes.ACCESS, 'invalidSecret');
     const req = httpMocks.createRequest({ headers: { Authorization: `Bearer ${accessToken}` } });
     const next = jest.fn();

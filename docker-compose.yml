@@ -4,11 +4,8 @@ services:
   playground-be:
     build: .
     image: playground-be
-    environment:
-      - PORT=9800
-      - MONGODB_URL=mongodb://playground-db:27017/playground-be
     ports:
-      - '9800:9800'
+      - '${PORT}:${PORT}'
     depends_on:
       - playground-db
     volumes:
@@ -19,7 +16,7 @@ services:
   playground-db:
     image: mongo:4.2.1-bionic
     ports:
-      - '27018:27017'
+      - '${MONGO_EXPOSE_PORT}:27017'
     volumes:
       - dbdata:/data/db
     networks:
