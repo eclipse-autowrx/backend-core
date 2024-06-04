@@ -14,6 +14,12 @@ const createFeedback = {
       need_address: Joi.number().integer().min(1).max(5),
       relevance: Joi.number().integer().min(1).max(5),
     }),
+    interviewee: Joi.object()
+      .required()
+      .keys({
+        name: Joi.string().required().max(200),
+        organization: Joi.string().max(200),
+      }),
   }),
 };
 
@@ -49,6 +55,10 @@ const updateFeedback = {
         easy_to_use: Joi.number().integer().min(1).max(5),
         need_address: Joi.number().integer().min(1).max(5),
         relevance: Joi.number().integer().min(1).max(5),
+      }),
+      interviewee: Joi.object().keys({
+        name: Joi.string().required().max(200),
+        organization: Joi.string().max(200),
       }),
     })
     .min(1),

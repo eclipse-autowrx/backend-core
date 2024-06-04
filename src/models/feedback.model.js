@@ -24,6 +24,22 @@ const scoreSchema = mongoose.Schema(
   }
 );
 
+const interviewSchema = mongoose.Schema(
+  {
+    name: {
+      type: String,
+      maxLength: 200,
+    },
+    organization: {
+      type: String,
+      maxLength: 200,
+    },
+  },
+  {
+    _id: false,
+  }
+);
+
 const feedbackSchema = mongoose.Schema(
   {
     avg_score: {
@@ -63,6 +79,7 @@ const feedbackSchema = mongoose.Schema(
     score: {
       type: scoreSchema,
     },
+    interviewee: interviewSchema,
   },
   {
     timestamps: true,
@@ -81,6 +98,12 @@ feedbackSchema.plugin(paginate);
  */
 
 /**
+ * @typedef {Object} Interviewee
+ * @property {string} [name]
+ * @property {string} [organization]
+ */
+
+/**
  * @typedef {Object} Feedback
  * @property {number} [avg_score]
  * @property {string} [description]
@@ -91,6 +114,7 @@ feedbackSchema.plugin(paginate);
  * @property {string} [question]
  * @property {recommendation} [recommendation]
  * @property {Score} [score]
+ * @property {Interviewee} [interviewee]
  */
 const Feedback = mongoose.model('Feedback', feedbackSchema);
 
