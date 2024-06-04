@@ -19,15 +19,15 @@ const createPrototype = {
       status: Joi.string().allow('').max(255),
     }),
     image_file: Joi.string().allow(''),
-    // journey_image_file: Joi.string().allow(''),
-    // analysis_image_file: Joi.string().allow(''),
+    journey_image_file: Joi.string().allow(''),
+    analysis_image_file: Joi.string().allow(''),
     model_id: Joi.string().required().custom(objectId),
     name: Joi.string().required().max(255),
-    // portfolio: Joi.object().keys({
-    //   effort_estimation: Joi.number(),
-    //   needs_addressed: Joi.number(),
-    //   relevance: Joi.number(),
-    // }),
+    portfolio: Joi.object().keys({
+      effort_estimation: Joi.number(),
+      needs_addressed: Joi.number(),
+      relevance: Joi.number(),
+    }),
     skeleton: Joi.string().custom(jsonString),
     tags: Joi.array().items(
       Joi.object().keys({
@@ -38,8 +38,8 @@ const createPrototype = {
     ),
     widget_config: Joi.string().custom(jsonString),
     autorun: Joi.boolean(),
-    // related_ea_components: Joi.string().allow(''),
-    // partner_logo: Joi.string().allow(),
+    related_ea_components: Joi.string().allow(''),
+    partner_logo: Joi.string().allow(),
     // rated_by: Joi.object().pattern(
     //   /^[0-9a-fA-F]{24}$/,
     //   Joi.object()
