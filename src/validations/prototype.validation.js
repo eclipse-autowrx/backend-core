@@ -39,7 +39,7 @@ const createPrototype = {
     widget_config: Joi.string().custom(jsonString),
     autorun: Joi.boolean(),
     related_ea_components: Joi.string().allow(''),
-    partner_logo: Joi.string().allow(),
+    partner_logo: Joi.string().allow(''),
     // rated_by: Joi.object().pattern(
     //   /^[0-9a-fA-F]{24}$/,
     //   Joi.object()
@@ -107,7 +107,7 @@ const updatePrototype = {
     widget_config: Joi.string().custom(jsonString),
     autorun: Joi.boolean(),
     related_ea_components: Joi.string().allow(''),
-    partner_logo: Joi.string().allow(),
+    partner_logo: Joi.string().allow(''),
     // rated_by: Joi.object().pattern(
     //   /^[0-9a-fA-F]{24}$/,
     //   Joi.object()
