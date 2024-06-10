@@ -22,22 +22,28 @@ const createModel = catchAsync(async (req, res) => {
 const listModels = catchAsync(async (req, res) => {
   const filter = pick(req.query, ['name', 'visibility', 'tenant_id', 'vehicle_category', 'main_api', 'id', 'created_by']);
   const options = pick(req.query, ['sortBy', 'limit', 'page', 'fields']);
+  filter.$or = [{ visibility: 'public' }];
+  if (req.user) {
+    filter.$or.push({ created_by: req.user.id });
+  }
   const models = await modelService.queryModels(filter, options);
   res.send(models);
 });
 
 const getModel = catchAsync(async (req, res) => {
-  const model = await modelService.getModelById(req.params.id);
+  const model = await modelService.getModelById(req.params.id, req.user?.id);
   if (!model) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Model not found');
   }
   const contributors = await permissionService.listAuthorizedUser({
     role: 'model_contributor',
-    id: req.params.id,
+    ref: req.params.id,
+    refType: 'model',
   });
   const members = await permissionService.listAuthorizedUser({
     role: 'model_member',
-    id: req.params.id,
+    ref: req.params.id,
+    refType: 'model',
   });
   res.send({
     ...model.toJSON(),
@@ -64,7 +70,7 @@ const deleteModel = catchAsync(async (req, res) => {
 });
 
 const addAuthorizedUser = catchAsync(async (req, res) => {
-  await modelService.addAuthorizedUser(req.params.id, req.body);
+  await modelService.addAuthorizedUser(req.params.id, req.body, req.user.id);
   res.status(httpStatus.CREATED).send();
 });
 

@@ -13,7 +13,13 @@ router
 
 router
   .route('/:id')
-  .get(validate(prototypeValidation.getPrototype), prototypeController.getPrototype)
+  .get(
+    auth({
+      optional: true,
+    }),
+    validate(prototypeValidation.getPrototype),
+    prototypeController.getPrototype
+  )
   .patch(auth(), validate(prototypeValidation.updatePrototype), prototypeController.updatePrototype)
   .delete(auth(), validate(prototypeValidation.deletePrototype), prototypeController.deletePrototype);
 

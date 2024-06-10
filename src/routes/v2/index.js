@@ -7,6 +7,7 @@ const apiRoute = require('./api.route');
 const emailRoute = require('./email.route');
 const discussionRoute = require('./discussion.route');
 const feedbackRoute = require('./feedback.route');
+const permissionRoute = require('./permission.route');
 
 const router = express.Router();
 
@@ -42,6 +43,10 @@ const defaultRoutes = [
   {
     path: '/feedbacks',
     route: feedbackRoute,
+  },
+  {
+    path: '/permissions',
+    route: permissionRoute,
   },
 ];
 

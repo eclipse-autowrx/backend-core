@@ -8,3 +8,4 @@ module.exports.apiValidation = require('./api.validation');
 module.exports.emailValidation = require('./email.validation');
 module.exports.discussionValidation = require('./discussion.validation');
 module.exports.feedbackValidation = require('./feedback.validation');
+module.exports.permissionValidation = require('./permission.validation');

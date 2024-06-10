@@ -21,13 +21,19 @@ const verifyCallback = (req, resolve, reject, requiredRights) => async (err, use
 };
 
 const auth =
-  (...requiredRights) =>
+  ({ optional } = { optional: false }, ...requiredRights) =>
   async (req, res, next) => {
     return new Promise((resolve, reject) => {
       passport.authenticate('jwt', { session: false }, verifyCallback(req, resolve, reject, requiredRights))(req, res, next);
     })
       .then(() => next())
-      .catch((err) => next(err));
+      .catch((err) => {
+        if (!optional) {
+          next(err);
+        } else {
+          next();
+        }
+      });
   };
 
 module.exports = auth;

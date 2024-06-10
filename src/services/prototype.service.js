@@ -1,6 +1,8 @@
 const httpStatus = require('http-status');
 const { Prototype } = require('../models');
 const ApiError = require('../utils/ApiError');
+const permissionService = require('./permission.service');
+const { PERMISSIONS, RESOURCE_TYPE } = require('../config/roles');
 
 /**
  *
@@ -43,8 +45,26 @@ const queryPrototypes = async (filter, options) => {
  * @param {string} id
  * @returns {Promise<import('../models/prototype.model').Prototype>}
  */
-const getPrototypeById = async (id) => {
-  const prototype = await Prototype.findById(id);
+const getPrototypeById = async (id, userId) => {
+  const prototype = await Prototype.findById(id).populate('model_id');
+
+  if (!prototype) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Prototype not found');
+  }
+
+  if (prototype.model_id.visibility === 'private') {
+    if (
+      !(await permissionService.hasPermission(
+        userId,
+        PERMISSIONS.VIEW_PROTOTYPE,
+        RESOURCE_TYPE.PROTOTYPE,
+        id,
+        prototype.model_id._id
+      ))
+    ) {
+      throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
+    }
+  }
   return prototype;
 };
 
@@ -61,7 +81,15 @@ const updatePrototypeById = async (id, updateBody, userId) => {
     throw new ApiError(httpStatus.NOT_FOUND, 'Prototype not found');
   }
 
-  if (String(prototype.created_by) !== String(userId)) {
+  if (
+    !(await permissionService.hasPermission(
+      userId,
+      PERMISSIONS.UPDATE_PROTOTYPE,
+      RESOURCE_TYPE.PROTOTYPE,
+      id,
+      prototype.model_id
+    ))
+  ) {
     throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
   }
 
@@ -90,7 +118,15 @@ const deletePrototypeById = async (id, userId) => {
     throw new ApiError(httpStatus.NOT_FOUND, 'Prototype not found');
   }
 
-  if (String(prototype.created_by) !== String(userId)) {
+  if (
+    !(await permissionService.hasPermission(
+      userId,
+      PERMISSIONS.UPDATE_PROTOTYPE,
+      RESOURCE_TYPE.PROTOTYPE,
+      id,
+      prototype.model_id
+    ))
+  ) {
     throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
   }
 
