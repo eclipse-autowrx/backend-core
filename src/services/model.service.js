@@ -3,7 +3,7 @@ const { userService } = require('.');
 const permissionService = require('./permission.service');
 const { Model, Role } = require('../models');
 const ApiError = require('../utils/ApiError');
-const { PERMISSIONS, RESOURCE_TYPE } = require('../config/roles');
+const { PERMISSIONS } = require('../config/roles');
 
 /**
  *
@@ -17,7 +17,7 @@ const createModel = async (userId, modelBody) => {
   if (user.role !== 'admin') {
     const count = await Model.countDocuments({ created_by: userId });
     if (count >= 3) {
-      if (!(await permissionService.hasPermission(userId, 'createUnlimitedModel'))) {
+      if (!(await permissionService.hasPermission(userId, PERMISSIONS.CREATE_UNLIMITED_MODEL))) {
         throw new ApiError(httpStatus.FORBIDDEN, 'Users are limited to 3 models');
       }
     }
@@ -60,7 +60,7 @@ const getModelById = async (id, userId) => {
     if (!userId) {
       throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
     }
-    if (!(await permissionService.hasPermission(userId, PERMISSIONS.VIEW_MODEL, RESOURCE_TYPE.MODEL, id))) {
+    if (!(await permissionService.hasPermission(userId, PERMISSIONS.VIEW_MODEL, id))) {
       throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
     }
   }
@@ -127,7 +127,7 @@ const addAuthorizedUser = async (id, roleBody, userId) => {
   }
   // eslint-disable-next-line no-param-reassign
   roleBody.role = role._id;
-  if (!(await permissionService.hasPermission(userId, PERMISSIONS.UPDATE_MODEL, RESOURCE_TYPE.MODEL, id))) {
+  if (!(await permissionService.hasPermission(userId, PERMISSIONS.UPDATE_MODEL, id))) {
     throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
   }
   await permissionService.assignRoleToUser(roleBody.userId, roleBody.role, id, 'model');
@@ -144,7 +144,7 @@ const addAuthorizedUser = async (id, roleBody, userId) => {
  * @returns {Promise<void>}
  */
 const deleteAuthorizedUser = async (id, roleBody, userId) => {
-  if (!(await permissionService.hasPermission(userId, PERMISSIONS.UPDATE_MODEL, RESOURCE_TYPE.MODEL, id))) {
+  if (!(await permissionService.hasPermission(userId, PERMISSIONS.UPDATE_MODEL, id))) {
     throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
   }
   await permissionService.removeRoleFromUser(roleBody.userId, roleBody.role, id, 'model');

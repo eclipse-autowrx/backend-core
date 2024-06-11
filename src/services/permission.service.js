@@ -1,5 +1,4 @@
 const httpStatus = require('http-status');
-const { RESOURCE_TYPE } = require('../config/roles');
 const { Permission, UserRole, Model, Prototype, Role } = require('../models');
 const ApiError = require('../utils/ApiError');
 
@@ -54,44 +53,10 @@ const getRoleUsers = async (role) => {
   return UserRole.find({ role }).populate('user');
 };
 
-/**
- *
- * @param {string} userId
- * @param {'model'|'prototype'} permission
- * @param {string} [type]
- * @param {string} [id]
- * @param {string} [modelId]
- * @returns
- */
-const hasPermission = async (userId, permission, type, id, modelId) => {
-  if (type === 'model') {
-    const model = await Model.findById(id);
-    if (!model) {
-      throw new ApiError(httpStatus.NOT_FOUND, 'Model not found');
-    }
-    if (String(model.created_by) === String(userId)) {
-      return true;
-    }
-  }
-
-  if (type === 'prototype') {
-    const prototype = await Prototype.findById(id);
-    if (!prototype) {
-      throw new ApiError(httpStatus.NOT_FOUND, 'Prototype not found');
-    }
-    if (String(prototype.created_by) === String(userId)) {
-      return true;
-    }
-  }
-
-  if (!userId) {
-    return false;
-  }
-
+const check = async (userId, permission, modelId) => {
   const userRoles = await UserRole.find({
     user: userId,
-    ref: modelId || id,
-    refType: RESOURCE_TYPE.MODEL,
+    ref: modelId,
   }).populate('role');
 
   if (!userRoles.length) {
@@ -103,6 +68,51 @@ const hasPermission = async (userId, permission, type, id, modelId) => {
     if (userRole.role.permissions.includes(permission)) {
       return true;
     }
+  }
+
+  return false;
+};
+
+const checkModelPermission = (model, userId, permission) => {
+  if (String(model.created_by) === String(userId)) {
+    return true;
+  }
+  return check(userId, permission, model._id);
+};
+
+const checkPrototypePermission = (prototype, userId, permission) => {
+  if (String(prototype.created_by) === String(userId)) {
+    return true;
+  }
+
+  return check(userId, permission, prototype.model_id._id);
+};
+
+/**
+ *
+ * @param {string} userId
+ * @param {string} [id]
+ * @param {string} permission
+ * @returns
+ */
+const hasPermission = async (userId, permission, id) => {
+  const model = await Model.findById(id);
+  const prototype = await Prototype.findById(id).populate('model_id');
+
+  if (!userId) {
+    return false;
+  }
+
+  if (id) {
+    if (model) {
+      return checkModelPermission(model, userId, permission);
+    }
+    if (prototype) {
+      return checkPrototypePermission(prototype, userId, permission);
+    }
+    throw new ApiError(httpStatus.NOT_FOUND, 'Resource not found');
+  } else {
+    return check(userId, permission);
   }
 };
 

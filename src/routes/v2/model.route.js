@@ -4,7 +4,7 @@ const modelValidation = require('../../validations/model.validation');
 const { modelController } = require('../../controllers');
 const auth = require('../../middlewares/auth');
 const { checkPermission } = require('../../middlewares/permission');
-const { PERMISSIONS, RESOURCE_TYPE } = require('../../config/roles');
+const { PERMISSIONS } = require('../../config/roles');
 
 const router = express.Router();
 
@@ -30,13 +30,13 @@ router
   )
   .patch(
     auth(),
-    checkPermission(PERMISSIONS.UPDATE_MODEL, RESOURCE_TYPE.MODEL),
+    checkPermission(PERMISSIONS.UPDATE_MODEL),
     validate(modelValidation.updateModel),
     modelController.updateModel
   )
   .delete(
     auth(),
-    checkPermission(PERMISSIONS.UPDATE_MODEL, RESOURCE_TYPE.MODEL),
+    checkPermission(PERMISSIONS.UPDATE_MODEL),
     validate(modelValidation.deleteModel),
     modelController.deleteModel
   );

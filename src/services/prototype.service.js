@@ -2,7 +2,7 @@ const httpStatus = require('http-status');
 const { Prototype } = require('../models');
 const ApiError = require('../utils/ApiError');
 const permissionService = require('./permission.service');
-const { PERMISSIONS, RESOURCE_TYPE } = require('../config/roles');
+const { PERMISSIONS } = require('../config/roles');
 
 /**
  *
@@ -53,15 +53,7 @@ const getPrototypeById = async (id, userId) => {
   }
 
   if (prototype.model_id.visibility === 'private') {
-    if (
-      !(await permissionService.hasPermission(
-        userId,
-        PERMISSIONS.VIEW_PROTOTYPE,
-        RESOURCE_TYPE.PROTOTYPE,
-        id,
-        prototype.model_id._id
-      ))
-    ) {
+    if (!(await permissionService.hasPermission(userId, PERMISSIONS.VIEW_PROTOTYPE, id))) {
       throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
     }
   }
@@ -72,25 +64,12 @@ const getPrototypeById = async (id, userId) => {
  *
  * @param {string} id
  * @param {Object} updateBody
- * @param {string} userId
  * @returns {Promise<import("../models/prototype.model").Prototype>}
  */
-const updatePrototypeById = async (id, updateBody, userId) => {
-  const prototype = await getPrototypeById(id);
+const updatePrototypeById = async (id, updateBody) => {
+  const prototype = await Prototype.findById(id);
   if (!prototype) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Prototype not found');
-  }
-
-  if (
-    !(await permissionService.hasPermission(
-      userId,
-      PERMISSIONS.UPDATE_PROTOTYPE,
-      RESOURCE_TYPE.PROTOTYPE,
-      id,
-      prototype.model_id
-    ))
-  ) {
-    throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
   }
 
   if (updateBody.name && (await Prototype.existsPrototypeInModel(prototype.model_id, updateBody.name, id))) {
@@ -112,22 +91,10 @@ const updatePrototypeById = async (id, updateBody, userId) => {
  * @param {string} userId
  * @returns {Promise<void>}
  */
-const deletePrototypeById = async (id, userId) => {
-  const prototype = await getPrototypeById(id);
+const deletePrototypeById = async (id) => {
+  const prototype = await Prototype.findById(id);
   if (!prototype) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Prototype not found');
-  }
-
-  if (
-    !(await permissionService.hasPermission(
-      userId,
-      PERMISSIONS.UPDATE_PROTOTYPE,
-      RESOURCE_TYPE.PROTOTYPE,
-      id,
-      prototype.model_id
-    ))
-  ) {
-    throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
   }
 
   await prototype.remove();

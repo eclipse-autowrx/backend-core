@@ -16,11 +16,6 @@ const PERMISSIONS = {
   MANAGE_USERS: 'manageUsers',
 };
 
-const RESOURCE_TYPE = {
-  MODEL: 'model',
-  PROTOTYPE: 'prototype',
-};
-
 // The role here is applied for the resources that the user is not the owner of
 const ROLES = {
   promoted_user: {
@@ -52,15 +47,8 @@ const ROLES = {
 };
 
 module.exports = {
-  PERMISSIONS,
-  RESOURCE_TYPE,
-  ROLES,
-};
-
-module.exports = {
   roles,
   roleRights,
   ROLES,
   PERMISSIONS,
-  RESOURCE_TYPE,
 };

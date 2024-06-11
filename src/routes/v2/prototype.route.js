@@ -3,6 +3,8 @@ const auth = require('../../middlewares/auth');
 const validate = require('../../middlewares/validate');
 const { prototypeValidation } = require('../../validations');
 const { prototypeController } = require('../../controllers');
+const { checkPermission } = require('../../middlewares/permission');
+const { PERMISSIONS } = require('../../config/roles');
 
 const router = express.Router();
 
@@ -20,7 +22,17 @@ router
     validate(prototypeValidation.getPrototype),
     prototypeController.getPrototype
   )
-  .patch(auth(), validate(prototypeValidation.updatePrototype), prototypeController.updatePrototype)
-  .delete(auth(), validate(prototypeValidation.deletePrototype), prototypeController.deletePrototype);
+  .patch(
+    auth(),
+    checkPermission(PERMISSIONS.UPDATE_PROTOTYPE),
+    validate(prototypeValidation.updatePrototype),
+    prototypeController.updatePrototype
+  )
+  .delete(
+    auth(),
+    checkPermission(PERMISSIONS.UPDATE_PROTOTYPE),
+    validate(prototypeValidation.deletePrototype),
+    prototypeController.deletePrototype
+  );
 
 module.exports = router;
