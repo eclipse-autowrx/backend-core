@@ -20,6 +20,8 @@ const { updateUser } = require('../../controllers/userControllers/updateUser');
 const { createUser } = require('../../controllers/userControllers/createUser');
 const { deleteUser } = require('../../controllers/userControllers/deleteUser');
 const { db } = require('../../config/firebase');
+const { checkPermission } = require('../../middlewares/permission');
+const { PERMISSIONS } = require('../../config/roles');
 
 const router = express.Router();
 
@@ -132,8 +134,8 @@ router
 router
   .route('/:userId')
   .get(auth(), validate(userValidation.getUser), userController.getUser)
-  .patch(auth(), validate(userValidation.updateUser), userController.updateUser)
-  .delete(auth(), validate(userValidation.deleteUser), userController.deleteUser);
+  .patch(auth(), checkPermission(PERMISSIONS.MANAGE_USERS), validate(userValidation.updateUser), userController.updateUser)
+  .delete(auth(), checkPermission(PERMISSIONS.MANAGE_USERS), validate(userValidation.deleteUser), userController.deleteUser);
 
 if (process.env.NODE_ENV === 'development') {
   router.route('/self/promote').post(auth(), userController.selfPromote);
