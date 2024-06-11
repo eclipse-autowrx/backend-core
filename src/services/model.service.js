@@ -47,6 +47,9 @@ const queryModels = async (filter, options, userId) => {
     const roles = await permissionService.getUserRoles(userId);
     const roleMap = permissionService.getMappedRoles(roles);
     models.results = models.results.filter((model) => {
+      if (String(model.created_by) === String(userId)) {
+        return true;
+      }
       return permissionService.containsPermission(roleMap, PERMISSIONS.VIEW_MODEL, model._id);
     });
   } else {
