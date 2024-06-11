@@ -3,6 +3,7 @@ const pick = require('../utils/pick');
 const ApiError = require('../utils/ApiError');
 const catchAsync = require('../utils/catchAsync');
 const { userService, permissionService } = require('../services');
+const { Role } = require('../models');
 
 const createUser = catchAsync(async (req, res) => {
   const user = await userService.createUser(req.body);
@@ -45,10 +46,8 @@ const deleteUser = catchAsync(async (req, res) => {
 });
 
 const selfPromote = catchAsync(async (req, res) => {
-  await permissionService.assignRoleToUser({
-    userId: req.user.id,
-    role: req.body.role,
-  });
+  const adminRole = await Role.findOne({ name: 'admin' });
+  await permissionService.assignRoleToUser(req.user.id, adminRole._id);
   res.status(httpStatus.OK).send('Promoted successfully');
 });
 
