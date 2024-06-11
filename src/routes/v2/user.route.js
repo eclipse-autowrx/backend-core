@@ -137,9 +137,7 @@ router
   .patch(auth(), checkPermission(PERMISSIONS.MANAGE_USERS), validate(userValidation.updateUser), userController.updateUser)
   .delete(auth(), checkPermission(PERMISSIONS.MANAGE_USERS), validate(userValidation.deleteUser), userController.deleteUser);
 
-if (process.env.NODE_ENV === 'development') {
-  router.route('/self/promote').post(auth(), userController.selfPromote);
-}
+router.route('/self/promote').post(auth(), userController.selfPromote);
 
 module.exports = router;
 
