@@ -40,8 +40,19 @@ const createModel = async (userId, modelBody) => {
  * @param {fields} [options.fields] - Fields to select
  * @returns {Promise<QueryResult>}
  */
-const queryModels = async (filter, options) => {
+const queryModels = async (filter, options, userId) => {
   const models = await Model.paginate(filter, options);
+
+  if (userId) {
+    const roles = await permissionService.getUserRoles(userId);
+    const roleMap = permissionService.getMappedRoles(roles);
+    models.results = models.results.filter((model) => {
+      return permissionService.containsPermission(roleMap, PERMISSIONS.VIEW_MODEL, model._id);
+    });
+  } else {
+    models.results = models.results.filter((model) => model.visibility !== 'private');
+  }
+
   return models;
 };
 

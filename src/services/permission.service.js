@@ -53,24 +53,33 @@ const getRoleUsers = async (role) => {
   return UserRole.find({ role }).populate('user');
 };
 
-const check = async (userId, permission, modelId) => {
-  const userRoles = await UserRole.find({
-    user: userId,
-    ref: modelId,
-  }).populate('role');
+// Create a map for better search performance
+const getMappedRoles = (roles) => {
+  const map = new Map();
+  roles.forEach((role) => {
+    const roleRef = role.ref || '*';
 
-  if (!userRoles.length) {
-    return false;
-  }
-
-  // eslint-disable-next-line no-restricted-syntax
-  for (const userRole of userRoles) {
-    if (userRole.role.permissions.includes(permission)) {
-      return true;
+    if (map.has(roleRef)) {
+      const existingRole = map.get(roleRef);
+      existingRole.permissions.push(role.role.permissions);
+    } else {
+      map.set(roleRef, role.role.permissions);
     }
-  }
+  });
+  return map;
+};
 
-  return false;
+// Check if the role map contains the permission
+const containsPermission = (roleMap, permission, modelId) => {
+  const firstCondition = roleMap.has('*') && roleMap.get('*').includes(permission);
+  const secondCondition = roleMap.has(modelId) && roleMap.get(modelId).includes(permission);
+  return firstCondition || secondCondition;
+};
+
+const check = async (userId, permission, modelId) => {
+  const userRoles = await getUserRoles(userId);
+  const roleMap = getMappedRoles(userRoles);
+  return containsPermission(roleMap, permission, modelId);
 };
 
 const checkModelPermission = (model, userId, permission) => {
@@ -125,4 +134,6 @@ module.exports = {
   getRoleUsers,
   hasPermission,
   removeRoleFromUser,
+  getMappedRoles,
+  containsPermission,
 };
