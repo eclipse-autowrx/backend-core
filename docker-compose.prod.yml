@@ -2,5 +2,5 @@ version: '3'
 
 services:
   playground-be:
-    container_name: playground-be-prod
+    container_name: ${PROD_CONTAINER_NAME}
     command: yarn start
