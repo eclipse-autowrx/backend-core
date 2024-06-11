@@ -7,3 +7,5 @@ module.exports.tagValidation = require('./tag.validation');
 module.exports.apiValidation = require('./api.validation');
 module.exports.emailValidation = require('./email.validation');
 module.exports.discussionValidation = require('./discussion.validation');
+module.exports.feedbackValidation = require('./feedback.validation');
+module.exports.permissionValidation = require('./permission.validation');

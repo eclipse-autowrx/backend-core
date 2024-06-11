@@ -2,7 +2,7 @@ const httpStatus = require('http-status');
 const pick = require('../utils/pick');
 const ApiError = require('../utils/ApiError');
 const catchAsync = require('../utils/catchAsync');
-const { userService } = require('../services');
+const { userService, permissionService } = require('../services');
 
 const createUser = catchAsync(async (req, res) => {
   const user = await userService.createUser(req.body);
@@ -45,10 +45,11 @@ const deleteUser = catchAsync(async (req, res) => {
 });
 
 const selfPromote = catchAsync(async (req, res) => {
-  const user = await userService.updateUserById(req.user.id, {
-    role: 'admin',
+  await permissionService.assignRoleToUser({
+    userId: req.user.id,
+    role: req.body.role,
   });
-  res.send(user);
+  res.status(httpStatus.OK).send('Promoted successfully');
 });
 
 module.exports = {

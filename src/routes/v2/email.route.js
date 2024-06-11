@@ -14,11 +14,10 @@ if (config.env === 'development') {
       const { to, subject, content } = req.body;
       let html;
       try {
-        html = JSON.parse(content);
+        html = decodeURIComponent(content);
       } catch (error) {
         html = content;
       }
-      html = html.replace(/&lt;/g, '<');
       await emailService.sendEmail(to, subject, html);
       res.status(200).send();
     })

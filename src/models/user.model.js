@@ -4,24 +4,6 @@ const bcrypt = require('bcryptjs');
 const { toJSON, paginate } = require('./plugins');
 const { roles } = require('../config/roles');
 
-const rolesSchema = mongoose.Schema(
-  {
-    model_contributor: {
-      type: [String],
-      default: [],
-    },
-    tenant_admin: {
-      type: [String],
-      default: [],
-    },
-    model_member: {
-      type: [String],
-      default: [],
-    },
-  },
-  { _id: false }
-);
-
 const userInfo = mongoose.Schema(
   {
     email: String,
@@ -62,14 +44,6 @@ const userSchema = mongoose.Schema(
       type: String,
       enum: roles,
       default: 'user',
-    },
-    roles: {
-      type: rolesSchema,
-      default: {
-        model_contributor: [],
-        tenant_admin: [],
-        model_member: [],
-      },
     },
     email_verified: {
       type: Boolean,

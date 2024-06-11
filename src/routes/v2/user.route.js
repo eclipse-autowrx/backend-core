@@ -20,6 +20,8 @@ const { updateUser } = require('../../controllers/userControllers/updateUser');
 const { createUser } = require('../../controllers/userControllers/createUser');
 const { deleteUser } = require('../../controllers/userControllers/deleteUser');
 const { db } = require('../../config/firebase');
+const { checkPermission } = require('../../middlewares/permission');
+const { PERMISSIONS } = require('../../config/roles');
 
 const router = express.Router();
 
@@ -121,8 +123,8 @@ router.put('/updateRoles/:userId', async (req, res) => {
 
 router
   .route('/')
-  .post(auth('manageUsers'), validate(userValidation.createUser), userController.createUser)
-  .get(auth('getUsers'), validate(userValidation.getUsers), userController.getUsers);
+  .post(auth(), validate(userValidation.createUser), userController.createUser)
+  .get(auth(), validate(userValidation.getUsers), userController.getUsers);
 
 router
   .route('/self')
@@ -131,13 +133,11 @@ router
 
 router
   .route('/:userId')
-  .get(auth('getUsers'), validate(userValidation.getUser), userController.getUser)
-  .patch(auth('manageUsers'), validate(userValidation.updateUser), userController.updateUser)
-  .delete(auth('manageUsers'), validate(userValidation.deleteUser), userController.deleteUser);
+  .get(auth(), validate(userValidation.getUser), userController.getUser)
+  .patch(auth(), checkPermission(PERMISSIONS.MANAGE_USERS), validate(userValidation.updateUser), userController.updateUser)
+  .delete(auth(), checkPermission(PERMISSIONS.MANAGE_USERS), validate(userValidation.deleteUser), userController.deleteUser);
 
-if (process.env.NODE_ENV === 'development') {
-  router.route('/self/promote').post(auth(), userController.selfPromote);
-}
+router.route('/self/promote').post(auth(), userController.selfPromote);
 
 module.exports = router;
 

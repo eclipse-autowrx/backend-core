@@ -4,3 +4,5 @@ module.exports.Model = require('./model.model');
 module.exports.Prototype = require('./prototype.model');
 module.exports.Api = require('./api.model');
 module.exports.Discussion = require('./discussion.model');
+module.exports.UserRole = require('./userRole.model');
+module.exports.Role = require('./role.model');
