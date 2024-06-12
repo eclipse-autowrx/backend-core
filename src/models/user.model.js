@@ -105,7 +105,7 @@ userSchema.pre('save', async function (next) {
 });
 
 userSchema.pre('updateOne', async function (next) {
-  const user = this;
+  const user = await this.model.findOne(this.getQuery());
   if (user.isModified('password')) {
     user.password = await bcrypt.hash(user.password, 8);
   }
