@@ -47,13 +47,16 @@ const queryModels = async (filter, options, userId) => {
     const roles = await permissionService.getUserRoles(userId);
     const roleMap = permissionService.getMappedRoles(roles);
     models.results = models.results.filter((model) => {
+      if (model.visibility === 'public') {
+        return true;
+      }
       if (String(model.created_by) === String(userId)) {
         return true;
       }
       return permissionService.containsPermission(roleMap, PERMISSIONS.VIEW_MODEL, model._id);
     });
   } else {
-    models.results = models.results.filter((model) => model.visibility !== 'private');
+    models.results = models.results.filter((model) => model.visibility === 'public');
   }
 
   return models;
