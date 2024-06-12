@@ -7,5 +7,6 @@ const { permissionValidation } = require('../../validations');
 const auth = require('../../middlewares/auth');
 
 router.get('/self', auth(), validate(permissionValidation.getSelfUsers), permissionController.getSelfRoles);
+router.get('/', auth(), validate(permissionValidation.getPermission), permissionController.getPermission);
 
 module.exports = router;

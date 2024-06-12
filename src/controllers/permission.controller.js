@@ -2,6 +2,12 @@ const permissionService = require('../services/permission.service');
 const catchAsync = require('../utils/catchAsync');
 const pick = require('../utils/pick');
 
+const getPermission = catchAsync(async (req, res) => {
+  const filter = pick(req.query, ['ref', 'permission']);
+  const hasPermission = await permissionService.hasPermission(req.user.id, filter.permission, filter.ref);
+  res.json({ hasPermission });
+});
+
 const assignRoleToUser = catchAsync(async (req, res) => {
   const { user, role, ref, refType } = req.body;
   const userRole = await permissionService.assignRoleToUser(user, role, ref, refType);
@@ -29,4 +35,5 @@ module.exports = {
   getUserRoles,
   getRoleUsers,
   getSelfRoles,
+  getPermission,
 };

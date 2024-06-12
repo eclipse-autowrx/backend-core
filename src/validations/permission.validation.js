@@ -28,9 +28,17 @@ const getSelfUsers = {
   }),
 };
 
+const getPermission = {
+  query: Joi.object().keys({
+    ref: Joi.string(),
+    permission: Joi.string(),
+  }),
+};
+
 module.exports = {
   assignRoleToUser,
   getUserRoles,
   getRoleUsers,
   getSelfUsers,
+  getPermission,
 };
