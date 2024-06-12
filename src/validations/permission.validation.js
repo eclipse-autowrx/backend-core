@@ -23,15 +23,13 @@ const getRoleUsers = {
 
 const getSelfUsers = {
   query: Joi.object().keys({
-    ref: Joi.string(),
-    refType: Joi.string(),
+    permission: Joi.string(),
   }),
 };
 
 const getPermission = {
   query: Joi.object().keys({
-    ref: Joi.string(),
-    permission: Joi.string(),
+    permissions: Joi.string(),
   }),
 };
 

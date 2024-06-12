@@ -24,13 +24,13 @@ router
   )
   .patch(
     auth(),
-    checkPermission(PERMISSIONS.UPDATE_PROTOTYPE),
+    checkPermission(PERMISSIONS.READ_MODEL),
     validate(prototypeValidation.updatePrototype),
     prototypeController.updatePrototype
   )
   .delete(
     auth(),
-    checkPermission(PERMISSIONS.UPDATE_PROTOTYPE),
+    checkPermission(PERMISSIONS.READ_MODEL),
     validate(prototypeValidation.deletePrototype),
     prototypeController.deletePrototype
   );

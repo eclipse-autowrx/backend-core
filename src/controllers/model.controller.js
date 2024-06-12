@@ -41,11 +41,14 @@ const getModel = catchAsync(async (req, res) => {
     ref: req.params.id,
     refType: 'model',
   });
-  res.send({
+
+  const finalResult = {
     ...model.toJSON(),
     contributors,
     members,
-  });
+  };
+
+  res.send(finalResult);
 });
 
 const updateModel = catchAsync(async (req, res) => {

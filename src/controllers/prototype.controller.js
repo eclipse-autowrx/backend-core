@@ -6,7 +6,7 @@ const { PERMISSIONS } = require('../config/roles');
 const ApiError = require('../utils/ApiError');
 
 const createPrototype = catchAsync(async (req, res) => {
-  if (!(await permissionService.hasPermission(req.user.id, PERMISSIONS.CREATE_PROTOTYPE, req.body.model_id))) {
+  if (!(await permissionService.hasPermission(req.user.id, PERMISSIONS.READ_MODEL, req.body.model_id))) {
     throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
   }
   const prototypeId = await prototypeService.createPrototype(req.user.id, req.body);

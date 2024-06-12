@@ -3,9 +3,13 @@ const catchAsync = require('../utils/catchAsync');
 const pick = require('../utils/pick');
 
 const getPermission = catchAsync(async (req, res) => {
-  const filter = pick(req.query, ['ref', 'permission']);
-  const hasPermission = await permissionService.hasPermission(req.user.id, filter.permission, filter.ref);
-  res.json({ hasPermission });
+  const filter = pick(req.query, ['permissions']);
+  filter.permissions = filter.permissions || '';
+  const permissionQueries = filter.permissions.split(',').map((permission) => permission.split(':'));
+  const results = await Promise.all(
+    permissionQueries.map((query) => permissionService.hasPermission(req.user.id, query[0], query[1]))
+  );
+  res.json(results);
 });
 
 const assignRoleToUser = catchAsync(async (req, res) => {
@@ -20,7 +24,7 @@ const getUserRoles = catchAsync(async (req, res) => {
 });
 
 const getSelfRoles = catchAsync(async (req, res) => {
-  const filter = pick(req.query, ['ref', 'refType']);
+  const filter = pick(req.query, ['ref']);
   const roles = await permissionService.getUserRoles(req.user.id, filter);
   res.json(roles);
 });

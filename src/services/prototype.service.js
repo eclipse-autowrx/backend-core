@@ -53,7 +53,7 @@ const getPrototypeById = async (id, userId) => {
   }
 
   if (prototype.model_id.visibility === 'private') {
-    if (!(await permissionService.hasPermission(userId, PERMISSIONS.VIEW_PROTOTYPE, id))) {
+    if (!(await permissionService.hasPermission(userId, PERMISSIONS.READ_MODEL, id))) {
       throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
     }
   }

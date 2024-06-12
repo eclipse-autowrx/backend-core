@@ -30,19 +30,24 @@ router
   )
   .patch(
     auth(),
-    checkPermission(PERMISSIONS.UPDATE_MODEL),
+    checkPermission(PERMISSIONS.WRITE_MODEL),
     validate(modelValidation.updateModel),
     modelController.updateModel
   )
   .delete(
     auth(),
-    checkPermission(PERMISSIONS.UPDATE_MODEL),
+    checkPermission(PERMISSIONS.WRITE_MODEL),
     validate(modelValidation.deleteModel),
     modelController.deleteModel
   );
 
 router
   .route('/:id/permissions')
-  .post(auth(), validate(modelValidation.addAuthorizedUser), modelController.addAuthorizedUser);
+  .post(
+    auth(),
+    checkPermission(PERMISSIONS.WRITE_MODEL),
+    validate(modelValidation.addAuthorizedUser),
+    modelController.addAuthorizedUser
+  );
 
 module.exports = router;

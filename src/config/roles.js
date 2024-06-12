@@ -7,42 +7,28 @@ const roles = Object.keys(allRoles);
 const roleRights = new Map(Object.entries(allRoles));
 
 const PERMISSIONS = {
-  CREATE_UNLIMITED_MODEL: 'createUnlimitedModel',
-  VIEW_MODEL: 'viewModel',
-  UPDATE_MODEL: 'updateModel',
-  CREATE_PROTOTYPE: 'createPrototype',
-  VIEW_PROTOTYPE: 'viewPrototype',
-  UPDATE_PROTOTYPE: 'updatePrototype',
+  // *
+  UNLIMITED_MODEL: 'unlimitedModel',
   MANAGE_USERS: 'manageUsers',
+
+  // model_id
+  READ_MODEL: 'readModel',
+  WRITE_MODEL: 'writeModel',
 };
 
 // The role here is applied for the resources that the user is not the owner of
 const ROLES = {
   promoted_user: {
-    permissions: [PERMISSIONS.CREATE_UNLIMITED_MODEL],
+    permissions: [PERMISSIONS.UNLIMITED_MODEL],
   },
   model_contributor: {
-    permissions: [PERMISSIONS.VIEW_MODEL, PERMISSIONS.CREATE_PROTOTYPE, PERMISSIONS.VIEW_PROTOTYPE],
+    permissions: [PERMISSIONS.READ_MODEL],
   },
   model_member: {
-    permissions: [
-      PERMISSIONS.VIEW_MODEL,
-      PERMISSIONS.UPDATE_MODEL,
-      PERMISSIONS.CREATE_PROTOTYPE,
-      PERMISSIONS.VIEW_PROTOTYPE,
-      PERMISSIONS.UPDATE_PROTOTYPE,
-    ],
+    permissions: [PERMISSIONS.READ_MODEL, PERMISSIONS.WRITE_MODEL],
   },
   admin: {
-    permissions: [
-      PERMISSIONS.VIEW_MODEL,
-      PERMISSIONS.UPDATE_MODEL,
-      PERMISSIONS.CREATE_PROTOTYPE,
-      PERMISSIONS.VIEW_PROTOTYPE,
-      PERMISSIONS.UPDATE_PROTOTYPE,
-      PERMISSIONS.MANAGE_USERS,
-      PERMISSIONS.CREATE_UNLIMITED_MODEL,
-    ],
+    permissions: [PERMISSIONS.READ_MODEL, PERMISSIONS.WRITE_MODEL, PERMISSIONS.MANAGE_USERS, PERMISSIONS.UNLIMITED_MODEL],
   },
 };
 

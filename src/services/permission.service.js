@@ -102,7 +102,7 @@ const checkPrototypePermission = (prototype, userId, permission) => {
  * @param {string} userId
  * @param {string} [id]
  * @param {string} permission
- * @returns
+ * @returns {Promise<boolean>}
  */
 const hasPermission = async (userId, permission, id) => {
   const model = await Model.findById(id);
