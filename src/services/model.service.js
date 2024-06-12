@@ -50,7 +50,7 @@ const queryModels = async (filter, options, userId) => {
     const roleMap = permissionService.getMappedRoles(roles);
 
     const userRoleFilter = (model) => {
-      if (String(model.created_by) === String(userId)) {
+      if (String(model.created_by) === String(userId) || String(model.created_by?._id) === String(userId)) {
         return true;
       }
       return permissionService.containsPermission(roleMap, PERMISSIONS.READ_MODEL, model._id);
