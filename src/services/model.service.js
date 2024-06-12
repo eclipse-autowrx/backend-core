@@ -43,21 +43,23 @@ const createModel = async (userId, modelBody) => {
 const queryModels = async (filter, options, userId) => {
   const models = await Model.paginate(filter, options);
 
+  const filters = [(model) => model.visibility === 'public'];
+
   if (userId) {
     const roles = await permissionService.getUserRoles(userId);
     const roleMap = permissionService.getMappedRoles(roles);
-    models.results = models.results.filter((model) => {
-      if (model.visibility === 'public') {
-        return true;
-      }
+
+    const userRoleFilter = (model) => {
       if (String(model.created_by) === String(userId)) {
         return true;
       }
       return permissionService.containsPermission(roleMap, PERMISSIONS.VIEW_MODEL, model._id);
-    });
-  } else {
-    models.results = models.results.filter((model) => model.visibility === 'public');
+    };
+
+    filters.push(userRoleFilter);
   }
+
+  models.results = models.results.filter((model) => filters.some((fn) => fn(model)));
 
   return models;
 };
