@@ -104,6 +104,14 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
+userSchema.pre('updateOne', async function (next) {
+  const user = this;
+  if (user.isModified('password')) {
+    user.password = await bcrypt.hash(user.password, 8);
+  }
+  next();
+});
+
 /**
  * @typedef {Object} UserRoles
  * @property {string[]} model_contributor - List of model contributors
