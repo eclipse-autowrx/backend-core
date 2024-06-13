@@ -9,6 +9,7 @@ const discussionRoute = require('./discussion.route');
 const genaiRoute = require('./genai.route');
 const feedbackRoute = require('./feedback.route');
 const permissionRoute = require('./permission.route');
+const extendedApiRoute = require('./extendedApi.route');
 
 const router = express.Router();
 
@@ -52,6 +53,10 @@ const defaultRoutes = [
   {
     path: '/permissions',
     route: permissionRoute,
+  },
+  {
+    path: '/extendedApis',
+    route: extendedApiRoute,
   },
 ];
 
