@@ -24,6 +24,15 @@ const getExtendedApi = catchAsync(async (req, res) => {
   res.send(extendedApi);
 });
 
+const getExtendedApiByApiNameAndModel = catchAsync(async (req, res) => {
+  const { apiName, model } = req.query;
+  const extendedApi = await extendedApiService.getExtendedApiByApiNameAndModel(apiName, model);
+  if (!extendedApi) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'ExtendedApi not found');
+  }
+  res.send(extendedApi);
+});
+
 const updateExtendedApi = catchAsync(async (req, res) => {
   const extendedApi = await extendedApiService.updateExtendedApiById(req.params.id, req.body);
   res.send(extendedApi);
@@ -40,4 +49,5 @@ module.exports = {
   getExtendedApi,
   updateExtendedApi,
   deleteExtendedApi,
+  getExtendedApiByApiNameAndModel,
 };

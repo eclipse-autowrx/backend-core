@@ -37,6 +37,8 @@ const extendedApiSchema = mongoose.Schema(
 extendedApiSchema.plugin(toJSON);
 extendedApiSchema.plugin(paginate);
 
+extendedApiSchema.index({ apiName: 1, model: 1 }, { unique: true });
+
 /**
  * @typedef ExtendedApi
  */

@@ -62,10 +62,18 @@ const deleteExtendedApi = {
   }),
 };
 
+const getExtendedApiByApiNameAndModel = {
+  query: Joi.object().keys({
+    apiName: Joi.string().required(),
+    model: Joi.string().required().custom(objectId),
+  }),
+};
+
 module.exports = {
   createExtendedApi,
   getExtendedApis,
   getExtendedApi,
   updateExtendedApi,
   deleteExtendedApi,
+  getExtendedApiByApiNameAndModel,
 };

@@ -12,6 +12,13 @@ router
   .get(validate(extendedApiValidation.getExtendedApis), extendedApiController.getExtendedApis);
 
 router
+  .route('/by-api-and-model')
+  .get(
+    validate(extendedApiValidation.getExtendedApiByApiNameAndModel),
+    extendedApiController.getExtendedApiByApiNameAndModel
+  );
+
+router
   .route('/:id')
   .get(validate(extendedApiValidation.getExtendedApi), extendedApiController.getExtendedApi)
   .patch(auth(), validate(extendedApiValidation.updateExtendedApi), extendedApiController.updateExtendedApi)
