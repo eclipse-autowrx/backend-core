@@ -4,7 +4,7 @@ const { objectId } = require('./custom.validation');
 const createDiscussion = {
   body: Joi.object().keys({
     content: Joi.string().required().max(2000),
-    ref: Joi.string().required().custom(objectId),
+    ref: Joi.string().required(),
     ref_type: Joi.string().required(),
     parent: Joi.string().custom(objectId),
   }),
@@ -12,7 +12,6 @@ const createDiscussion = {
 
 const listDiscussions = {
   query: Joi.object().keys({
-    ref: Joi.string().custom(objectId),
     ref_type: Joi.string(),
     id: Joi.string().custom(objectId),
     parent: Joi.string().custom(objectId),
