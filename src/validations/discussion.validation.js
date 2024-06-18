@@ -12,6 +12,7 @@ const createDiscussion = {
 
 const listDiscussions = {
   query: Joi.object().keys({
+    ref: Joi.string().required(),
     ref_type: Joi.string(),
     id: Joi.string().custom(objectId),
     parent: Joi.string().custom(objectId),
