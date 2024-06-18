@@ -46,7 +46,7 @@ const queryPrototypes = async (filter, options) => {
  * @returns {Promise<import('../models/prototype.model').Prototype>}
  */
 const getPrototypeById = async (id, userId) => {
-  const prototype = await Prototype.findById(id).populate('model_id');
+  const prototype = await Prototype.findById(id).populate('model_id').populate('created_by');
 
   if (!prototype) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Prototype not found');
