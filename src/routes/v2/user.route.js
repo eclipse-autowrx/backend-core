@@ -124,7 +124,7 @@ router.put('/updateRoles/:userId', async (req, res) => {
 router
   .route('/')
   .post(auth(), validate(userValidation.createUser), userController.createUser)
-  .get(auth(), validate(userValidation.getUsers), userController.getUsers);
+  .get(validate(userValidation.getUsers), userController.getUsers);
 
 router
   .route('/self')
@@ -133,7 +133,7 @@ router
 
 router
   .route('/:userId')
-  .get(auth(), validate(userValidation.getUser), userController.getUser)
+  .get(validate(userValidation.getUser), userController.getUser)
   .patch(auth(), checkPermission(PERMISSIONS.MANAGE_USERS), validate(userValidation.updateUser), userController.updateUser)
   .delete(auth(), checkPermission(PERMISSIONS.MANAGE_USERS), validate(userValidation.deleteUser), userController.deleteUser);
 
