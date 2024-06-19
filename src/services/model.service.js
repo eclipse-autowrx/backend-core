@@ -53,9 +53,6 @@ const queryModels = async (filter, options, userId) => {
       if (String(model.created_by) === String(userId) || String(model.created_by?._id) === String(userId)) {
         return true;
       }
-      console.log('roleMap', roleMap);
-      console.log('model._id', model._id);
-      console.log(permissionService.containsPermission(roleMap, PERMISSIONS.READ_MODEL, model._id));
       return permissionService.containsPermission(roleMap, PERMISSIONS.READ_MODEL, model._id);
     };
 

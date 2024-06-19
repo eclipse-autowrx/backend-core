@@ -57,7 +57,7 @@ const getRoleUsers = async (role) => {
 const getMappedRoles = (roles) => {
   const map = new Map();
   roles.forEach((role) => {
-    const roleRef = role.ref || '*';
+    const roleRef = String(role.ref || '*');
 
     if (map.has(roleRef)) {
       const existingRole = map.get(roleRef);
