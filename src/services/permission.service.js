@@ -71,8 +71,9 @@ const getMappedRoles = (roles) => {
 
 // Check if the role map contains the permission
 const containsPermission = (roleMap, permission, modelId) => {
+  const stringModelId = String(modelId);
   const firstCondition = roleMap.has('*') && roleMap.get('*').includes(permission);
-  const secondCondition = roleMap.has(modelId) && roleMap.get(modelId).includes(permission);
+  const secondCondition = roleMap.has(stringModelId) && roleMap.get(stringModelId).includes(permission);
   return firstCondition || secondCondition;
 };
 
