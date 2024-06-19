@@ -62,6 +62,7 @@ const listPrototypes = {
     limit: Joi.number().integer(),
     page: Joi.number().integer(),
     fields: Joi.string(),
+    populate: Joi.string(),
   }),
 };
 
