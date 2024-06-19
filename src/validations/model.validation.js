@@ -95,6 +95,16 @@ const addAuthorizedUser = {
   }),
 };
 
+const deleteAuthorizedUser = {
+  params: Joi.object().keys({
+    id: Joi.string().custom(objectId),
+  }),
+  query: Joi.object().keys({
+    userId: Joi.string().custom(objectId),
+    role: Joi.string().valid('model_contributor', 'model_member'),
+  }),
+};
+
 module.exports = {
   createModel,
   listModels,
@@ -102,4 +112,5 @@ module.exports = {
   getModel,
   deleteModel,
   addAuthorizedUser,
+  deleteAuthorizedUser,
 };

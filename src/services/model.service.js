@@ -163,10 +163,13 @@ const addAuthorizedUser = async (id, roleBody, userId) => {
  * @returns {Promise<void>}
  */
 const deleteAuthorizedUser = async (id, roleBody, userId) => {
+  const role = await Role.findOne({
+    name: roleBody.role,
+  });
   if (!(await permissionService.hasPermission(userId, PERMISSIONS.WRITE_MODEL, id))) {
     throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
   }
-  await permissionService.removeRoleFromUser(roleBody.userId, roleBody.role, id, 'model');
+  await permissionService.removeRoleFromUser(roleBody.userId, role, id, 'model');
 };
 
 module.exports = {

@@ -71,6 +71,18 @@ const addAuthorizedUser = catchAsync(async (req, res) => {
   res.status(httpStatus.CREATED).send();
 });
 
+const deleteAuthorizedUser = catchAsync(async (req, res) => {
+  await modelService.deleteAuthorizedUser(
+    req.params.id,
+    {
+      role: req.query.role,
+      userId: req.query.userId,
+    },
+    req.user.id
+  );
+  res.status(httpStatus.NO_CONTENT).send();
+});
+
 module.exports = {
   createModel,
   listModels,
@@ -78,4 +90,5 @@ module.exports = {
   updateModel,
   deleteModel,
   addAuthorizedUser,
+  deleteAuthorizedUser,
 };

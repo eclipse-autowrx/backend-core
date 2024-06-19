@@ -48,6 +48,12 @@ router
     checkPermission(PERMISSIONS.WRITE_MODEL),
     validate(modelValidation.addAuthorizedUser),
     modelController.addAuthorizedUser
+  )
+  .delete(
+    auth(),
+    checkPermission(PERMISSIONS.WRITE_MODEL),
+    validate(modelValidation.deleteAuthorizedUser),
+    modelController.deleteAuthorizedUser
   );
 
 module.exports = router;

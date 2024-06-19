@@ -34,15 +34,15 @@ const getPermissions = async () => {
   return Permission.find();
 };
 
-const assignRoleToUser = async (user, role, ref, refType) => {
-  if (await UserRole.checkExist(user, role, ref, refType)) {
+const assignRoleToUser = async (user, role, ref) => {
+  if (await UserRole.checkExist(user, role, ref)) {
     return;
   }
-  return UserRole.create({ user, role, ref, refType });
+  return UserRole.create({ user, role, ref });
 };
 
-const removeRoleFromUser = async (user, role, ref, refType) => {
-  return UserRole.deleteOne({ user, role, ref, refType });
+const removeRoleFromUser = async (user, role, ref) => {
+  return UserRole.deleteOne({ user, role, ref });
 };
 
 const getUserRoles = async (user, filter) => {
