@@ -34,12 +34,10 @@ const getModel = catchAsync(async (req, res) => {
   const contributors = await permissionService.listAuthorizedUser({
     role: 'model_contributor',
     ref: req.params.id,
-    refType: 'model',
   });
   const members = await permissionService.listAuthorizedUser({
     role: 'model_member',
     ref: req.params.id,
-    refType: 'model',
   });
 
   const finalResult = {
