@@ -4,6 +4,7 @@ const { prototypeService, permissionService } = require('../services');
 const pick = require('../utils/pick');
 const { PERMISSIONS } = require('../config/roles');
 const ApiError = require('../utils/ApiError');
+const FeedbackPrototypeDecorator = require('../decorators/FeedbackPrototypeDecorator');
 
 const createPrototype = catchAsync(async (req, res) => {
   if (!(await permissionService.hasPermission(req.user.id, PERMISSIONS.READ_MODEL, req.body.model_id))) {
@@ -22,7 +23,8 @@ const listPrototypes = catchAsync(async (req, res) => {
 
 const getPrototype = catchAsync(async (req, res) => {
   const prototype = await prototypeService.getPrototypeById(req.params.id, req.user?.id);
-  res.send(prototype);
+  const finalResult = await new FeedbackPrototypeDecorator(prototype).getPrototype();
+  res.send(finalResult);
 });
 
 const updatePrototype = catchAsync(async (req, res) => {

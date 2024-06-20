@@ -2,6 +2,12 @@ const httpStatus = require('http-status');
 const Feedback = require('../models/feedback.model');
 const ApiError = require('../utils/ApiError');
 
+const calcAvgScoreOfPrototype = async (prototype) => {
+  const feedbacks = await Feedback.find({ ref: prototype.id });
+  const total = feedbacks.reduce((acc, cur) => acc + cur.avg_score, 0);
+  return total / feedbacks.length;
+};
+
 /**
  * @param {Feedback.Score} score
  */
@@ -95,4 +101,5 @@ module.exports = {
   queryFeedbacks,
   updateFeedbackById,
   deleteFeedbackById,
+  calcAvgScoreOfPrototype,
 };
