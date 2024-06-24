@@ -4,6 +4,7 @@ const { objectId, jsonString, slug } = require('./custom.validation');
 
 const createPrototype = {
   body: Joi.object().keys({
+    extend: Joi.any(),
     state: Joi.string().allow(...Object.values(stateTypes)),
     apis: Joi.object().keys({
       VSC: Joi.array().items(Joi.string()),
@@ -74,6 +75,7 @@ const getPrototype = {
 
 const updatePrototype = {
   body: Joi.object().keys({
+    extend: Joi.any(),
     state: Joi.string().allow(...Object.values(stateTypes)),
     apis: Joi.object().keys({
       VSC: Joi.array().items(Joi.string()),

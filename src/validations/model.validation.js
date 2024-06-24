@@ -4,6 +4,7 @@ const { jsonString, slug, objectId } = require('./custom.validation');
 
 const createModel = {
   body: Joi.object().keys({
+    extend: Joi.any(),
     custom_apis: Joi.string().custom(jsonString),
     cvi: Joi.string().required().custom(jsonString),
     main_api: Joi.string().required().max(255),
@@ -50,6 +51,7 @@ const listModels = {
 const updateModel = {
   body: Joi.object()
     .keys({
+      extend: Joi.any(),
       custom_apis: Joi.string().custom(jsonString),
       cvi: Joi.string().custom(jsonString),
       main_api: Joi.string().max(255),
