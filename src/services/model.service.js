@@ -103,7 +103,13 @@ const queryModels = async (filter, options, advanced, userId) => {
   const totalPages = Math.ceil(totalResultsCount / limit);
 
   return {
-    results: models,
+    results: models.map((model) => {
+      const { _id, ...rest } = model;
+      return {
+        ...rest,
+        id: _id,
+      };
+    }),
     page,
     limit,
     totalPages,

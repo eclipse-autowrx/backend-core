@@ -24,7 +24,7 @@ const listModels = catchAsync(async (req, res) => {
   const options = pick(req.query, ['sortBy', 'limit', 'page', 'fields', 'populate']);
   const advanced = pick(req.query, ['is_contributor']);
   const models = await modelService.queryModels(filter, options, advanced, req.user?.id);
-  res.send(models);
+  res.json(models);
 });
 
 const getModel = catchAsync(async (req, res) => {
