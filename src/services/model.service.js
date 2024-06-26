@@ -40,15 +40,13 @@ const createModel = async (userId, modelBody) => {
  * @param {fields} [options.fields] - Fields to select
  * @returns {Promise<QueryResult>}
  */
-const queryModels = async (filter, options, userId, advanced) => {
+const queryModels = async (filter, options, advanced, userId) => {
   const models = await Model.paginate(filter, options);
 
   const filters = [];
 
-  if (advanced) {
-    if (!advanced.is_contributor) {
-      filters.push((model) => model.visibility === 'public');
-    }
+  if (!advanced.is_contributor) {
+    filters.push((model) => model.visibility === 'public');
   }
 
   if (userId) {

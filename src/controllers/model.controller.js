@@ -23,7 +23,7 @@ const listModels = catchAsync(async (req, res) => {
   const filter = pick(req.query, ['name', 'visibility', 'tenant_id', 'vehicle_category', 'main_api', 'id', 'created_by']);
   const options = pick(req.query, ['sortBy', 'limit', 'page', 'fields', 'populate']);
   const advanced = pick(req.query, ['is_contributor']);
-  const models = await modelService.queryModels(filter, options, req.user?.id, advanced);
+  const models = await modelService.queryModels(filter, options, advanced, req.user?.id);
   res.send(models);
 });
 
