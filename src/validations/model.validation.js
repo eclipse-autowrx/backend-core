@@ -41,6 +41,7 @@ const listModels = {
     fields: Joi.string(),
     id: Joi.string().custom(objectId),
     created_by: Joi.string().custom(objectId),
+    is_contributor: Joi.boolean(),
     sortBy: Joi.string(),
     limit: Joi.number().integer(),
     page: Joi.number().integer(),
