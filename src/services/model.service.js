@@ -44,6 +44,7 @@ const queryModels = async (filter, options, advanced, userId) => {
   const models = await Model.paginate(filter, options);
 
   const filters = [];
+  const permission = advanced.is_contributor ? PERMISSIONS.WRITE_MODEL : PERMISSIONS.READ_MODEL;
 
   if (!advanced.is_contributor) {
     filters.push((model) => model.visibility === 'public');
@@ -57,7 +58,7 @@ const queryModels = async (filter, options, advanced, userId) => {
       if (String(model.created_by) === String(userId) || String(model.created_by?._id) === String(userId)) {
         return true;
       }
-      return permissionService.containsPermission(roleMap, PERMISSIONS.READ_MODEL, model._id);
+      return permissionService.containsPermission(roleMap, permission, model._id);
     };
 
     filters.push(userRoleFilter);
