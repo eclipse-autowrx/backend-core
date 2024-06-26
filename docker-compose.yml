@@ -14,7 +14,7 @@ services:
       - node-network
 
   playground-db:
-    image: mongo:4.2.1-bionic
+    image: mongo:4.4.6-bionic
     ports:
       - '${MONGO_EXPOSE_PORT}:27017'
     volumes:

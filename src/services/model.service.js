@@ -41,31 +41,74 @@ const createModel = async (userId, modelBody) => {
  * @returns {Promise<QueryResult>}
  */
 const queryModels = async (filter, options, advanced, userId) => {
-  const models = await Model.paginate(filter, options);
+  const { sortBy, limit = 10, page = 1, fields } = options;
 
-  const filters = [];
+  const pipeline = [{ $match: filter }];
+
+  const permissionFilter = {
+    $or: [],
+  };
 
   if (!advanced.is_contributor) {
-    filters.push((model) => model.visibility === 'public');
+    permissionFilter.$or.push({ visibility: 'public' });
   }
 
   if (userId) {
     const roles = await permissionService.getUserRoles(userId);
     const roleMap = permissionService.getMappedRoles(roles);
+    const objectRoleMap = Object.fromEntries(roleMap.entries());
 
-    const userRoleFilter = (model) => {
-      if (String(model.created_by) === String(userId) || String(model.created_by?._id) === String(userId)) {
-        return true;
-      }
-      return permissionService.containsPermission(roleMap, PERMISSIONS.READ_MODEL, model._id);
-    };
-
-    filters.push(userRoleFilter);
+    permissionFilter.$or.push(
+      ...[
+        { created_by: userId },
+        { created_by: { _id: userId } },
+        {
+          $expr: {
+            $function: {
+              body: `function (map, modelId, permission) {
+                const stringModelId = modelId.toString();
+                return map && map[stringModelId] && map[stringModelId].includes(permission);
+              }`,
+              args: [objectRoleMap, { $toString: '$_id' }, PERMISSIONS.READ_MODEL],
+              lang: 'js',
+            },
+          },
+        },
+      ]
+    );
   }
 
-  models.results = models.results.filter((model) => filters.some((fn) => fn(model)));
+  if (permissionFilter.$or.length > 0) {
+    pipeline.push({ $match: permissionFilter });
+  }
 
-  return models;
+  if (fields) {
+    pipeline.push({ $project: fields.split(',').reduce((acc, field) => ({ ...acc, [field]: 1 }), {}) });
+  }
+
+  const totalResults = await Model.aggregate([...pipeline, { $count: 'count' }]).exec();
+
+  if (sortBy) {
+    const [sortField, sortOrder] = sortBy.split(':');
+    pipeline.push({ $sort: { [sortField]: sortOrder === 'desc' ? -1 : 1 } });
+  }
+
+  const skip = (page - 1) * limit;
+  pipeline.push({ $skip: skip });
+  pipeline.push({ $limit: limit });
+
+  const models = await Model.aggregate(pipeline).exec();
+
+  const totalResultsCount = totalResults.length > 0 ? totalResults[0].count : 0;
+  const totalPages = Math.ceil(totalResultsCount / limit);
+
+  return {
+    results: models,
+    page,
+    limit,
+    totalPages,
+    totalResults: totalResultsCount,
+  };
 };
 
 /**
