@@ -38,7 +38,7 @@ const deleteIssue = catchAsync(async (req, res) => {
 });
 
 const getIssueByApi = catchAsync(async (req, res) => {
-  const issue = await issueService.getIssueByApi(req.query.model, req.query.extendedApi);
+  const issue = await issueService.getIssueByApi(req.query.extendedApi);
   if (!issue) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Issue not found');
   }

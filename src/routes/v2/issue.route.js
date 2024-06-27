@@ -10,12 +10,12 @@ router
   .post(validate(issueValidation.createIssue), issueController.createIssue)
   .get(validate(issueValidation.getIssues), issueController.getIssues);
 
+router.route('/by-api').get(validate(issueValidation.getIssueByApi), issueController.getIssueByApi);
+
 router
   .route('/:issueId')
   .get(validate(issueValidation.getIssue), issueController.getIssue)
   .patch(validate(issueValidation.updateIssue), issueController.updateIssue)
   .delete(validate(issueValidation.deleteIssue), issueController.deleteIssue);
-
-router.route('/by-api/:apiId').get(validate(issueValidation.getIssueByApi), issueController.getIssueByApi);
 
 module.exports = router;
