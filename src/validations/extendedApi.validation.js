@@ -6,6 +6,9 @@ const createExtendedApi = {
     apiName: Joi.string().required(),
     model: Joi.string().custom(objectId).required(),
     skeleton: Joi.string().optional(),
+    type: Joi.string(),
+    data_type: Joi.string(),
+    description: Joi.string(),
     tags: Joi.array()
       .items(
         Joi.object({
@@ -43,6 +46,9 @@ const updateExtendedApi = {
       apiName: Joi.string(),
       model: Joi.string().custom(objectId),
       skeleton: Joi.string().optional(),
+      type: Joi.string(),
+      data_type: Joi.string(),
+      description: Joi.string(),
       tags: Joi.array()
         .items(
           Joi.object({

@@ -68,6 +68,12 @@ const verifyEmail = catchAsync(async (req, res) => {
   res.status(httpStatus.NO_CONTENT).send();
 });
 
+const githubCallback = catchAsync(async (req, res) => {
+  const { code, userId } = req.query;
+  await authService.githubCallback(code, userId);
+  res.status(httpStatus.OK).send('Authorized success. You may close this window now.');
+});
+
 module.exports = {
   register,
   login,
@@ -77,4 +83,5 @@ module.exports = {
   resetPassword,
   sendVerificationEmail,
   verifyEmail,
+  githubCallback,
 };

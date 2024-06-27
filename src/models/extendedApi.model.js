@@ -26,6 +26,13 @@ const extendedApiSchema = mongoose.Schema(
     skeleton: {
       type: String,
     },
+    type: {
+      type: String,
+    },
+    data_type: {
+      type: String,
+    },
+    description: String,
     tags: [tagSchema],
   },
   {

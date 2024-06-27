@@ -12,3 +12,4 @@ module.exports.permissionService = require('./permission.service');
 module.exports.discussionService = require('./discussion.service');
 module.exports.feedbackService = require('./feedback.service');
 module.exports.extendedApiService = require('./extendedApi.service');
+module.exports.listenerService = require('./listener.service');

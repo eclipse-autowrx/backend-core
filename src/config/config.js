@@ -28,6 +28,8 @@ const envVarsSchema = Joi.object()
     CLIENT_BASE_URL: Joi.string().description('Client base url').default('http://localhost:3000'),
     BREVO_API_KEY: Joi.string().required().description('Brevo API key'),
     BREVO_BASE_URL: Joi.string().required().description('Brevo base url'),
+    GITHUB_CLIENT_ID: Joi.string().required().description('Github client id'),
+    GITHUB_CLIENT_SECRET: Joi.string().required().description('Github client secret'),
   })
   .unknown();
 
@@ -86,6 +88,10 @@ const config = {
     model: {
       maximumAuthorizedUsers: 1000,
     },
+  },
+  github: {
+    clientId: process.env.GITHUB_CLIENT_ID,
+    clientSecret: process.env.GITHUB_CLIENT_SECRET,
   },
 };
 
