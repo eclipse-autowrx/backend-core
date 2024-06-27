@@ -30,6 +30,12 @@ const githubCallback = async (code, userId) => {
       socket.emit('auth/github', { accessToken });
     }
   } catch (error) {
+    const socket = listenerService.findSocketByUser(userId);
+    if (socket) {
+      socket.emit('auth/github/error', {
+        message: error.response?.data?.message || 'Failed to authenticate with GitHub',
+      });
+    }
     logger.error(error);
     throw new ApiError(httpStatus.UNAUTHORIZED, 'Incorrect email or password');
   }

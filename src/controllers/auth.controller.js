@@ -72,7 +72,7 @@ const githubCallback = catchAsync(async (req, res) => {
   try {
     const { code, userId } = req.query;
     await authService.githubCallback(code, userId);
-    res.send('<script>window.close();</script>');
+    res.send('You have successfully logged in with Github. You can close this tab now.');
   } catch (error) {
     res.status(httpStatus.UNAUTHORIZED).send('Unauthorized. Please try again.');
   }
