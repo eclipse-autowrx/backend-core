@@ -69,9 +69,13 @@ const verifyEmail = catchAsync(async (req, res) => {
 });
 
 const githubCallback = catchAsync(async (req, res) => {
-  const { code, userId } = req.query;
-  await authService.githubCallback(code, userId);
-  res.status(httpStatus.OK).send('Authorized success. You may close this window now.');
+  try {
+    const { code, userId } = req.query;
+    await authService.githubCallback(code, userId);
+    res.send('<script>window.close();</script>');
+  } catch (error) {
+    res.status(httpStatus.UNAUTHORIZED).send('Unauthorized. Please try again.');
+  }
 });
 
 module.exports = {

@@ -10,3 +10,4 @@ module.exports.discussionValidation = require('./discussion.validation');
 module.exports.feedbackValidation = require('./feedback.validation');
 module.exports.permissionValidation = require('./permission.validation');
 module.exports.extendedApiValidation = require('./extendedApi.validation');
+module.exports.issueValidation = require('./issue.validation');

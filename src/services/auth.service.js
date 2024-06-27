@@ -25,9 +25,7 @@ const githubCallback = async (code, userId) => {
       }
     );
     const accessToken = data.access_token;
-    console.log('accessToken', accessToken);
     const socket = listenerService.findSocketByUser(userId);
-    console.log('socket', socket);
     if (socket) {
       socket.emit('auth/github', { accessToken });
     }
