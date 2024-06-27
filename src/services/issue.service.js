@@ -7,7 +7,7 @@ const createIssue = async (issueBody) => {
   try {
     const response = (
       await axios.post(
-        'https://api.github.com/repos/tuan-hda/goffer-fe/issues',
+        'https://api.github.com/repos/NhanLuongBGSV/issues-verify/issues',
         {
           title,
           body: content,
