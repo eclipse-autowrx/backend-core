@@ -65,11 +65,18 @@ const queryModels = async (filter, options, advanced, userId) => {
         {
           $expr: {
             $function: {
-              body: `function (map, modelId, permission) {
+              body: `function (map, modelId, permission, requesterId, createdById) {
                 const stringModelId = modelId.toString();
-                return map && map[stringModelId] && map[stringModelId].includes(permission);
+                const stringCreatedById = createdById.toString();
+                return (map && map[stringModelId] && map[stringModelId].includes(permission)) || (requesterId == stringCreatedById);
               }`,
-              args: [objectRoleMap, { $toString: '$_id' }, PERMISSIONS.READ_MODEL],
+              args: [
+                objectRoleMap,
+                { $toString: '$_id' },
+                PERMISSIONS.READ_MODEL,
+                userId || null,
+                { $toString: '$created_by' },
+              ],
               lang: 'js',
             },
           },
