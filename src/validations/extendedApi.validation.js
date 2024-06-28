@@ -5,7 +5,7 @@ const createExtendedApi = {
   body: Joi.object().keys({
     apiName: Joi.string()
       .required()
-      .regex(/^Vehicle./)
+      .regex(/^Vehicle\./)
       .message('apiName must start with Vehicle.'),
     model: Joi.string().custom(objectId).required(),
     skeleton: Joi.string().optional(),
@@ -47,7 +47,7 @@ const updateExtendedApi = {
   body: Joi.object()
     .keys({
       apiName: Joi.string()
-        .regex(/^Vehicle./)
+        .regex(/^Vehicle\./)
         .message('apiName must start with Vehicle.'),
       model: Joi.string().custom(objectId),
       skeleton: Joi.string().optional(),
