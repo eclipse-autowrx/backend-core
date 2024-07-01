@@ -24,10 +24,10 @@ const githubCallback = async (code, userId) => {
         },
       }
     );
-    const accessToken = data.access_token;
+    const { access_token: accessToken, expires_in: expiresIn } = data;
     const socket = listenerService.findSocketByUser(userId);
     if (socket) {
-      socket.emit('auth/github', { accessToken });
+      socket.emit('auth/github', { accessToken, expiresIn });
     }
   } catch (error) {
     const socket = listenerService.findSocketByUser(userId);

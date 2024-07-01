@@ -3,10 +3,7 @@ const { objectId } = require('./custom.validation');
 
 const createExtendedApi = {
   body: Joi.object().keys({
-    apiName: Joi.string()
-      .required()
-      .regex(/^Vehicle\./)
-      .message('apiName must start with Vehicle.'),
+    apiName: Joi.string().required(),
     model: Joi.string().custom(objectId).required(),
     skeleton: Joi.string().optional(),
     type: Joi.string(),
