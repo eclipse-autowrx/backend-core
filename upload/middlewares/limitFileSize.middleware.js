@@ -1,41 +1,47 @@
-const config = require('../configs/config')
-const sizeOf = require('image-size')
-const fs = require('fs')
-const sharp = require('sharp')
-const THRESHOLD = 0.95
+/* eslint-disable radix */
+const sizeOf = require('image-size');
+const fs = require('fs');
+const sharp = require('sharp');
+const config = require('../configs/config');
+
+const MAX_SIZE_BYTES = 1 * 1024 * 1024; // 1MB in bytes
+const RESIZE_STEP_RATIO = 0.9; // Resize step ratio
+
 /**
  * @param {Express.Multer.File} file
  */
 const limitImageSize = async (file) => {
-  const types = ['image/jpeg', 'image/png', 'image/jpg']
+  const types = ['image/jpeg', 'image/png', 'image/jpg'];
 
   if (types.includes(file.mimetype)) {
-    const fileSize = fs.statSync(file.path).size
+    let fileSize = fs.statSync(file.path).size;
 
-    // If fileSize meet maxImageSize constraint then just do nothing
-    if (fileSize <= config.maxImageSize) {
-      return
+    // If fileSize meets maxImageSize constraint then just do nothing
+    if (fileSize <= MAX_SIZE_BYTES) {
+      return;
     }
 
-    const ratio = config.maxImageSize / fileSize
+    const dimensions = sizeOf(file.path);
+    let buffer = fs.readFileSync(file.path);
 
-    // Only when smaller than this threshold then we do resize
-    if (ratio >= THRESHOLD) {
-      return
+    while (fileSize > MAX_SIZE_BYTES) {
+      dimensions.width = parseInt(dimensions.width * RESIZE_STEP_RATIO);
+      dimensions.height = parseInt(dimensions.height * RESIZE_STEP_RATIO);
+
+      // eslint-disable-next-line no-await-in-loop
+      buffer = await sharp(buffer)
+        .resize({
+          fit: sharp.fit.outside,
+          width: dimensions.width,
+          height: dimensions.height,
+        })
+        .toBuffer();
+
+      fileSize = buffer.length;
     }
 
-    const dimensions = sizeOf(file.path)
-
-    const buffer = await sharp(file.path)
-      .resize({
-        fit: sharp.fit.outside,
-        width: parseInt(dimensions.width * ratio),
-        height: parseInt(dimensions.height * Math.sqrt(ratio)),
-      })
-      .toBuffer()
-
-    fs.writeFileSync(file.path, buffer)
+    fs.writeFileSync(file.path, buffer);
   }
-}
+};
 
-module.exports = limitImageSize
+module.exports = limitImageSize;

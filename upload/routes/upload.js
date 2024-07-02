@@ -1,4 +1,11 @@
+/* eslint-disable no-undef-init */
+/* eslint-disable no-use-before-define */
+/* eslint-disable security/detect-non-literal-fs-filename */
 /* eslint-disable object-shorthand */
+const fs = require('fs');
+const sharp = require('sharp');
+const { v4: uuidv4 } = require('uuid');
+const path = require('path');
 const express = require('express');
 const multer = require('multer');
 const config = require('../configs/config');
@@ -12,18 +19,15 @@ const {
   isDir,
   formatLeadingSlash,
 } = require('../utils/pathUtils');
+
 const router = express.Router();
-const fs = require('fs');
-const sharp = require('sharp');
 const { isImage, getThumbPath } = require('../utils/imageUtils');
-const { v4: uuidv4 } = require('uuid');
 const { isCompressFile, unzipFile } = require('../utils/compressUtils');
-const path = require('path');
 const limitImageSize = require('../middlewares/limitFileSize.middleware');
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const dir = req.params.dir;
+    const { dir } = req.params;
 
     // Allow some dirs only
     // if (!config.appDataDirs.includes(dir)) {
@@ -52,10 +56,10 @@ const storage = multer.diskStorage({
   filename: function (req, file, cb) {
     // Random a name if request does not have path and containPath
     if (!req.body.path && !req.body.containPath) {
-      req.body.path = '/' + uuidv4() + path.extname(file.originalname);
+      req.body.path = `/${uuidv4()}${path.extname(file.originalname)}`;
     }
 
-    const force = req.query.force;
+    const { force } = req.query;
     let filename = file.originalname;
 
     // Check if filename is valid and get filename
@@ -72,7 +76,7 @@ const storage = multer.diskStorage({
     }
 
     // Get full path of item
-    const dir = req.params.dir;
+    const { dir } = req.params;
     const containPath = req.body.path ? getContainPathDefault(req.body.path, dir) : dir + req.body.containPath;
     const fullPath = getSystemPath(`${containPath}/${filename}`);
 
@@ -98,14 +102,16 @@ router.post('/:dir', async (req, res, next) => {
       return;
     }
 
-    limitImageSize(req.file);
+    if (req.query?.disableResize !== 'true') {
+      limitImageSize(req.file);
+    }
 
     const result = {};
 
     let deploymentUrl = undefined;
 
     try {
-      let filePath = getItemRelativePath(req.file.path);
+      const filePath = getItemRelativePath(req.file.path);
 
       const url = getFileUrlFromPath(filePath);
       result.url = url;
@@ -114,7 +120,7 @@ router.post('/:dir', async (req, res, next) => {
       if (isCompressFile(filePath)) {
         try {
           unzipFile(req.file.path);
-          const containDir = path.dirname(req.file.path) + '/' + path.parse(req.file.path).name;
+          const containDir = `${path.dirname(req.file.path)}/${path.parse(req.file.path).name}`;
           deploymentUrl = getFileUrlFromPath(`${containDir}`);
           result.deploymentUrl = deploymentUrl;
         } catch (error) {
@@ -130,7 +136,7 @@ router.post('/:dir', async (req, res, next) => {
         try {
           const thumbnailPath = generateThumbnail(filePath);
           result.thumbnail = getFileUrlFromPath(thumbnailPath);
-        } catch (err) {
+        } catch (e) {
           console.log('Generate thumbnail error:', err);
         }
       }
@@ -161,7 +167,7 @@ router.post('/:dir/bulk', async (req, res, next) => {
 
       req.files.forEach((file) => {
         limitImageSize(file);
-        let filePath = getItemRelativePath(file.path);
+        const filePath = getItemRelativePath(file.path);
         const url = getFileUrlFromPath(filePath);
 
         const itemResult = {
@@ -172,8 +178,8 @@ router.post('/:dir/bulk', async (req, res, next) => {
           try {
             const thumbnailPath = generateThumbnail(filePath);
             itemResult.thumbnail = getFileUrlFromPath(thumbnailPath);
-          } catch (err) {
-            console.log('Generate thumbnail error:', err);
+          } catch (e) {
+            console.log('Generate thumbnail error:', e);
           }
         }
 
@@ -211,7 +217,7 @@ const handleUploadError = (err, res, next) => {
 };
 
 const generateThumbnail = (filePath) => {
-  let thumbPath = getThumbPath(filePath);
+  const thumbPath = getThumbPath(filePath);
 
   sharp(getSystemPath(filePath))
     .resize({

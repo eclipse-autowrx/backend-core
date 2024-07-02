@@ -6,4 +6,4 @@ module.exports = {
   INVALID_CONTAIN_PATH: 'Invalid containPath',
   PATH_OUTSIDE: 'Path is not in project',
   INVALID_FILES: 'Invalid files',
-}
+};

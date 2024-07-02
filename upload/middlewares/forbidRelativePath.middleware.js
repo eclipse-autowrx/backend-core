@@ -1,24 +1,23 @@
-const path = require('path')
+const path = require('path');
 
 const forbidRelativePath = async (req, res, next) => {
   try {
-    const itemPath = req.body.path || req.query.path || req.body.containPath
+    const itemPath = req.body.path || req.query.path || req.body.containPath;
 
-    console.log('itemPath:', itemPath)
+    console.log('itemPath:', itemPath);
 
     if (!itemPath || path.isAbsolute(itemPath)) {
-      next()
-      return false
-    } else {
-      res.status(400).json({
-        msg: 'Path must be absolute',
-      })
-      return true
+      next();
+      return false;
     }
+    res.status(400).json({
+      msg: 'Path must be absolute',
+    });
+    return true;
   } catch (error) {
-    next(error)
-    return false
+    next(error);
+    return false;
   }
-}
+};
 
-module.exports = forbidRelativePath
+module.exports = forbidRelativePath;
