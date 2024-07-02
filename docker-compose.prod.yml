@@ -2,5 +2,7 @@ version: '3'
 
 services:
   playground-be:
-    container_name: ${PROD_CONTAINER_NAME}
-    command: yarn start
+    container_name: playground-be-dev
+    command: yarn dev -L
+  upload:
+    command: npm run prod

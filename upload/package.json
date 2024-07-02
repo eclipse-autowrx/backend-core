@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon ./index.js"
+    "start": "nodemon ./index.js",
+    "prod": "npx pm2 start ecosystem.config.json --no-daemon"
   },
   "dependencies": {
     "adm-zip": "^0.5.10",
@@ -13,6 +14,7 @@
     "express": "^4.17.1",
     "image-size": "^1.0.2",
     "multer": "^1.4.5-lts.1",
+    "pm2": "^5.4.1",
     "sharp": "^0.32.6",
     "uuid": "^9.0.1"
   },
