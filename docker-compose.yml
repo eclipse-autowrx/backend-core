@@ -30,6 +30,8 @@ services:
     ports:
     - '${UPLOAD_PORT}:${UPLOAD_PORT}'
     volumes:
+    - ./upload:/usr/src/upload
+    - /usr/src/upload/node_modules/
     - '${UPLOAD_PATH}:/usr/src/upload/data'
     networks:
     - node-network

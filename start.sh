@@ -38,9 +38,9 @@ sudo chmod -R 775 "$UPLOAD_PATH"
 
 # Determine the command to run based on the argument
 if [ "$1" == "-prod" ]; then
-  DOCKER_COMMAND="yarn docker:prod"
+  DOCKER_COMMAND="docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d"
 else
-  DOCKER_COMMAND="yarn docker:dev"
+  DOCKER_COMMAND="docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build -d"
 fi
 
 # Run Docker Compose

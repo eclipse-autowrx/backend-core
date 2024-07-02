@@ -26,9 +26,9 @@ const storage = multer.diskStorage({
     const dir = req.params.dir;
 
     // Allow some dirs only
-    if (!config.appDataDirs.includes(dir)) {
-      return cb(new Error(constant.DIR_IS_NOT_ALLOWED), null);
-    }
+    // if (!config.appDataDirs.includes(dir)) {
+    //   return cb(new Error(constant.DIR_IS_NOT_ALLOWED), null);
+    // }
 
     // Init containPath as dir
     let containPath = dir;
