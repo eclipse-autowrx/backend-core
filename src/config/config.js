@@ -30,6 +30,7 @@ const envVarsSchema = Joi.object()
     BREVO_BASE_URL: Joi.string().required().description('Brevo base url'),
     GITHUB_CLIENT_ID: Joi.string().required().description('Github client id'),
     GITHUB_CLIENT_SECRET: Joi.string().required().description('Github client secret'),
+    UPLOAD_PORT: Joi.number().required().description('Upload port'),
   })
   .unknown();
 
@@ -92,6 +93,11 @@ const config = {
   github: {
     clientId: process.env.GITHUB_CLIENT_ID,
     clientSecret: process.env.GITHUB_CLIENT_SECRET,
+  },
+  services: {
+    upload: {
+      port: envVars.UPLOAD_PORT,
+    },
   },
 };
 

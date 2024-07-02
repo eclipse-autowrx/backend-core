@@ -10,11 +10,12 @@ const httpStatus = require('http-status');
 const config = require('./config/config');
 const morgan = require('./config/morgan');
 const { jwtStrategy } = require('./config/passport');
-const { authLimiter } = require('./middlewares/rateLimiter');
+// const { authLimiter } = require('./middlewares/rateLimiter');
 const routes = require('./routes/v1');
 const routesV2 = require('./routes/v2');
 const { errorConverter, errorHandler } = require('./middlewares/error');
 const ApiError = require('./utils/ApiError');
+const setupProxy = require('./config/proxyHandler');
 
 const app = express();
 
@@ -70,6 +71,9 @@ passport.use('jwt', jwtStrategy);
 // v1 api routes
 app.use('/v1', routes);
 app.use('/v2', routesV2);
+
+// Setup proxy to other services
+setupProxy(app);
 
 // send back a 404 error for any unknown api request
 app.use((req, res, next) => {

@@ -62,6 +62,7 @@
     "express-rate-limit": "^5.0.0",
     "firebase-admin": "^12.1.0",
     "helmet": "^4.1.0",
+    "http-proxy-middleware": "^3.0.0",
     "http-status": "^1.7.4",
     "joi": "^17.3.0",
     "jsonwebtoken": "^8.5.1",
