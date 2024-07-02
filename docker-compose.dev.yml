@@ -4,3 +4,5 @@ services:
   playground-be:
     container_name: playground-be-dev
     command: yarn dev -L
+  upload:
+    command: npm start

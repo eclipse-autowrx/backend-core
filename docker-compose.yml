@@ -1,3 +1,4 @@
+# upload/Dockerfile
 version: '3'
 
 services:
@@ -8,6 +9,7 @@ services:
       - '${PORT}:${PORT}'
     depends_on:
       - playground-db
+      - upload
     volumes:
       - .:/usr/src/playground-be
     networks:
@@ -21,6 +23,18 @@ services:
       - dbdata:/data/db
     networks:
       - node-network
+
+  upload:
+    build: ./upload/
+    image: upload
+    ports:
+    - '${UPLOAD_PORT}:${UPLOAD_PORT}'
+    volumes:
+    - '${UPLOAD_PATH}:/usr/src/upload/data'
+    networks:
+    - node-network
+    environment:
+    - 'PORT=${UPLOAD_PORT}'
 
 volumes:
   dbdata:
