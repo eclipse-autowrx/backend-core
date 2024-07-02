@@ -3,6 +3,7 @@
 # Load environment variables from .env file
 source .env
 
+yarn
 
 # Validate environment variables
 if [ -z "$PORT" ]; then
