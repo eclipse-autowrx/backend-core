@@ -9,12 +9,6 @@ const setupProxy = (app) => {
       changeOrigin: true,
     })
   );
-  app.use(
-    '/v2/log',
-    createProxyMiddleware({
-      target: `http://10.2.0.4:${config.services.log.port}`,
-    })
-  );
 };
 
 module.exports = setupProxy;
