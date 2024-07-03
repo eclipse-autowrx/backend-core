@@ -12,7 +12,7 @@ const setupProxy = (app) => {
   app.use(
     '/v2/log',
     createProxyMiddleware({
-      target: `http://172.17.0.1:${config.services.log.port}`,
+      target: `http://10.2.0.4:${config.services.log.port}`,
     })
   );
 };
