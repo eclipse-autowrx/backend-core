@@ -1,6 +1,7 @@
 const httpStatus = require('http-status');
 const { Permission, UserRole, Model, Prototype, Role } = require('../models');
 const ApiError = require('../utils/ApiError');
+const roleModel = require('../models/role.model');
 
 /**
  *
@@ -28,6 +29,10 @@ const createPermission = async (name, type) => {
     name,
     type,
   });
+};
+
+const getRoles = async () => {
+  return roleModel.find();
 };
 
 const getPermissions = async () => {
@@ -137,4 +142,5 @@ module.exports = {
   removeRoleFromUser,
   getMappedRoles,
   containsPermission,
+  getRoles,
 };

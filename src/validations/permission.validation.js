@@ -4,8 +4,7 @@ const assignRoleToUser = {
   body: Joi.object().keys({
     user: Joi.string().required(), // Assuming this is a user ID
     role: Joi.string().required(), // Assuming this is a role ID
-    ref: Joi.string().required(), // Assuming this is a reference ID
-    refType: Joi.string().required(), // Assuming this is a reference type string
+    ref: Joi.string(), // Assuming this is a reference ID
   }),
 };
 

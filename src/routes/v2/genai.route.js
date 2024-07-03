@@ -1,5 +1,13 @@
 const axios = require('axios');
 const express = require('express');
+const mongoose = require('mongoose');
+const { getAuth } = require('firebase-admin/auth');
+const httpStatus = require('http-status');
+const auth = require('../../middlewares/auth');
+const { permissionService } = require('../../services');
+const { PERMISSIONS } = require('../../config/roles');
+const ApiError = require('../../utils/ApiError');
+const catchAsync = require('../../utils/catchAsync');
 
 const router = express.Router();
 
@@ -35,9 +43,45 @@ const getAccessToken = async () => {
   }
 };
 
-const generateAIContent = async (req, res) => {
+const hasGenAIPermission = async (userId) => {
+  if (mongoose.Types.ObjectId.isValid(userId)) {
+    try {
+      return await permissionService.hasPermission(userId, PERMISSIONS.GENERATIVE_AI);
+    } catch (error) {
+      return false;
+    }
+  }
+
   try {
-    const { prompt } = req.body;
+    const record = await getAuth().getUser(userId);
+    if (
+      record &&
+      record.email in
+        [
+          'nhan.luongnguyen@vn.bosch.com',
+          'phong.phamtuan@vn.bosch.com',
+          'tam.thaihoangminh@vn.bosch.com',
+          'hoang.phanthanh@vn.bosch.com',
+          'dirk.slama@bosch.com',
+          'thanh.hoang.bk@gmail.com',
+          'tuan.hoangdinhanh@vn.bosch.com',
+          'hdatdragon2@gmail.com',
+        ]
+    ) {
+      return true;
+    }
+  } catch (error) {
+    return false;
+  }
+  return false;
+};
+
+const generateAIContent = catchAsync(async (req, res) => {
+  const { prompt, user } = req.body;
+  if (!(await hasGenAIPermission(user || req.user.id))) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'You do not have permission to use GenAI service');
+  }
+  try {
     const token = await getAccessToken();
     const instance = process.env.ETAS_INSTANCE_ENDPOINT;
 
@@ -60,8 +104,8 @@ const generateAIContent = async (req, res) => {
     console.error('Error generating AI content:', error);
     return res.status(500).json({ error: 'Failed to generate AI content' });
   }
-};
+});
 
-router.post('/', generateAIContent);
+router.post('/', auth(), generateAIContent);
 
 module.exports = router;

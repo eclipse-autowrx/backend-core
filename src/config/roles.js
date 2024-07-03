@@ -14,12 +14,18 @@ const PERMISSIONS = {
   // model_id
   READ_MODEL: 'readModel',
   WRITE_MODEL: 'writeModel',
+
+  // genai,
+  GENERATIVE_AI: 'generativeAI',
 };
 
 // The role here is applied for the resources that the user is not the owner of
 const ROLES = {
   promoted_user: {
     permissions: [PERMISSIONS.UNLIMITED_MODEL],
+  },
+  generative_ai_role: {
+    permissions: [PERMISSIONS.GENERATIVE_AI],
   },
   model_contributor: {
     permissions: [PERMISSIONS.READ_MODEL],
@@ -28,7 +34,13 @@ const ROLES = {
     permissions: [PERMISSIONS.READ_MODEL, PERMISSIONS.WRITE_MODEL],
   },
   admin: {
-    permissions: [PERMISSIONS.READ_MODEL, PERMISSIONS.WRITE_MODEL, PERMISSIONS.MANAGE_USERS, PERMISSIONS.UNLIMITED_MODEL],
+    permissions: [
+      PERMISSIONS.READ_MODEL,
+      PERMISSIONS.WRITE_MODEL,
+      PERMISSIONS.MANAGE_USERS,
+      PERMISSIONS.UNLIMITED_MODEL,
+      PERMISSIONS.GENERATIVE_AI,
+    ],
   },
 };
 

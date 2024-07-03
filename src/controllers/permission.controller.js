@@ -13,8 +13,8 @@ const getPermission = catchAsync(async (req, res) => {
 });
 
 const assignRoleToUser = catchAsync(async (req, res) => {
-  const { user, role, ref, refType } = req.body;
-  const userRole = await permissionService.assignRoleToUser(user, role, ref, refType);
+  const { user, role, ref } = req.body;
+  const userRole = await permissionService.assignRoleToUser(user, role, ref);
   res.status(201).json(userRole);
 });
 
@@ -34,10 +34,16 @@ const getRoleUsers = catchAsync(async (req, res) => {
   res.json(users);
 });
 
+const getRoles = catchAsync(async (req, res) => {
+  const roles = await permissionService.getRoles();
+  res.json(roles);
+});
+
 module.exports = {
   assignRoleToUser,
   getUserRoles,
   getRoleUsers,
   getSelfRoles,
   getPermission,
+  getRoles,
 };

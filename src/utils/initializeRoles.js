@@ -18,7 +18,9 @@ const initializeRoles = async () => {
           permissions: ROLES[role].permissions,
         });
       } else {
-        logger.info(`Role ${role} already exists.`);
+        await roleExist.updateOne({
+          permissions: ROLES[role].permissions,
+        });
       }
     }
     logger.info('Role initialization completed.');
