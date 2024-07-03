@@ -28,15 +28,15 @@ services:
     build: ./upload/
     image: upload
     ports:
-    - '${UPLOAD_PORT}:${UPLOAD_PORT}'
+      - '${UPLOAD_PORT}:${UPLOAD_PORT}'
     volumes:
-    - ./upload:/usr/src/upload
-    - /usr/src/upload/node_modules/
-    - '${UPLOAD_PATH}:/usr/src/upload/data'
+      - ./upload:/usr/src/upload
+      - /usr/src/upload/node_modules/
+      - '${UPLOAD_PATH}:/usr/src/upload/data'
     networks:
-    - node-network
+      - node-network
     environment:
-    - 'PORT=${UPLOAD_PORT}'
+      - 'PORT=${UPLOAD_PORT}'
 
 volumes:
   dbdata:

@@ -98,6 +98,9 @@ const config = {
     upload: {
       port: envVars.UPLOAD_PORT,
     },
+    log: {
+      port: envVars.LOG_PORT || 9600,
+    },
   },
 };
 
