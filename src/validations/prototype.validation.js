@@ -59,6 +59,7 @@ const listPrototypes = {
     name: Joi.string(),
     complexity_level: Joi.number().min(1).max(5),
     autorun: Joi.boolean(),
+    created_by: Joi.string().custom(objectId),
     sortBy: Joi.string(),
     limit: Joi.number().integer(),
     page: Joi.number().integer(),

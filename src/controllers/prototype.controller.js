@@ -15,7 +15,7 @@ const createPrototype = catchAsync(async (req, res) => {
 });
 
 const listPrototypes = catchAsync(async (req, res) => {
-  const filter = pick(req.query, ['state', 'model_id', 'name', 'complexity_level', 'autorun']);
+  const filter = pick(req.query, ['state', 'model_id', 'name', 'complexity_level', 'autorun', 'created_by']);
   const options = pick(req.query, ['sortBy', 'limit', 'page', 'fields', 'populate']);
   const prototypes = await prototypeService.queryPrototypes(filter, options);
   res.send(prototypes);
