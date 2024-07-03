@@ -70,9 +70,12 @@ const verifyEmail = catchAsync(async (req, res) => {
 
 const githubCallback = catchAsync(async (req, res) => {
   try {
-    const { code, userId } = req.query;
+    const { origin, code, userId } = req.query;
+    console.log('origin', origin);
+    console.log('code', code);
+    console.log('userId', userId);
     await authService.githubCallback(code, userId);
-    res.send('You have successfully logged in with Github. You can close this tab now.');
+    res.redirect(`${origin || 'http://127.0.0.1:3000'}/auth/github/success`);
   } catch (error) {
     res.status(httpStatus.UNAUTHORIZED).send('Unauthorized. Please try again.');
   }
