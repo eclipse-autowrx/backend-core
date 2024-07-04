@@ -30,7 +30,7 @@ const getSelfRoles = catchAsync(async (req, res) => {
 });
 
 const getRoleUsers = catchAsync(async (req, res) => {
-  const users = await permissionService.getRoleUsers(req.params.role);
+  const users = await permissionService.getRoleUsers();
   res.json(users);
 });
 

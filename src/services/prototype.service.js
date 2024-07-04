@@ -22,7 +22,7 @@ const createPrototype = async (userId, prototypeBody) => {
     ...prototypeBody,
     created_by: userId,
   });
-  return prototype._id;
+  return prototype;
 };
 
 /**

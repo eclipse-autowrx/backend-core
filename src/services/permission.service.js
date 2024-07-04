@@ -54,8 +54,53 @@ const getUserRoles = async (user, filter) => {
   return UserRole.find({ user, ...filter }).populate('role');
 };
 
-const getRoleUsers = async (role) => {
-  return UserRole.find({ role }).populate('user');
+const getRoleUsers = async () => {
+  return UserRole.aggregate([
+    {
+      $group: {
+        _id: '$role',
+        users: { $push: '$user' },
+      },
+    },
+    {
+      $lookup: {
+        from: 'roles',
+        localField: '_id',
+        foreignField: '_id',
+        as: 'role',
+      },
+    },
+
+    {
+      $unwind: {
+        path: '$role',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'users',
+        foreignField: '_id',
+        as: 'users',
+      },
+    },
+    {
+      $addFields: {
+        role: {
+          id: '$role._id',
+        },
+        users: {
+          id: {
+            $arrayElemAt: ['$users._id', 0],
+          },
+        },
+      },
+    },
+    {
+      $unset: ['_id', 'users._id', 'role._id'],
+    },
+  ]);
 };
 
 // Create a map for better search performance
