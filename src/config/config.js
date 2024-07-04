@@ -31,6 +31,9 @@ const envVarsSchema = Joi.object()
     GITHUB_CLIENT_ID: Joi.string().required().description('Github client id'),
     GITHUB_CLIENT_SECRET: Joi.string().required().description('Github client secret'),
     UPLOAD_PORT: Joi.number().required().description('Upload port'),
+    // AWS,
+    AWS_PUBLIC_KEY: Joi.string().required().description('AWS public key'),
+    AWS_SECRET_KEY: Joi.string().required().description('AWS secret key'),
   })
   .unknown();
 

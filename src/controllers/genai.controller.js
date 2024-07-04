@@ -1,0 +1,204 @@
+/* eslint-disable no-useless-escape */
+/* eslint-disable no-console */
+/* eslint-disable no-unneeded-ternary */
+/* eslint-disable object-shorthand */
+/* eslint-disable prefer-const */
+/* eslint-disable no-shadow */
+const {
+  BedrockRuntimeClient,
+  InvokeModelCommand,
+  InvokeModelWithResponseStreamCommand,
+} = require('@aws-sdk/client-bedrock-runtime');
+const dotenv = require('dotenv');
+
+dotenv.config();
+
+const publicKey = process.env.AWS_PUBLIC_KEY;
+const secretKey = process.env.AWS_SECRET_KEY;
+
+function extractRegion(url) {
+  const regionPattern = /bedrock-runtime\.([a-z0-9-]+)\.amazonaws\.com/;
+  const match = url.match(regionPattern);
+  return match ? match[1] : null;
+}
+
+function extractModelId(url) {
+  const modelIdPattern = /model\/(.*?)(\/|$)/;
+  const match = url.match(modelIdPattern);
+  return match ? match[1] : null;
+}
+
+function generatePayload(modelId, inputPrompt, systemPrompt) {
+  const modelPrefix = modelId.split('.')[0];
+  switch (modelPrefix) {
+    case 'amazon':
+      return {
+        inputText: `"System": ${systemPrompt ? systemPrompt : ''} "User": ${inputPrompt}\n`,
+        textGenerationConfig: {
+          temperature: 0.7,
+          topP: 0.9,
+          maxTokenCount: 4096,
+          stopSequences: [],
+        },
+      };
+    case 'anthropic':
+      return {
+        anthropic_version: 'bedrock-2023-05-31',
+        max_tokens: 4096,
+        system: systemPrompt ? systemPrompt : '',
+        messages: [
+          {
+            role: 'user',
+            content: [{ type: 'text', text: inputPrompt }],
+          },
+        ],
+        temperature: 0.7,
+        top_p: 0.9,
+        top_k: 40,
+        stop_sequences: [],
+      };
+    case 'meta':
+      return {
+        prompt: `"System": ${systemPrompt ? systemPrompt : ''} "User": ${inputPrompt}\:`,
+        temperature: 0.7,
+        top_p: 0.9,
+        max_gen_len: 2048,
+      };
+    case 'mistral':
+      return {
+        prompt: `"System": ${systemPrompt ? systemPrompt : ''} "User": ${inputPrompt}\:`,
+        max_tokens: 4096,
+        stop: [],
+        temperature: 0.7,
+        top_p: 0.9,
+        top_k: 40,
+      };
+    case 'cohere':
+      return {
+        prompt: `"System": ${systemPrompt ? systemPrompt : ''} "User": ${inputPrompt}\:`,
+        temperature: 0.7,
+        p: 0.9,
+        k: 40,
+        max_tokens: 4096,
+        stop_sequences: [],
+        return_likelihoods: 'NONE',
+        stream: true,
+        num_generations: 1,
+        truncate: 'NONE',
+      };
+    case 'ai21':
+      return {
+        prompt: `"System": ${systemPrompt ? systemPrompt : ''} "User": ${inputPrompt}\:`,
+        temperature: 0.7,
+        topP: 0.9,
+        maxTokens: 4096,
+        stopSequences: [],
+        countPenalty: {
+          scale: 0.0,
+        },
+        presencePenalty: {
+          scale: 0.0,
+        },
+        frequencyPenalty: {
+          scale: 0.0,
+        },
+      };
+    default:
+      throw new Error(`Unsupported model ID: ${modelId}`);
+  }
+}
+
+async function BedrockGenCode({ endpointURL, publicKey, secretKey, inputPrompt, systemMessage }) {
+  let region = extractRegion(endpointURL) || 'us-east-1';
+  let modelId = extractModelId(endpointURL) || '';
+
+  const awsConfig = {
+    credentials: {
+      accessKeyId: publicKey,
+      secretAccessKey: secretKey,
+    },
+    region: region,
+  };
+
+  const bedrock = new BedrockRuntimeClient(awsConfig);
+  const payload = generatePayload(modelId, inputPrompt, systemMessage);
+
+  const input = {
+    accept: 'application/json',
+    contentType: 'application/json',
+    modelId,
+    body: JSON.stringify(payload),
+  };
+
+  let generation = '';
+
+  try {
+    const bedrockResponse = await bedrock.send(new InvokeModelWithResponseStreamCommand(input));
+
+    if (!bedrockResponse.body) {
+      throw new Error('Failed to get readable stream from response');
+    }
+
+    // eslint-disable-next-line no-restricted-syntax
+    for await (const item of bedrockResponse.body) {
+      const chunk = JSON.parse(new TextDecoder().decode(item.chunk?.bytes));
+      const modelPrefix = modelId.split('.')[0];
+
+      switch (modelPrefix) {
+        case 'amazon':
+          generation += chunk.outputText;
+          break;
+        case 'anthropic':
+          if (chunk.type === 'content_block_delta' && chunk.delta.type === 'text_delta') {
+            generation += chunk.delta.text;
+          }
+          break;
+        case 'meta':
+          generation += chunk.generation;
+          break;
+        case 'mistral':
+          generation += chunk.outputs[0].text;
+          break;
+        case 'cohere':
+          generation += chunk.text;
+          break;
+        case 'ai21':
+          generation += chunk.completions[0].data.text;
+          break;
+        default:
+          console.warn(`Unhandled model prefix: ${modelPrefix}`);
+      }
+    }
+  } catch (error) {
+    try {
+      const bedrockResponse = await bedrock.send(new InvokeModelCommand(input));
+      const response = JSON.parse(new TextDecoder().decode(bedrockResponse.body));
+      if (modelId.startsWith('ai21')) {
+        generation = response.completions[0].data.text;
+      }
+    } catch (err) {
+      throw new Error('Failed to generate response from Bedrock, please check your endpoint URL, region, keys');
+    }
+  }
+  return generation;
+}
+
+async function invokeBedrockModel(req, res) {
+  const { endpointURL, inputPrompt, systemMessage } = req.body;
+
+  try {
+    const generation = await BedrockGenCode({ endpointURL, publicKey, secretKey, inputPrompt, systemMessage });
+    res.json({ code: generation });
+  } catch (error) {
+    console.error('Failed to generate response from Bedrock:', error);
+    res.status(500).json({ error: 'Failed to generate response from Bedrock' });
+  }
+}
+
+module.exports = {
+  invokeBedrockModel,
+  BedrockGenCode,
+  extractRegion,
+  extractModelId,
+  generatePayload,
+};
