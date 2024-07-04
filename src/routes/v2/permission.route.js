@@ -10,8 +10,8 @@ const { checkPermission } = require('../../middlewares/permission');
 
 router.get('/self', auth(), validate(permissionValidation.getSelfUsers), permissionController.getSelfRoles);
 router.get('/', auth(), validate(permissionValidation.getPermission), permissionController.getPermission);
+router.get('/roles', auth(), permissionController.getRoles);
 router.get('/users-by-roles', auth(), permissionController.getRoleUsers);
-router.get('/');
 router.post(
   '/',
   auth(),
