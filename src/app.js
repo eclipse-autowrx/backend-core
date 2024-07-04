@@ -52,6 +52,7 @@ app.use(
       /\.digitalauto\.asia$/,
       /\.digital\.auto$/,
       'https://digitalauto.netlify.app',
+      /127\.0\.0\.1:\d+/,
     ],
     credentials: true,
   })
