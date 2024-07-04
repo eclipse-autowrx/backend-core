@@ -111,6 +111,9 @@ const getMappedRoles = (roles) => {
 
     if (map.has(roleRef)) {
       const existingRole = map.get(roleRef);
+      if (!existingRole.permissions) {
+        existingRole.permissions = [];
+      }
       existingRole.permissions.push(role.role.permissions);
     } else {
       map.set(roleRef, role.role.permissions);
