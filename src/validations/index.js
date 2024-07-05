@@ -12,3 +12,4 @@ module.exports.permissionValidation = require('./permission.validation');
 module.exports.extendedApiValidation = require('./extendedApi.validation');
 module.exports.issueValidation = require('./issue.validation');
 module.exports.genaiValidation = require('./genai.validation');
+module.exports.searchValidation = require('./search.validation');

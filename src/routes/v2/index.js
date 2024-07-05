@@ -11,6 +11,7 @@ const feedbackRoute = require('./feedback.route');
 const permissionRoute = require('./permission.route');
 const extendedApiRoute = require('./extendedApi.route');
 const issueRoute = require('./issue.route');
+const searchRoute = require('./search.route');
 
 const router = express.Router();
 
@@ -62,6 +63,10 @@ const defaultRoutes = [
   {
     path: '/issues',
     route: issueRoute,
+  },
+  {
+    path: '/search',
+    route: searchRoute,
   },
 ];
 

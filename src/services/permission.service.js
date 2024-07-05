@@ -91,8 +91,20 @@ const getRoleUsers = async () => {
           id: '$role._id',
         },
         users: {
-          id: {
-            $arrayElemAt: ['$users._id', 0],
+          $map: {
+            input: '$users',
+            as: 'user',
+            in: {
+              id: '$$user._id',
+              name: '$$user.name',
+              email: '$$user.email',
+              email_verified: '$$user.email_verified',
+              image_file: '$$user.image_file',
+              provider: '$$user.provider',
+              provider_data: '$$user.provider_data',
+              createdAt: '$$user.createdAt',
+              updatedAt: '$$user.updatedAt',
+            },
           },
         },
       },
