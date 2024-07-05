@@ -1,9 +1,11 @@
 const { searchService } = require('../services');
 const catchAsync = require('../utils/catchAsync');
+const pick = require('../utils/pick');
 
 const search = catchAsync(async (req, res) => {
   const { q } = req.query;
-  const result = await searchService.search(q);
+  const options = pick(req.query, ['sortBy', 'limit', 'page']);
+  const result = await searchService.search(q, options);
   res.send(result);
 });
 
