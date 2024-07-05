@@ -34,6 +34,9 @@ const envVarsSchema = Joi.object()
     // AWS,
     AWS_PUBLIC_KEY: Joi.string().required().description('AWS public key'),
     AWS_SECRET_KEY: Joi.string().required().description('AWS secret key'),
+    // OpenAI,
+    OPENAI_API_KEY: Joi.string().required().description('OpenAI API key'),
+    OPENAI_ENDPOINT_URL: Joi.string().required().description('OpenAI endpoint url'),
   })
   .unknown();
 
@@ -104,6 +107,14 @@ const config = {
     log: {
       port: envVars.LOG_PORT || 9600,
     },
+  },
+  openai: {
+    apiKey: envVars.OPENAI_API_KEY,
+    endpointUrl: envVars.OPENAI_ENDPOINT_URL,
+  },
+  aws: {
+    publicKey: envVars.AWS_PUBLIC_KEY,
+    secretKey: envVars.AWS_SECRET_KEY,
   },
 };
 

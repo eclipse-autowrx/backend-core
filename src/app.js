@@ -16,6 +16,7 @@ const routesV2 = require('./routes/v2');
 const { errorConverter, errorHandler } = require('./middlewares/error');
 const ApiError = require('./utils/ApiError');
 const setupProxy = require('./config/proxyHandler');
+const LLMServices = require('./services/llm.service');
 
 const app = express();
 
