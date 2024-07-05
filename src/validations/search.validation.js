@@ -1,7 +1,7 @@
 const Joi = require('joi');
 
 const search = {
-  params: Joi.object().keys({
+  query: Joi.object().keys({
     q: Joi.string().required(),
   }),
 };
