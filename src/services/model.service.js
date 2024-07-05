@@ -232,6 +232,40 @@ const deleteAuthorizedUser = async (id, roleBody, userId) => {
   await permissionService.removeRoleFromUser(roleBody.userId, role, id, 'model');
 };
 
+const getAccessibleModels = async (userId) => {
+  const roles = await permissionService.getUserRoles(userId);
+  const roleMap = permissionService.getMappedRoles(roles);
+  const objectRoleMap = Object.fromEntries(roleMap.entries());
+
+  const visibleModels = await Model.find({
+    $or: [
+      { visibility: 'public' },
+      { created_by: userId },
+      {
+        $expr: {
+          $function: {
+            body: `function (map, modelId, permission, requesterId, createdById) {
+            const stringModelId = modelId.toString();
+            const stringCreatedById = createdById.toString();
+            return (map && map[stringModelId] && map[stringModelId].includes(permission)) || (requesterId == stringCreatedById);
+          }`,
+            args: [
+              objectRoleMap,
+              { $toString: '$_id' },
+              PERMISSIONS.READ_MODEL,
+              userId || null,
+              { $toString: '$created_by' },
+            ],
+            lang: 'js',
+          },
+        },
+      },
+    ],
+  });
+
+  return visibleModels;
+};
+
 module.exports = {
   createModel,
   queryModels,
@@ -240,4 +274,5 @@ module.exports = {
   deleteModelById,
   addAuthorizedUser,
   deleteAuthorizedUser,
+  getAccessibleModels,
 };
