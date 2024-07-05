@@ -10,6 +10,9 @@ const {
   InvokeModelWithResponseStreamCommand,
 } = require('@aws-sdk/client-bedrock-runtime');
 const dotenv = require('dotenv');
+const catchAsync = require('../utils/catchAsync');
+const LLMServices = require('../services/llm.service');
+const config = require('../config/config');
 
 dotenv.config();
 
@@ -114,8 +117,8 @@ async function BedrockGenCode({ endpointURL, publicKey, secretKey, inputPrompt, 
 
   const awsConfig = {
     credentials: {
-      accessKeyId: publicKey,
-      secretAccessKey: secretKey,
+      accessKeyId: config.aws.publicKey,
+      secretAccessKey: config.aws.secretKey,
     },
     region: region,
   };
@@ -188,12 +191,30 @@ async function invokeBedrockModel(req, res) {
 
   try {
     const generation = await BedrockGenCode({ endpointURL, publicKey, secretKey, inputPrompt, systemMessage });
-    res.json({ code: generation });
+    res.json(generation);
   } catch (error) {
     console.error('Failed to generate response from Bedrock:', error);
     res.status(500).json({ error: 'Failed to generate response from Bedrock' });
   }
 }
+
+const invokeOpenAIController = catchAsync(async (req, res) => {
+  const { inputPrompt, systemMessage } = req.body;
+  let result = '';
+
+  await new Promise((resolve) => {
+    LLMServices.OpenAIGenCode({
+      inputPrompt,
+      systemMessage: systemMessage || '',
+      setGenCode: (code) => (result = code),
+      onFinish: resolve,
+      setLoading: () => {},
+      setIsFinished: () => {},
+    });
+  });
+
+  res.send(result);
+});
 
 module.exports = {
   invokeBedrockModel,
@@ -201,4 +222,5 @@ module.exports = {
   extractRegion,
   extractModelId,
   generatePayload,
+  invokeOpenAIController,
 };

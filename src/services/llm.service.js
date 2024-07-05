@@ -1,6 +1,7 @@
 const { BedrockRuntimeClient } = require('@aws-sdk/client-bedrock-runtime');
 const { InvokeModelCommand, InvokeModelWithResponseStreamCommand } = require('@aws-sdk/client-bedrock-runtime');
 const { createParser } = require('eventsource-parser');
+const config = require('../config/config');
 
 class LLMServices {
   static LLMs = [
@@ -237,16 +238,7 @@ class LLMServices {
     }
   }
 
-  static async OpenAIGenCode({
-    inputPrompt,
-    systemMessage,
-    apiKey,
-    endpointUrl,
-    setGenCode,
-    setLoading,
-    setIsFinished,
-    onFinish,
-  }) {
+  static async OpenAIGenCode({ inputPrompt, systemMessage, setGenCode, setLoading, setIsFinished, onFinish }) {
     try {
       setGenCode('');
       setIsFinished(false);
@@ -271,11 +263,11 @@ class LLMServices {
         stream: true,
       };
       // console.log("Payload: ", payload);
-      const res = await fetch(endpointUrl, {
+      const res = await fetch(config.openai.endpointUrl, {
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiKey ? apiKey : ''}`,
-          'api-key': apiKey ? apiKey : '',
+          Authorization: `Bearer ${config.openai.apiKey}`,
+          'api-key': config.openai.apiKey,
         },
         method: 'POST',
         body: JSON.stringify(payload),
