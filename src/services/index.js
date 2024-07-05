@@ -14,3 +14,4 @@ module.exports.feedbackService = require('./feedback.service');
 module.exports.extendedApiService = require('./extendedApi.service');
 module.exports.listenerService = require('./listener.service');
 module.exports.issueService = require('./issue.service');
+module.exports.searchService = require('./search.service');
