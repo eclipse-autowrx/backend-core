@@ -35,8 +35,7 @@ services:
       - '${UPLOAD_PATH}:/usr/src/upload/data'
     networks:
       - node-network
-    environment:
-      - 'PORT=${UPLOAD_PORT}'
+
 
 volumes:
   dbdata:

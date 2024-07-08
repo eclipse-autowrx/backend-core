@@ -21,16 +21,23 @@ if [ -z "$UPLOAD_PORT" ]; then
   exit 1
 fi
 
+if [ -z "$UPLOAD_DOMAIN" ]; then
+  echo "UPLOAD_DOMAIN is not set"
+  exit 1
+fi
+
 if [ -z "$MONGO_EXPOSE_PORT" ]; then
   echo "MONGO_EXPOSE_PORT is not set"
   exit 1
 fi
 
-# Create the directory if it doesn't exist
 if [ ! -d "$UPLOAD_PATH" ]; then
   echo "Creating directory $UPLOAD_PATH"
   sudo mkdir -p "$UPLOAD_PATH"
 fi
+
+# Replace env file to upload directory
+cp .env ./upload/ -f
 
 # Set permissions for the directory
 echo "Setting permissions for $UPLOAD_PATH"

@@ -30,7 +30,8 @@ const normalizeUnix = (filePath) => {
 
 const getFileUrlFromPath = (filePath) => {
   const formattedFilePath = normalizeUnix(path.normalize(filePath).replace(path.normalize(config.rootDataDir), ''));
-  const url = `${process.env.DOMAIN ?? ''}data/${formattedFilePath}`;
+  console.log(process.env);
+  const url = `${process.env.UPLOAD_DOMAIN ?? ''}data/${formattedFilePath}`;
   return url;
 };
 

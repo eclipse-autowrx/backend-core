@@ -43,8 +43,8 @@ process
     process.exit(1);
   });
 
-console.log('PORT', process.env.PORT);
+console.log('PORT', process.env.UPLOAD_PORT);
 
-app.listen(process.env.PORT || 3000, () => {
-  console.log(new Date(), 'Listening on port', process.env.PORT || 3000);
+app.listen(process.env.UPLOAD_PORT || 3000, () => {
+  console.log(new Date(), 'Listening on port', process.env.UPLOAD_PORT || 3000);
 });
