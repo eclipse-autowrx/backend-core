@@ -12,6 +12,7 @@ const { invokeBedrockModel } = require('../../controllers/genai.controller');
 const { genaiController } = require('../../controllers');
 const validate = require('../../middlewares/validate');
 const { genaiValidation } = require('../../validations');
+const config = require('../../config/config');
 
 const router = express.Router();
 
@@ -31,19 +32,7 @@ const hasGenAIPermission = async (userId) => {
   try {
     const record = (await firebaseAuth.getUser(userId)).toJSON();
 
-    if (
-      record &&
-      [
-        'nhan.luongnguyen@vn.bosch.com',
-        'phong.phamtuan@vn.bosch.com',
-        'tam.thaihoangminh@vn.bosch.com',
-        'hoang.phanthanh@vn.bosch.com',
-        'dirk.slama@bosch.com',
-        'thanh.hoang.bk@gmail.com',
-        'tuan.hoangdinhanh@vn.bosch.com',
-        'hdatdragon2@gmail.com',
-      ].includes(record.email)
-    ) {
+    if (record && config.genAI.allowedEmails.includes(record.email)) {
       return true;
     }
   } catch (error) {

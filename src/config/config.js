@@ -37,6 +37,8 @@ const envVarsSchema = Joi.object()
     // OpenAI,
     OPENAI_API_KEY: Joi.string().required().description('OpenAI API key'),
     OPENAI_ENDPOINT_URL: Joi.string().required().description('OpenAI endpoint url'),
+    // GenAI
+    GENAI_ALLOWED_EMAILS: Joi.string().required().description('GenAI allowed emails'),
   })
   .unknown();
 
@@ -115,6 +117,9 @@ const config = {
   aws: {
     publicKey: envVars.AWS_PUBLIC_KEY,
     secretKey: envVars.AWS_SECRET_KEY,
+  },
+  genAI: {
+    allowedEmails: envVars.GENAI_ALLOWED_EMAILS.split(','),
   },
 };
 
