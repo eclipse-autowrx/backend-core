@@ -51,8 +51,14 @@ router.post(
   // eslint-disable-next-line no-unused-vars
   async (req, _, next) => {
     const { user } = req.body;
-    if (!(await hasGenAIPermission(user || req.user?.id))) {
-      return next(new ApiError(httpStatus.FORBIDDEN, 'You do not have permission to use GenAI service'));
+    if (
+      req.headers.origin !== 'https://etas.digital.auto' &&
+      req.headers.host !== 'etas.digital.auto' &&
+      req.hostname !== 'etas.digital.auto'
+    ) {
+      if (!(await hasGenAIPermission(user || req.user?.id))) {
+        return next(new ApiError(httpStatus.FORBIDDEN, 'You do not have permission to use GenAI service'));
+      }
     }
     next();
   },
