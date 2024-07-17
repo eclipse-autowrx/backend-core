@@ -259,11 +259,15 @@ const getAccessToken = async () => {
 const generateAIContent = async (req, res) => {
   try {
     const { prompt } = req.body;
-    let token = etasAuthorizationData.getAuthorizationData().accessToken;
-    if (!token) {
+    const authorizationData = etasAuthorizationData.getAuthorizationData();
+    let token = authorizationData.accessToken;
+    if (!token || moment().diff(authorizationData.createdAt, 'seconds') >= authorizationData.expiresIn) {
       const authorizationData = await getAccessToken();
       token = authorizationData.accessToken;
-      etasAuthorizationData.setAuthorizationData(authorizationData);
+      etasAuthorizationData.setAuthorizationData({
+        ...authorizationData,
+        createdAt: new Date(),
+      });
     }
 
     const instance = config.etas.instanceEndpoint;

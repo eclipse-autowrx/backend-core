@@ -1,5 +1,6 @@
 let authorizationData = {
   accessToken: null,
+  createdAt: null,
   expiresIn: null,
 };
 
@@ -7,6 +8,7 @@ let authorizationData = {
  *
  * @returns {{
  * accessToken: string
+ * createdAt: Date
  * expiresIn: number}}
  */
 const getAuthorizationData = () => {
@@ -17,6 +19,7 @@ const getAuthorizationData = () => {
  *
  * @param {{
  * accessToken: string
+ * createdAt: Date
  * expiresIn: number
  * }} data
  */
