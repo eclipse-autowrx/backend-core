@@ -39,6 +39,11 @@ const envVarsSchema = Joi.object()
     OPENAI_ENDPOINT_URL: Joi.string().required().description('OpenAI endpoint url'),
     // GenAI
     GENAI_ALLOWED_EMAILS: Joi.string().required().description('GenAI allowed emails'),
+    // ETAS
+    ETAS_CLIENT_ID: Joi.string().required().description('ETAS client id'),
+    ETAS_CLIENT_SECRET: Joi.string().required().description('ETAS client secret'),
+    ETAS_SCOPE: Joi.string().required().description('ETAS scope'),
+    ETAS_INSTANCE_ENDPOINT: Joi.string().required().description('ETAS instance endpoint'),
   })
   .unknown();
 
@@ -120,6 +125,12 @@ const config = {
   },
   genAI: {
     allowedEmails: envVars.GENAI_ALLOWED_EMAILS.split(','),
+  },
+  etas: {
+    clientId: envVars.ETAS_CLIENT_ID,
+    clientSecret: envVars.ETAS_CLIENT_SECRET,
+    scope: envVars.ETAS_SCOPE,
+    instanceEndpoint: envVars.ETAS_INSTANCE_ENDPOINT,
   },
 };
 

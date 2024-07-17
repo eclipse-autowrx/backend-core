@@ -13,6 +13,8 @@ const dotenv = require('dotenv');
 const catchAsync = require('../utils/catchAsync');
 const LLMServices = require('../services/llm.service');
 const config = require('../config/config');
+const axios = require('axios');
+const etasAuthorizationData = require('../states/etasAuthorization');
 
 dotenv.config();
 
@@ -142,7 +144,6 @@ async function BedrockGenCode({ endpointURL, publicKey, secretKey, inputPrompt, 
       throw new Error('Failed to get readable stream from response');
     }
 
-    // eslint-disable-next-line no-restricted-syntax
     for await (const item of bedrockResponse.body) {
       const chunk = JSON.parse(new TextDecoder().decode(item.chunk?.bytes));
       const modelPrefix = modelId.split('.')[0];
@@ -220,6 +221,77 @@ const invokeOpenAIController = catchAsync(async (req, res) => {
   res.send(result);
 });
 
+const getAccessToken = async () => {
+  const params = new URLSearchParams();
+  params.append('grant_type', 'client_credentials');
+  params.append('client_id', config.etas.clientId || '');
+  params.append('client_secret', config.etas.clientSecret || '');
+  params.append('scope', config.etas.scope || '');
+
+  // console.log('ETAS_CLIENT_ID', config.etas.clientId);
+  // console.log('ETAS_CLIENT_SECRET', config.etas.clientSecret);
+  // console.log('ETAS_SCOPE', config.etas.scope);
+
+  try {
+    const response = await axios.post(
+      'https://p2.authz.bosch.com/auth/realms/EU_CALPONIA/protocol/openid-connect/token',
+      params,
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Accept: 'application/json',
+        },
+      }
+    );
+
+    // console.log('Authorization response:', response.data);
+
+    return {
+      accessToken: response.data.access_token,
+      expiresIn: response.data.expires_in,
+    };
+  } catch (error) {
+    console.error('Error fetching token:', error);
+    throw new Error('Failed to fetch token');
+  }
+};
+
+const generateAIContent = async (req, res) => {
+  try {
+    const { prompt } = req.body;
+    let token = etasAuthorizationData.getAuthorizationData().accessToken;
+    if (!token) {
+      const authorizationData = await getAccessToken();
+      token = authorizationData.accessToken;
+      etasAuthorizationData.setAuthorizationData(authorizationData);
+    }
+
+    const instance = config.etas.instanceEndpoint;
+
+    // console.log('ETAS_INSTANCE_ENDPOINT', instance);
+
+    const response = await axios.post(
+      `https://${instance}/r2mm/GENERATE_AI`,
+      { prompt },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          Accept: 'application/json, text/plain, */*',
+        },
+      }
+    );
+
+    return res.status(200).json(response.data);
+  } catch (error) {
+    console.error('Error generating AI content:', error);
+    if (axios.isAxiosError(error)) {
+      return res.status(error.response.status).json(error.response.data);
+    }
+    return res.status(500).json({ error: 'Failed to generate AI content' });
+  }
+};
+
 module.exports = {
   invokeBedrockModel,
   BedrockGenCode,
@@ -227,4 +299,6 @@ module.exports = {
   extractModelId,
   generatePayload,
   invokeOpenAIController,
+  getAccessToken,
+  generateAIContent,
 };
