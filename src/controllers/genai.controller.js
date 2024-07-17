@@ -191,7 +191,11 @@ async function invokeBedrockModel(req, res) {
 
   try {
     const generation = await BedrockGenCode({ endpointURL, publicKey, secretKey, inputPrompt, systemMessage });
-    res.json(generation);
+    if (req.query.nested) {
+      res.json({ code: generation });
+    } else {
+      res.json(generation);
+    }
   } catch (error) {
     console.error('Failed to generate response from Bedrock:', error);
     res.status(500).json({ error: 'Failed to generate response from Bedrock' });
