@@ -287,7 +287,7 @@ const generateAIContent = async (req, res) => {
     if (axios.isAxiosError(error)) {
       return res.status(error.response.status || 502).json(error.response.data);
     }
-    return res.status(500).json({ error: 'Failed to generate AI content' });
+    return res.status(500).json({ message: 'Failed to generate AI content' });
   }
 };
 
