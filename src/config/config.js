@@ -40,10 +40,11 @@ const envVarsSchema = Joi.object()
     // GenAI
     GENAI_ALLOWED_EMAILS: Joi.string().required().description('GenAI allowed emails'),
     // ETAS
-    ETAS_CLIENT_ID: Joi.string().required().description('ETAS client id'),
-    ETAS_CLIENT_SECRET: Joi.string().required().description('ETAS client secret'),
-    ETAS_SCOPE: Joi.string().required().description('ETAS scope'),
-    ETAS_INSTANCE_ENDPOINT: Joi.string().required().description('ETAS instance endpoint'),
+    ETAS_ENABLED: Joi.boolean().description('ETAS enabled'),
+    ETAS_CLIENT_ID: Joi.string().description('ETAS client id'),
+    ETAS_CLIENT_SECRET: Joi.string().description('ETAS client secret'),
+    ETAS_SCOPE: Joi.string().description('ETAS scope'),
+    ETAS_INSTANCE_ENDPOINT: Joi.string().description('ETAS instance endpoint'),
   })
   .unknown();
 
@@ -127,6 +128,7 @@ const config = {
     allowedEmails: envVars.GENAI_ALLOWED_EMAILS.split(','),
   },
   etas: {
+    enabled: envVars.ETAS_ENABLED,
     clientId: envVars.ETAS_CLIENT_ID,
     clientSecret: envVars.ETAS_CLIENT_SECRET,
     scope: envVars.ETAS_SCOPE,
