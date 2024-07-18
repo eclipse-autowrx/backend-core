@@ -1,8 +1,9 @@
+const PermissionListDecorator = require('../decorators/PermissionListDecorator');
 const permissionService = require('../services/permission.service');
 const catchAsync = require('../utils/catchAsync');
 const pick = require('../utils/pick');
 
-const getPermission = catchAsync(async (req, res) => {
+const hasPermission = catchAsync(async (req, res) => {
   const filter = pick(req.query, ['permissions']);
   filter.permissions = filter.permissions || '';
   const permissionQueries = filter.permissions.split(',').map((permission) => permission.split(':'));
@@ -10,6 +11,11 @@ const getPermission = catchAsync(async (req, res) => {
     permissionQueries.map((query) => permissionService.hasPermission(req.user.id, query[0], query[1]))
   );
   res.json(results);
+});
+
+const getPermissions = catchAsync(async (req, res) => {
+  const permissions = await permissionService.getPermissions();
+  res.json(new PermissionListDecorator(permissions).getPermissionList());
 });
 
 const assignRoleToUser = catchAsync(async (req, res) => {
@@ -44,6 +50,7 @@ module.exports = {
   getUserRoles,
   getRoleUsers,
   getSelfRoles,
-  getPermission,
+  hasPermission,
   getRoles,
+  getPermissions,
 };

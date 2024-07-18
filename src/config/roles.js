@@ -19,6 +19,14 @@ const PERMISSIONS = {
   GENERATIVE_AI: 'generativeAI',
 };
 
+const PERMISSIONS_DESCRIPTION = {
+  [PERMISSIONS.UNLIMITED_MODEL]: 'Unlimited access',
+  [PERMISSIONS.MANAGE_USERS]: 'Manage users',
+  [PERMISSIONS.READ_MODEL]: 'Read model',
+  [PERMISSIONS.WRITE_MODEL]: 'Write model',
+  [PERMISSIONS.GENERATIVE_AI]: 'Generative AI',
+};
+
 // The role here is applied for the resources that the user is not the owner of
 const ROLES = {
   promoted_user: {
@@ -49,4 +57,5 @@ module.exports = {
   roleRights,
   ROLES,
   PERMISSIONS,
+  PERMISSIONS_DESCRIPTION,
 };

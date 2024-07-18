@@ -26,7 +26,13 @@ const getSelfUsers = {
   }),
 };
 
-const getPermission = {
+const hasPermission = {
+  query: Joi.object().keys({
+    permissions: Joi.string(),
+  }),
+};
+
+const getPermissions = {
   query: Joi.object().keys({
     permissions: Joi.string(),
   }),
@@ -37,5 +43,6 @@ module.exports = {
   getUserRoles,
   getRoleUsers,
   getSelfUsers,
-  getPermission,
+  hasPermission,
+  getPermissions,
 };

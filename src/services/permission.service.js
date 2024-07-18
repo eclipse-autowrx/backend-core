@@ -1,7 +1,8 @@
 const httpStatus = require('http-status');
-const { Permission, UserRole, Model, Prototype, Role } = require('../models');
+const { UserRole, Model, Prototype, Role } = require('../models');
 const ApiError = require('../utils/ApiError');
 const roleModel = require('../models/role.model');
+const { PERMISSIONS } = require('../config/roles');
 
 /**
  *
@@ -24,19 +25,8 @@ const listAuthorizedUser = async ({ role, ...condition }) => {
   return userRoles.map((userRole) => userRole.user);
 };
 
-const createPermission = async (name, type) => {
-  return Permission.create({
-    name,
-    type,
-  });
-};
-
 const getRoles = async () => {
   return roleModel.find();
-};
-
-const getPermissions = async () => {
-  return Permission.find();
 };
 
 const assignRoleToUser = async (user, role, ref) => {
@@ -191,10 +181,12 @@ const hasPermission = async (userId, permission, id) => {
   }
 };
 
+const getPermissions = () => {
+  return Object.values(PERMISSIONS);
+};
+
 module.exports = {
   listAuthorizedUser,
-  createPermission,
-  getPermissions,
   assignRoleToUser,
   getUserRoles,
   getRoleUsers,
@@ -203,4 +195,5 @@ module.exports = {
   getMappedRoles,
   containsPermission,
   getRoles,
+  getPermissions,
 };
