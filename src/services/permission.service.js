@@ -182,7 +182,7 @@ const hasPermission = async (userId, permission, id) => {
 };
 
 const getPermissions = () => {
-  return Object.values(PERMISSIONS);
+  return Object.values(PERMISSIONS).filter((per) => !per.not_feature);
 };
 
 module.exports = {
