@@ -36,7 +36,7 @@ const ROLES = {
   },
   generative_ai_role: {
     permissions: [PERMISSIONS.GENERATIVE_AI],
-    ref: 'generative_ai',
+    ref: 'generative_ai_role',
     name: 'Generative AI',
   },
   model_contributor: {
