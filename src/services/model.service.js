@@ -199,7 +199,7 @@ const deleteModelById = async (id, userId) => {
  */
 const addAuthorizedUser = async (id, roleBody, userId) => {
   const role = await Role.findOne({
-    name: roleBody.role,
+    ref: roleBody.role,
   });
   if (!role) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Role not found');
@@ -224,7 +224,7 @@ const addAuthorizedUser = async (id, roleBody, userId) => {
  */
 const deleteAuthorizedUser = async (id, roleBody, userId) => {
   const role = await Role.findOne({
-    name: roleBody.role,
+    ref: roleBody.role,
   });
   if (!(await permissionService.hasPermission(userId, PERMISSIONS.WRITE_MODEL, id))) {
     throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');

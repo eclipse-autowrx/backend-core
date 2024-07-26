@@ -31,15 +31,25 @@ const PERMISSIONS_DESCRIPTION = {
 const ROLES = {
   promoted_user: {
     permissions: [PERMISSIONS.UNLIMITED_MODEL],
+    ref: 'promoted_user',
+    name: 'Unlimited model',
   },
   generative_ai_role: {
     permissions: [PERMISSIONS.GENERATIVE_AI],
+    ref: 'generative_ai',
+    name: 'Generative AI',
   },
   model_contributor: {
     permissions: [PERMISSIONS.READ_MODEL],
+    ref: 'model_contributor',
+    name: 'Model contributor',
+    not_feature: true,
   },
   model_member: {
     permissions: [PERMISSIONS.READ_MODEL, PERMISSIONS.WRITE_MODEL],
+    ref: 'model_member',
+    name: 'Model member',
+    not_feature: true,
   },
   admin: {
     permissions: [
@@ -49,6 +59,8 @@ const ROLES = {
       PERMISSIONS.UNLIMITED_MODEL,
       PERMISSIONS.GENERATIVE_AI,
     ],
+    ref: 'admin',
+    name: 'Admin',
   },
 };
 

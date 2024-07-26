@@ -46,7 +46,7 @@ const deleteUser = catchAsync(async (req, res) => {
 });
 
 const selfPromote = catchAsync(async (req, res) => {
-  const adminRole = await Role.findOne({ name: 'admin' });
+  const adminRole = await Role.findOne({ ref: 'admin' });
   await permissionService.assignRoleToUser(req.user.id, adminRole._id);
   res.status(httpStatus.OK).send('Promoted successfully');
 });

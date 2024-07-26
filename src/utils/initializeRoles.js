@@ -9,17 +9,23 @@ const initializeRoles = async () => {
 
     for (let i = 0; i < Object.keys(ROLES).length; i += 1) {
       const role = Object.keys(ROLES)[i];
+      const roleData = ROLES[role];
       const roleExist = await Role.findOne({
-        name: role,
+        ref: roleData.ref,
       });
       if (!roleExist) {
         await Role.create({
-          name: role,
-          permissions: ROLES[role].permissions,
+          name: roleData.name,
+          permissions: roleData.permissions,
+          ref: roleData.ref,
+          not_feature: roleData.not_feature,
         });
       } else {
         await roleExist.updateOne({
-          permissions: ROLES[role].permissions,
+          name: roleData.name,
+          permissions: roleData.permissions,
+          not_feature: roleData.not_feature,
+          ref: roleData.ref,
         });
       }
     }

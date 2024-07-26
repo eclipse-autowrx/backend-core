@@ -14,7 +14,7 @@ const { PERMISSIONS } = require('../config/roles');
  * @returns {Promise<import('../models/user.model').User>}
  */
 const listAuthorizedUser = async ({ role, ...condition }) => {
-  const roleObject = await Role.findOne({ name: role });
+  const roleObject = await Role.findOne({ ref: role });
   if (!roleObject) {
     return [];
   }
