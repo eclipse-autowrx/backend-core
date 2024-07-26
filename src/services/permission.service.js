@@ -182,7 +182,11 @@ const hasPermission = async (userId, permission, id) => {
 };
 
 const getPermissions = () => {
-  return Object.values(ROLES).filter((per) => !per?.not_feature);
+  return Role.find({
+    not_feature: {
+      $ne: true,
+    },
+  });
 };
 
 module.exports = {
