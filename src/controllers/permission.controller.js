@@ -1,4 +1,3 @@
-const PermissionListDecorator = require('../decorators/PermissionListDecorator');
 const permissionService = require('../services/permission.service');
 const catchAsync = require('../utils/catchAsync');
 const pick = require('../utils/pick');
@@ -15,7 +14,7 @@ const hasPermission = catchAsync(async (req, res) => {
 
 const getPermissions = catchAsync(async (req, res) => {
   const permissions = await permissionService.getPermissions();
-  res.json(new PermissionListDecorator(permissions).getPermissionList());
+  res.json(permissions);
 });
 
 const assignRoleToUser = catchAsync(async (req, res) => {
