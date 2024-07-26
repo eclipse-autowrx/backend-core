@@ -44,6 +44,11 @@ const getRoles = catchAsync(async (req, res) => {
   res.json(roles);
 });
 
+const removeRoleFromUser = catchAsync(async (req, res) => {
+  await permissionService.removeRoleFromUser(req.query.user, req.query.roles);
+  res.status(204).send();
+});
+
 module.exports = {
   assignRoleToUser,
   getUserRoles,
@@ -52,4 +57,5 @@ module.exports = {
   hasPermission,
   getRoles,
   getPermissions,
+  removeRoleFromUser,
 };

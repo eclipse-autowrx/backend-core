@@ -1,4 +1,5 @@
 const Joi = require('joi');
+const { objectId } = require('./custom.validation');
 
 const assignRoleToUser = {
   body: Joi.object().keys({
@@ -38,6 +39,13 @@ const getPermissions = {
   }),
 };
 
+const removeRoleFromUser = {
+  query: Joi.object().keys({
+    user: Joi.string().required().custom(objectId),
+    role: Joi.string().required().custom(objectId),
+  }),
+};
+
 module.exports = {
   assignRoleToUser,
   getUserRoles,
@@ -45,4 +53,5 @@ module.exports = {
   getSelfUsers,
   hasPermission,
   getPermissions,
+  removeRoleFromUser,
 };

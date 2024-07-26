@@ -14,12 +14,19 @@ router.get('/', auth(), validate(permissionValidation.getPermissions), permissio
 router.get('/has-permission', auth(), validate(permissionValidation.hasPermission), permissionController.hasPermission);
 router.get('/roles', auth(), permissionController.getRoles);
 router.get('/users-by-roles', auth(), permissionController.getRoleUsers);
-router.post(
-  '/',
-  auth(),
-  checkPermission(PERMISSIONS.MANAGE_USERS),
-  validate(permissionValidation.assignRoleToUser),
-  permissionController.assignRoleToUser
-);
+router
+  .route('/')
+  .post(
+    auth(),
+    checkPermission(PERMISSIONS.MANAGE_USERS),
+    validate(permissionValidation.assignRoleToUser),
+    permissionController.assignRoleToUser
+  )
+  .delete(
+    auth(),
+    checkPermission(PERMISSIONS.MANAGE_USERS),
+    validate(permissionValidation.removeRoleFromUser),
+    permissionController.removeRoleFromUser
+  );
 
 module.exports = router;
