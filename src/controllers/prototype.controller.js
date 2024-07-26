@@ -37,10 +37,16 @@ const deletePrototype = catchAsync(async (req, res) => {
   res.status(204).send();
 });
 
+const listRecentPrototypes = catchAsync(async (req, res) => {
+  const prototypes = await prototypeService.listRecentPrototypes(req.user.id);
+  res.send(prototypes);
+});
+
 module.exports = {
   createPrototype,
   listPrototypes,
   getPrototype,
   updatePrototype,
   deletePrototype,
+  listRecentPrototypes,
 };

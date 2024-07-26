@@ -115,6 +115,9 @@ const config = {
     log: {
       port: envVars.LOG_PORT || 9600,
     },
+    cache: {
+      baseUrl: 'https://cache.digitalauto.tech',
+    },
   },
   openai: {
     apiKey: envVars.OPENAI_API_KEY,

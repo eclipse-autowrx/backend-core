@@ -3,6 +3,9 @@ const { Prototype } = require('../models');
 const ApiError = require('../utils/ApiError');
 const permissionService = require('./permission.service');
 const { PERMISSIONS } = require('../config/roles');
+const { default: axios, isAxiosError } = require('axios');
+const config = require('../config/config');
+const logger = require('../config/logger');
 
 /**
  *
@@ -100,10 +103,43 @@ const deletePrototypeById = async (id) => {
   await prototype.remove();
 };
 
+/**
+ *
+ * @param {string} userId
+ */
+const getRecentCachedPrototypes = async (userId) => {
+  /**
+   * @type {Array<import('../typedefs/cacheDef').CacheEntity>}
+   */
+  let recentData = [];
+  try {
+    recentData = (await axios.get(`${config.services.cache.baseUrl}/get-recent-activities/${userId}`)).data;
+  } catch (error) {
+    if (isAxiosError(error)) {
+      logger.error('Error while getting recent prototypes from cache', error.response?.data?.message || error.message);
+    } else {
+      logger.error('Error while getting recent prototypes from cache', error.message);
+    }
+  }
+  return recentData;
+};
+
+/**
+ *
+ * @param {string} userId
+ */
+const listRecentPrototypes = async (userId) => {
+  const recentData = await getRecentCachedPrototypes(userId);
+  const prototypeIds = recentData.map((data) => data.referenceId);
+  const prototypes = await Prototype.find({ _id: { $in: prototypeIds } });
+  return prototypes;
+};
+
 module.exports = {
   createPrototype,
   queryPrototypes,
   getPrototypeById,
   updatePrototypeById,
   deletePrototypeById,
+  listRecentPrototypes,
 };

@@ -13,6 +13,8 @@ router
   .post(auth(), validate(prototypeValidation.createPrototype), prototypeController.createPrototype)
   .get(validate(prototypeValidation.listPrototypes), prototypeController.listPrototypes);
 
+router.route('/recent').get(auth(), prototypeController.listRecentPrototypes);
+
 router
   .route('/:id')
   .get(
