@@ -2,7 +2,7 @@ const httpStatus = require('http-status');
 const { UserRole, Model, Prototype, Role } = require('../models');
 const ApiError = require('../utils/ApiError');
 const roleModel = require('../models/role.model');
-const { PERMISSIONS } = require('../config/roles');
+const { PERMISSIONS, ROLES } = require('../config/roles');
 
 /**
  *
@@ -182,7 +182,7 @@ const hasPermission = async (userId, permission, id) => {
 };
 
 const getPermissions = () => {
-  return Object.values(PERMISSIONS).filter((per) => !per.not_feature);
+  return Object.values(ROLES).filter((per) => !per?.not_feature);
 };
 
 module.exports = {
