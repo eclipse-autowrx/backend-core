@@ -8,15 +8,17 @@ const config = require('../../config/config');
 
 const router = express.Router();
 
-router.post(
-  '/',
-  // validate(genaiValidation.invokeBedrock),
-  auth({
-    optional: true,
-  }),
-  genaiPermission,
-  invokeBedrockModel
-);
+// router.post(
+//   '/',
+//   // validate(genaiValidation.invokeBedrock),
+//   auth({
+//     optional: true,
+//   }),
+//   genaiPermission,
+//   invokeBedrockModel
+// );
+
+router.post('/', genaiController.generateAIContent);
 
 router.post(
   '/openai',
