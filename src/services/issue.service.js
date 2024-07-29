@@ -1,13 +1,14 @@
 const { default: axios } = require('axios');
 const { Issue } = require('../models');
 const logger = require('../config/logger');
+const config = require('../config/config');
 
 const createIssue = async (issueBody) => {
   const { githubAccessToken, title, content } = issueBody;
   try {
     const response = (
       await axios.post(
-        'https://api.github.com/repos/NhanLuongBGSV/issues-verify/issues',
+        config.githubIssueSubmitUrl,
         {
           title,
           body: content,

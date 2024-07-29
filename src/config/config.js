@@ -137,6 +137,7 @@ const config = {
     scope: envVars.ETAS_SCOPE,
     instanceEndpoint: envVars.ETAS_INSTANCE_ENDPOINT,
   },
+  githubIssueSubmitUrl: 'https://api.github.com/repos/digital-auto/vehicle_signal_specification/issues',
 };
 
 if (config.env === 'development') {
