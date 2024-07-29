@@ -28,14 +28,12 @@ router.post(
   genaiController.invokeOpenAIController
 );
 
-if (config.etas.enabled) {
-  router.post(
-    '/etas',
-    auth({
-      optional: true,
-    }),
-    genaiController.generateAIContent
-  );
-}
+router.post(
+  '/etas',
+  auth({
+    optional: true,
+  }),
+  genaiController.generateAIContent
+);
 
 module.exports = router;
