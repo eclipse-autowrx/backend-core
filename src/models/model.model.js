@@ -70,6 +70,9 @@ const modelSchema = mongoose.Schema(
     tags: {
       type: [tagSchema],
     },
+    extend: {
+      type: mongoose.SchemaTypes.Mixed,
+    },
   },
   {
     timestamps: true,

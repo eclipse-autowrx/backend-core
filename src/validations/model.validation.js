@@ -4,6 +4,7 @@ const { jsonString, slug, objectId } = require('./custom.validation');
 
 const createModel = {
   body: Joi.object().keys({
+    extend: Joi.any(),
     custom_apis: Joi.string().custom(jsonString),
     cvi: Joi.string().required().custom(jsonString),
     main_api: Joi.string().required().max(255),
@@ -40,15 +41,18 @@ const listModels = {
     fields: Joi.string(),
     id: Joi.string().custom(objectId),
     created_by: Joi.string().custom(objectId),
+    is_contributor: Joi.boolean(),
     sortBy: Joi.string(),
     limit: Joi.number().integer(),
     page: Joi.number().integer(),
+    populate: Joi.string(),
   }),
 };
 
 const updateModel = {
   body: Joi.object()
     .keys({
+      extend: Joi.any(),
       custom_apis: Joi.string().custom(jsonString),
       cvi: Joi.string().custom(jsonString),
       main_api: Joi.string().max(255),
@@ -95,6 +99,16 @@ const addAuthorizedUser = {
   }),
 };
 
+const deleteAuthorizedUser = {
+  params: Joi.object().keys({
+    id: Joi.string().custom(objectId),
+  }),
+  query: Joi.object().keys({
+    userId: Joi.string().custom(objectId),
+    role: Joi.string().valid('model_contributor', 'model_member'),
+  }),
+};
+
 module.exports = {
   createModel,
   listModels,
@@ -102,4 +116,5 @@ module.exports = {
   getModel,
   deleteModel,
   addAuthorizedUser,
+  deleteAuthorizedUser,
 };

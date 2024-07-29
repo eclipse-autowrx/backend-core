@@ -1,6 +1,11 @@
 const httpStatus = require('http-status');
 const { Prototype } = require('../models');
 const ApiError = require('../utils/ApiError');
+const permissionService = require('./permission.service');
+const { PERMISSIONS } = require('../config/roles');
+const { default: axios, isAxiosError } = require('axios');
+const config = require('../config/config');
+const logger = require('../config/logger');
 
 /**
  *
@@ -20,7 +25,7 @@ const createPrototype = async (userId, prototypeBody) => {
     ...prototypeBody,
     created_by: userId,
   });
-  return prototype._id;
+  return prototype;
 };
 
 /**
@@ -43,8 +48,18 @@ const queryPrototypes = async (filter, options) => {
  * @param {string} id
  * @returns {Promise<import('../models/prototype.model').Prototype>}
  */
-const getPrototypeById = async (id) => {
-  const prototype = await Prototype.findById(id);
+const getPrototypeById = async (id, userId) => {
+  const prototype = await Prototype.findById(id).populate('model_id').populate('created_by');
+
+  if (!prototype) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Prototype not found');
+  }
+
+  if (prototype.model_id.visibility === 'private') {
+    if (!(await permissionService.hasPermission(userId, PERMISSIONS.READ_MODEL, id))) {
+      throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
+    }
+  }
   return prototype;
 };
 
@@ -52,17 +67,12 @@ const getPrototypeById = async (id) => {
  *
  * @param {string} id
  * @param {Object} updateBody
- * @param {string} userId
  * @returns {Promise<import("../models/prototype.model").Prototype>}
  */
-const updatePrototypeById = async (id, updateBody, userId) => {
-  const prototype = await getPrototypeById(id);
+const updatePrototypeById = async (id, updateBody) => {
+  const prototype = await Prototype.findById(id);
   if (!prototype) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Prototype not found');
-  }
-
-  if (String(prototype.created_by) !== String(userId)) {
-    throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
   }
 
   if (updateBody.name && (await Prototype.existsPrototypeInModel(prototype.model_id, updateBody.name, id))) {
@@ -84,17 +94,45 @@ const updatePrototypeById = async (id, updateBody, userId) => {
  * @param {string} userId
  * @returns {Promise<void>}
  */
-const deletePrototypeById = async (id, userId) => {
-  const prototype = await getPrototypeById(id);
+const deletePrototypeById = async (id) => {
+  const prototype = await Prototype.findById(id);
   if (!prototype) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Prototype not found');
   }
 
-  if (String(prototype.created_by) !== String(userId)) {
-    throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
-  }
-
   await prototype.remove();
+};
+
+/**
+ *
+ * @param {string} userId
+ */
+const getRecentCachedPrototypes = async (userId) => {
+  /**
+   * @type {Array<import('../typedefs/cacheDef').CacheEntity>}
+   */
+  let recentData = [];
+  try {
+    recentData = (await axios.get(`${config.services.cache.baseUrl}/get-recent-activities/${userId}`)).data;
+  } catch (error) {
+    if (isAxiosError(error)) {
+      logger.error('Error while getting recent prototypes from cache', error.response?.data?.message || error.message);
+    } else {
+      logger.error('Error while getting recent prototypes from cache', error.message);
+    }
+  }
+  return recentData;
+};
+
+/**
+ *
+ * @param {string} userId
+ */
+const listRecentPrototypes = async (userId) => {
+  const recentData = await getRecentCachedPrototypes(userId);
+  const prototypeIds = recentData.map((data) => data.referenceId);
+  const prototypes = await Prototype.find({ _id: { $in: prototypeIds } });
+  return prototypes;
 };
 
 module.exports = {
@@ -103,4 +141,5 @@ module.exports = {
   getPrototypeById,
   updatePrototypeById,
   deletePrototypeById,
+  listRecentPrototypes,
 };

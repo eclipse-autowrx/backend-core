@@ -95,6 +95,9 @@ const prototypeSchema = mongoose.Schema({
     default:
       'from sdv_model import Vehicle import plugins from browser import aio vehicle = Vehicle() # write your code here',
   },
+  extend: {
+    type: mongoose.SchemaTypes.Mixed,
+  },
   complexity_level: {
     type: Number,
     required: true,

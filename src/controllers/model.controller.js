@@ -21,29 +21,33 @@ const createModel = catchAsync(async (req, res) => {
 
 const listModels = catchAsync(async (req, res) => {
   const filter = pick(req.query, ['name', 'visibility', 'tenant_id', 'vehicle_category', 'main_api', 'id', 'created_by']);
-  const options = pick(req.query, ['sortBy', 'limit', 'page', 'fields']);
-  const models = await modelService.queryModels(filter, options);
-  res.send(models);
+  const options = pick(req.query, ['sortBy', 'limit', 'page', 'fields', 'populate']);
+  const advanced = pick(req.query, ['is_contributor']);
+  const models = await modelService.queryModels(filter, options, advanced, req.user?.id);
+  res.json(models);
 });
 
 const getModel = catchAsync(async (req, res) => {
-  const model = await modelService.getModelById(req.params.id);
+  const model = await modelService.getModelById(req.params.id, req.user?.id);
   if (!model) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Model not found');
   }
   const contributors = await permissionService.listAuthorizedUser({
     role: 'model_contributor',
-    id: req.params.id,
+    ref: req.params.id,
   });
   const members = await permissionService.listAuthorizedUser({
     role: 'model_member',
-    id: req.params.id,
+    ref: req.params.id,
   });
-  res.send({
+
+  const finalResult = {
     ...model.toJSON(),
     contributors,
     members,
-  });
+  };
+
+  res.send(finalResult);
 });
 
 const updateModel = catchAsync(async (req, res) => {
@@ -64,8 +68,20 @@ const deleteModel = catchAsync(async (req, res) => {
 });
 
 const addAuthorizedUser = catchAsync(async (req, res) => {
-  await modelService.addAuthorizedUser(req.params.id, req.body);
+  await modelService.addAuthorizedUser(req.params.id, req.body, req.user.id);
   res.status(httpStatus.CREATED).send();
+});
+
+const deleteAuthorizedUser = catchAsync(async (req, res) => {
+  await modelService.deleteAuthorizedUser(
+    req.params.id,
+    {
+      role: req.query.role,
+      userId: req.query.userId,
+    },
+    req.user.id
+  );
+  res.status(httpStatus.NO_CONTENT).send();
 });
 
 module.exports = {
@@ -75,4 +91,5 @@ module.exports = {
   updateModel,
   deleteModel,
   addAuthorizedUser,
+  deleteAuthorizedUser,
 };

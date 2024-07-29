@@ -5,9 +5,13 @@ module.exports.userService = require('./user.service');
 module.exports.modelLegacyService = require('./model.legacy.service');
 module.exports.prototypeLegacyService = require('./prototype.legacy.service');
 module.exports.tagService = require('./tag.service');
-
 module.exports.modelService = require('./model.service');
 module.exports.prototypeService = require('./prototype.service');
 module.exports.apiService = require('./api.service');
 module.exports.permissionService = require('./permission.service');
 module.exports.discussionService = require('./discussion.service');
+module.exports.feedbackService = require('./feedback.service');
+module.exports.extendedApiService = require('./extendedApi.service');
+module.exports.listenerService = require('./listener.service');
+module.exports.issueService = require('./issue.service');
+module.exports.searchService = require('./search.service');

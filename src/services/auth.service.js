@@ -1,9 +1,45 @@
+const axios = require('axios');
 const httpStatus = require('http-status');
 const tokenService = require('./token.service');
 const userService = require('./user.service');
 const Token = require('../models/token.model');
 const ApiError = require('../utils/ApiError');
 const { tokenTypes } = require('../config/tokens');
+const logger = require('../config/logger');
+const config = require('../config/config');
+const listenerService = require('./listener.service');
+
+const githubCallback = async (code, userId) => {
+  try {
+    const { data } = await axios.post(
+      'https://github.com/login/oauth/access_token',
+      {
+        client_id: config.github.clientId,
+        client_secret: config.github.clientSecret,
+        code,
+      },
+      {
+        headers: {
+          Accept: 'application/json',
+        },
+      }
+    );
+    const { access_token: accessToken, expires_in: expiresIn } = data;
+    const socket = listenerService.findSocketByUser(userId);
+    if (socket) {
+      socket.emit('auth/github', { accessToken, expiresIn });
+    }
+  } catch (error) {
+    const socket = listenerService.findSocketByUser(userId);
+    if (socket) {
+      socket.emit('auth/github/error', {
+        message: error.response?.data?.message || 'Failed to authenticate with GitHub',
+      });
+    }
+    logger.error(error);
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'Incorrect email or password');
+  }
+};
 
 /**
  * Login with username and password
@@ -102,4 +138,5 @@ module.exports = {
   refreshAuth,
   resetPassword,
   verifyEmail,
+  githubCallback,
 };

@@ -10,11 +10,13 @@ const httpStatus = require('http-status');
 const config = require('./config/config');
 const morgan = require('./config/morgan');
 const { jwtStrategy } = require('./config/passport');
-const { authLimiter } = require('./middlewares/rateLimiter');
+// const { authLimiter } = require('./middlewares/rateLimiter');
 const routes = require('./routes/v1');
 const routesV2 = require('./routes/v2');
 const { errorConverter, errorHandler } = require('./middlewares/error');
 const ApiError = require('./utils/ApiError');
+const setupProxy = require('./config/proxyHandler');
+const LLMServices = require('./services/llm.service');
 
 const app = express();
 
@@ -51,6 +53,7 @@ app.use(
       /\.digitalauto\.asia$/,
       /\.digital\.auto$/,
       'https://digitalauto.netlify.app',
+      /127\.0\.0\.1:\d+/,
     ],
     credentials: true,
   })
@@ -62,14 +65,17 @@ app.use(passport.initialize());
 passport.use('jwt', jwtStrategy);
 
 // limit repeated failed requests to auth endpoints
-if (config.env === 'production') {
-  app.use('/v1/auth', authLimiter);
-  app.use('/v2/auth', authLimiter);
-}
+// if (config.env === 'production') {
+//  app.use('/v1/auth', authLimiter);
+//  app.use('/v2/auth', authLimiter);
+// }
 
 // v1 api routes
 app.use('/v1', routes);
 app.use('/v2', routesV2);
+
+// Setup proxy to other services
+setupProxy(app);
 
 // send back a 404 error for any unknown api request
 app.use((req, res, next) => {
