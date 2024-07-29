@@ -6,6 +6,12 @@ const prototypeRoute = require('./prototype.route');
 const apiRoute = require('./api.route');
 const emailRoute = require('./email.route');
 const discussionRoute = require('./discussion.route');
+const genaiRoute = require('./genai.route');
+const feedbackRoute = require('./feedback.route');
+const permissionRoute = require('./permission.route');
+const extendedApiRoute = require('./extendedApi.route');
+const issueRoute = require('./issue.route');
+const searchRoute = require('./search.route');
 
 const router = express.Router();
 
@@ -37,6 +43,30 @@ const defaultRoutes = [
   {
     path: '/discussions',
     route: discussionRoute,
+  },
+  {
+    path: '/genai',
+    route: genaiRoute,
+  },
+  {
+    path: '/feedbacks',
+    route: feedbackRoute,
+  },
+  {
+    path: '/permissions',
+    route: permissionRoute,
+  },
+  {
+    path: '/extendedApis',
+    route: extendedApiRoute,
+  },
+  {
+    path: '/issues',
+    route: issueRoute,
+  },
+  {
+    path: '/search',
+    route: searchRoute,
   },
 ];
 

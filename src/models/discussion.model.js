@@ -14,7 +14,7 @@ const discussionSchema = mongoose.Schema(
       required: true,
     },
     ref: {
-      type: mongoose.SchemaTypes.ObjectId,
+      type: String,
       required: true,
     },
     ref_type: {

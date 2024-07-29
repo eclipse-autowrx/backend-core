@@ -1,0 +1,27 @@
+{
+  "name": "node-express-simple-boilerplate",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon ./index.js",
+    "prod": "npx pm2 start ecosystem.config.json --no-daemon"
+  },
+  "dependencies": {
+    "adm-zip": "^0.5.10",
+    "chmodr": "^1.2.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.17.1",
+    "image-size": "^1.0.2",
+    "multer": "^1.4.5-lts.1",
+    "pm2": "^5.4.1",
+    "sharp": "^0.32.6",
+    "uuid": "^9.0.1"
+  },
+  "author": "Omar Muscatello",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^8.49.0",
+    "nodemon": "^2.0.4"
+  }
+}

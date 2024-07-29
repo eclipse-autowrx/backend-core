@@ -4,6 +4,7 @@ const { objectId, jsonString, slug } = require('./custom.validation');
 
 const createPrototype = {
   body: Joi.object().keys({
+    extend: Joi.any(),
     state: Joi.string().allow(...Object.values(stateTypes)),
     apis: Joi.object().keys({
       VSC: Joi.array().items(Joi.string()),
@@ -19,15 +20,15 @@ const createPrototype = {
       status: Joi.string().allow('').max(255),
     }),
     image_file: Joi.string().allow(''),
-    // journey_image_file: Joi.string().allow(''),
-    // analysis_image_file: Joi.string().allow(''),
+    journey_image_file: Joi.string().allow(''),
+    analysis_image_file: Joi.string().allow(''),
     model_id: Joi.string().required().custom(objectId),
     name: Joi.string().required().max(255),
-    // portfolio: Joi.object().keys({
-    //   effort_estimation: Joi.number(),
-    //   needs_addressed: Joi.number(),
-    //   relevance: Joi.number(),
-    // }),
+    portfolio: Joi.object().keys({
+      effort_estimation: Joi.number(),
+      needs_addressed: Joi.number(),
+      relevance: Joi.number(),
+    }),
     skeleton: Joi.string().custom(jsonString),
     tags: Joi.array().items(
       Joi.object().keys({
@@ -38,8 +39,8 @@ const createPrototype = {
     ),
     widget_config: Joi.string().custom(jsonString),
     autorun: Joi.boolean(),
-    // related_ea_components: Joi.string().allow(''),
-    // partner_logo: Joi.string().allow(),
+    related_ea_components: Joi.string().allow(''),
+    partner_logo: Joi.string().allow(''),
     // rated_by: Joi.object().pattern(
     //   /^[0-9a-fA-F]{24}$/,
     //   Joi.object()
@@ -58,10 +59,12 @@ const listPrototypes = {
     name: Joi.string(),
     complexity_level: Joi.number().min(1).max(5),
     autorun: Joi.boolean(),
+    created_by: Joi.string().custom(objectId),
     sortBy: Joi.string(),
     limit: Joi.number().integer(),
     page: Joi.number().integer(),
     fields: Joi.string(),
+    populate: Joi.string(),
   }),
 };
 
@@ -73,6 +76,7 @@ const getPrototype = {
 
 const updatePrototype = {
   body: Joi.object().keys({
+    extend: Joi.any(),
     state: Joi.string().allow(...Object.values(stateTypes)),
     apis: Joi.object().keys({
       VSC: Joi.array().items(Joi.string()),
@@ -107,7 +111,7 @@ const updatePrototype = {
     widget_config: Joi.string().custom(jsonString),
     autorun: Joi.boolean(),
     related_ea_components: Joi.string().allow(''),
-    partner_logo: Joi.string().allow(),
+    partner_logo: Joi.string().allow(''),
     // rated_by: Joi.object().pattern(
     //   /^[0-9a-fA-F]{24}$/,
     //   Joi.object()

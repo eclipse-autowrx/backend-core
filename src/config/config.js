@@ -28,6 +28,23 @@ const envVarsSchema = Joi.object()
     CLIENT_BASE_URL: Joi.string().description('Client base url').default('http://localhost:3000'),
     BREVO_API_KEY: Joi.string().required().description('Brevo API key'),
     BREVO_BASE_URL: Joi.string().required().description('Brevo base url'),
+    GITHUB_CLIENT_ID: Joi.string().required().description('Github client id'),
+    GITHUB_CLIENT_SECRET: Joi.string().required().description('Github client secret'),
+    UPLOAD_PORT: Joi.number().required().description('Upload port'),
+    // AWS,
+    AWS_PUBLIC_KEY: Joi.string().required().description('AWS public key'),
+    AWS_SECRET_KEY: Joi.string().required().description('AWS secret key'),
+    // OpenAI,
+    OPENAI_API_KEY: Joi.string().required().description('OpenAI API key'),
+    OPENAI_ENDPOINT_URL: Joi.string().required().description('OpenAI endpoint url'),
+    // GenAI
+    GENAI_ALLOWED_EMAILS: Joi.string().required().description('GenAI allowed emails'),
+    // ETAS
+    ETAS_ENABLED: Joi.boolean().description('ETAS enabled'),
+    ETAS_CLIENT_ID: Joi.string().description('ETAS client id'),
+    ETAS_CLIENT_SECRET: Joi.string().description('ETAS client secret'),
+    ETAS_SCOPE: Joi.string().description('ETAS scope'),
+    ETAS_INSTANCE_ENDPOINT: Joi.string().description('ETAS instance endpoint'),
   })
   .unknown();
 
@@ -87,6 +104,40 @@ const config = {
       maximumAuthorizedUsers: 1000,
     },
   },
+  github: {
+    clientId: process.env.GITHUB_CLIENT_ID,
+    clientSecret: process.env.GITHUB_CLIENT_SECRET,
+  },
+  services: {
+    upload: {
+      port: envVars.UPLOAD_PORT,
+    },
+    log: {
+      port: envVars.LOG_PORT || 9600,
+    },
+    cache: {
+      baseUrl: 'https://cache.digitalauto.tech',
+    },
+  },
+  openai: {
+    apiKey: envVars.OPENAI_API_KEY,
+    endpointUrl: envVars.OPENAI_ENDPOINT_URL,
+  },
+  aws: {
+    publicKey: envVars.AWS_PUBLIC_KEY,
+    secretKey: envVars.AWS_SECRET_KEY,
+  },
+  genAI: {
+    allowedEmails: envVars.GENAI_ALLOWED_EMAILS.split(','),
+  },
+  etas: {
+    enabled: envVars.ETAS_ENABLED,
+    clientId: envVars.ETAS_CLIENT_ID,
+    clientSecret: envVars.ETAS_CLIENT_SECRET,
+    scope: envVars.ETAS_SCOPE,
+    instanceEndpoint: envVars.ETAS_INSTANCE_ENDPOINT,
+  },
+  githubIssueSubmitUrl: 'https://api.github.com/repos/digital-auto/vehicle_signal_specification/issues',
 };
 
 if (config.env === 'development') {
