@@ -20,11 +20,12 @@ const retrieveCredentials = async () => {
   } catch (error) {
     if (isAxiosError(error)) {
       logger.error(
-        'Axios error. Error retrieving credentials from Certivity using axios:',
-        error.response.data?.message || error.message
+        `Axios error. Error retrieving credentials from Certivity using axios: ${
+          error.response.data?.message || error.message
+        }`
       );
     } else {
-      logger.error('Error retrieving credentials from Certivity:', error.message);
+      logger.error(`Error retrieving credentials from Certivity: ${error.message}`);
     }
     return null;
   }
@@ -78,11 +79,10 @@ const getRegulations = async (accessToken, vehicleApis) => {
   } catch (error) {
     if (isAxiosError(error)) {
       logger.error(
-        'Axios error. Error querying vehicle apis regulation using axios:',
-        error.response.data?.message || error.message
+        `Axios error. Error querying vehicle apis regulation using axios: ${error.response.data?.message || error.message}`
       );
     } else {
-      logger.error('Error querying vehicle apis regulation:', error.message);
+      logger.error(`Error querying vehicle apis regulation: ${error.message}`);
     }
     return null;
   }
