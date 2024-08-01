@@ -12,3 +12,4 @@ module.exports.feedbackController = require('./feedback.controller');
 module.exports.issueController = require('./issue.controller');
 module.exports.genaiController = require('./genai.controller');
 module.exports.searchController = require('./search.controller');
+module.exports.certivityController = require('./certivity.controller');

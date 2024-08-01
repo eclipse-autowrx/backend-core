@@ -12,6 +12,7 @@ const permissionRoute = require('./permission.route');
 const extendedApiRoute = require('./extendedApi.route');
 const issueRoute = require('./issue.route');
 const searchRoute = require('./search.route');
+const certivityRoute = require('./certivity.route');
 
 const router = express.Router();
 
@@ -67,6 +68,10 @@ const defaultRoutes = [
   {
     path: '/search',
     route: searchRoute,
+  },
+  {
+    path: '/certivity',
+    route: certivityRoute,
   },
 ];
 
