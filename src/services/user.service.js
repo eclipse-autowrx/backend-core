@@ -60,6 +60,11 @@ const updateUserById = async (userId, updateBody) => {
   if (updateBody.email && (await User.isEmailTaken(updateBody.email, userId))) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
   }
+
+  if (updateBody.password && (await user.isPasswordMatch(updateBody.password))) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'New password must be different from the current password');
+  }
+
   return User.updateOne(
     {
       _id: userId,

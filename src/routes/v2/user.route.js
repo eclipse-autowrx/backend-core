@@ -123,7 +123,7 @@ router.put('/updateRoles/:userId', async (req, res) => {
 
 router
   .route('/')
-  .post(auth(), validate(userValidation.createUser), userController.createUser)
+  .post(auth(), checkPermission(PERMISSIONS.MANAGE_USERS), validate(userValidation.createUser), userController.createUser)
   .get(validate(userValidation.getUsers), userController.getUsers);
 
 router
