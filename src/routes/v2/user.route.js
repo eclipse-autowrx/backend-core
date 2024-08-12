@@ -22,109 +22,116 @@ const { deleteUser } = require('../../controllers/userControllers/deleteUser');
 const { db } = require('../../config/firebase');
 const { checkPermission } = require('../../middlewares/permission');
 const { PERMISSIONS } = require('../../config/roles');
+const config = require('../../config/config');
 
 const router = express.Router();
 
-router.post('/registerNewUser', registerNewUser);
-router.get('/getGithubAccessToken', getGithubAccessToken);
-router.get('/listAllFeature', listAllFeature);
-router.get('/listAllUser', listAllUser);
-router.get('/listAllUserBasic', listAllUserBasic);
-router.post('/resetPassword', resetPassword);
-router.post('/initFeatureList', initFeatureList);
-router.get('/summaryCountData', summaryCountData);
-router.get('/summaryListData', summaryListData);
-router.put('/updateFeature', updateFeature);
-router.post('/updateUser', updateUser);
-router.get('/createUser', createUser);
-router.get('/createUserByProvider', createUserByProvider);
-router.delete('/deleteUser', deleteUser);
-router.get('/getUser/:userId', async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const user = (await db.collection('user').doc(userId).get()).data();
-    res.send(user);
-  } catch (error) {
-    res.status(400).send('error');
-    // eslint-disable-next-line no-console
-    console.log('error', error);
-  }
-});
-router.get('/getUsers/:tenantId', async (req, res) => {
-  try {
-    const { tenantId } = req.params;
-    const { modelId, roleType } = req.query;
+// router.post('/registerNewUser', registerNewUser);
+// router.get('/getGithubAccessToken', getGithubAccessToken);
+// router.get('/listAllFeature', listAllFeature);
+// router.get('/listAllUser', listAllUser);
+// router.get('/listAllUserBasic', listAllUserBasic);
+// router.post('/resetPassword', resetPassword);
+// router.post('/initFeatureList', initFeatureList);
+// router.get('/summaryCountData', summaryCountData);
+// router.get('/summaryListData', summaryListData);
+// router.put('/updateFeature', updateFeature);
+// router.post('/updateUser', updateUser);
+// router.get('/createUser', createUser);
+// router.get('/createUserByProvider', createUserByProvider);
+// router.delete('/deleteUser', deleteUser);
+// router.get('/getUser/:userId', async (req, res) => {
+//   try {
+//     const { userId } = req.params;
+//     const user = (await db.collection('user').doc(userId).get()).data();
+//     res.send(user);
+//   } catch (error) {
+//     res.status(400).send('error');
+//     // eslint-disable-next-line no-console
+//     console.log('error', error);
+//   }
+// });
+// router.get('/getUsers/:tenantId', async (req, res) => {
+//   try {
+//     const { tenantId } = req.params;
+//     const { modelId, roleType } = req.query;
 
-    const users = [];
-    let query = db.collection('user').where('tenant_id', '==', tenantId);
-    if (modelId) {
-      query = query.where(new FieldPath('roles', roleType), 'array-contains', modelId);
-    }
-    const response = await query.get();
-    response.forEach((doc) => {
-      users.push(doc.data());
-    });
-    res.send(users);
-  } catch (error) {
-    res.status(400).send('error');
-    // eslint-disable-next-line no-console
-    console.log('error', error);
-  }
-});
-router.put('/updateSelf', async (req, res) => {
-  try {
-    const { userId } = req.body;
-    const user = db.collection('user').doc(userId);
-    const data = {};
-    if (req.body.image_file) {
-      data.image_file = req.body.image_file;
-    }
-    if (req.body.name) {
-      data.name = req.body.name;
-    }
-    await user.update(data);
-    res.send('success');
-  } catch (error) {
-    res.status(400).send('error');
-    // eslint-disable-next-line no-console
-    console.log('error', error);
-  }
-});
-router.put('/updateRoles/:userId', async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const { mode } = req.query;
+//     const users = [];
+//     let query = db.collection('user').where('tenant_id', '==', tenantId);
+//     if (modelId) {
+//       query = query.where(new FieldPath('roles', roleType), 'array-contains', modelId);
+//     }
+//     const response = await query.get();
+//     response.forEach((doc) => {
+//       users.push(doc.data());
+//     });
+//     res.send(users);
+//   } catch (error) {
+//     res.status(400).send('error');
+//     // eslint-disable-next-line no-console
+//     console.log('error', error);
+//   }
+// });
+// router.put('/updateSelf', async (req, res) => {
+//   try {
+//     const { userId } = req.body;
+//     const user = db.collection('user').doc(userId);
+//     const data = {};
+//     if (req.body.image_file) {
+//       data.image_file = req.body.image_file;
+//     }
+//     if (req.body.name) {
+//       data.name = req.body.name;
+//     }
+//     await user.update(data);
+//     res.send('success');
+//   } catch (error) {
+//     res.status(400).send('error');
+//     // eslint-disable-next-line no-console
+//     console.log('error', error);
+//   }
+// });
+// router.put('/updateRoles/:userId', async (req, res) => {
+//   try {
+//     const { userId } = req.params;
+//     const { mode } = req.query;
 
-    const userRef = db.collection('user').doc(userId);
-    const user = (await userRef.get()).data();
-    const { role, modelId } = req.body;
-    const oldRoles = (user.roles || {})[role] || [];
+//     const userRef = db.collection('user').doc(userId);
+//     const user = (await userRef.get()).data();
+//     const { role, modelId } = req.body;
+//     const oldRoles = (user.roles || {})[role] || [];
 
-    const set = new Set(oldRoles);
-    if (mode === 'delete' && set.has(modelId)) {
-      set.delete(modelId);
-    } else {
-      set.add(modelId);
-    }
+//     const set = new Set(oldRoles);
+//     if (mode === 'delete' && set.has(modelId)) {
+//       set.delete(modelId);
+//     } else {
+//       set.add(modelId);
+//     }
 
-    await userRef.update({
-      roles: {
-        ...user.roles,
-        [role]: Array.from(set),
-      },
-    });
-    res.send('success');
-  } catch (error) {
-    res.status(400).send('error');
-    // eslint-disable-next-line no-console
-    console.log('error', error);
-  }
-});
+//     await userRef.update({
+//       roles: {
+//         ...user.roles,
+//         [role]: Array.from(set),
+//       },
+//     });
+//     res.send('success');
+//   } catch (error) {
+//     res.status(400).send('error');
+//     // eslint-disable-next-line no-console
+//     console.log('error', error);
+//   }
+// });
 
 router
   .route('/')
   .post(auth(), checkPermission(PERMISSIONS.MANAGE_USERS), validate(userValidation.createUser), userController.createUser)
-  .get(validate(userValidation.getUsers), userController.getUsers);
+  .get(
+    auth({
+      optional: !config.strictAuth,
+    }),
+    validate(userValidation.getUsers),
+    userController.getUsers
+  );
 
 router
   .route('/self')
@@ -133,7 +140,13 @@ router
 
 router
   .route('/:userId')
-  .get(validate(userValidation.getUser), userController.getUser)
+  .get(
+    auth({
+      optional: !config.strictAuth,
+    }),
+    validate(userValidation.getUser),
+    userController.getUser
+  )
   .patch(auth(), checkPermission(PERMISSIONS.MANAGE_USERS), validate(userValidation.updateUser), userController.updateUser)
   .delete(auth(), checkPermission(PERMISSIONS.MANAGE_USERS), validate(userValidation.deleteUser), userController.deleteUser);
 
