@@ -3,6 +3,7 @@ version: '3'
 
 services:
   playground-be:
+    platform: linux/amd64
     build: .
     image: playground-be
     ports:
@@ -25,6 +26,7 @@ services:
       - node-network
 
   upload:
+    platform: linux/amd64
     build: ./upload/
     image: upload
     ports:

@@ -32,6 +32,7 @@ const userSchema = mongoose.Schema(
           throw new Error('Invalid email');
         }
       },
+      private: true,
     },
     password: {
       type: String,

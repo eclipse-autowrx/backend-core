@@ -48,6 +48,7 @@ const envVarsSchema = Joi.object()
     // Certivity
     CERTIVITY_CLIENT_ID: Joi.string().required().description('Certivity client id'),
     CERTIVITY_CLIENT_SECRET: Joi.string().required().description('Certivity client secret'),
+    STRICT_AUTH: Joi.boolean().description('Strict auth'),
   })
   .unknown();
 
@@ -60,6 +61,7 @@ if (error) {
 const config = {
   env: envVars.NODE_ENV,
   port: envVars.PORT,
+  strictAuth: envVars.STRICT_AUTH,
   mongoose: {
     url: envVars.MONGODB_URL + (envVars.NODE_ENV === 'test' ? '-test' : ''),
     options: {
