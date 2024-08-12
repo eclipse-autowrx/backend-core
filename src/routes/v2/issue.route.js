@@ -3,6 +3,7 @@ const validate = require('../../middlewares/validate');
 const issueValidation = require('../../validations/issue.validation');
 const issueController = require('../../controllers/issue.controller');
 const config = require('../../config/config');
+const auth = require('../../middlewares/auth');
 
 const router = express.Router();
 
