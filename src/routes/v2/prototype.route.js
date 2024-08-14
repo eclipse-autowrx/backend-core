@@ -22,6 +22,8 @@ router
 
 router.route('/recent').get(auth(), prototypeController.listRecentPrototypes);
 
+router.route('/recent').get(auth(), prototypeController.listRecentPrototypes);
+
 router
   .route('/:id')
   .get(
