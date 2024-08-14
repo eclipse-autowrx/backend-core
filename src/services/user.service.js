@@ -21,9 +21,22 @@ const createUser = async (userBody) => {
  * @param {string} [options.sortBy] - Sort option in the format: sortField:(desc|asc)
  * @param {number} [options.limit] - Maximum number of results per page (default = 10)
  * @param {number} [options.page] - Current page (default = 1)
+ * @param {Object} advanced - Advanced search options
+ * @param {string} [advanced.search] - Full text search
  * @returns {Promise<QueryResult>}
  */
-const queryUsers = async (filter, options) => {
+const queryUsers = async (filter, options, advanced) => {
+  if (advanced.search) {
+    filter = {
+      $and: [
+        filter,
+        {
+          $or: [{ name: { $regex: advanced.search, $options: 'i' } }, { email: { $regex: advanced.search, $options: 'i' } }],
+        },
+      ],
+    };
+  }
+
   const users = await User.paginate(filter, options);
   return users;
 };
