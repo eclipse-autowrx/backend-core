@@ -55,14 +55,7 @@ const paginate = (schema) => {
     let docsPromise = this.find(match).sort(sort).skip(skip).limit(limit);
 
     if (options.populate) {
-      options.populate.split(',').forEach((populateOption) => {
-        docsPromise = docsPromise.populate(
-          populateOption
-            .split('.')
-            .reverse()
-            .reduce((a, b) => ({ path: b, populate: a }))
-        );
-      });
+      docsPromise = docsPromise.populate(...options.populate);
     }
 
     if (options.fields) {
