@@ -78,7 +78,6 @@ const config = {
     resetPasswordExpirationMinutes: envVars.JWT_RESET_PASSWORD_EXPIRATION_MINUTES,
     verifyEmailExpirationMinutes: envVars.JWT_VERIFY_EMAIL_EXPIRATION_MINUTES,
     cookieRefreshOptions: {
-      // TODO: change this to true when deploy
       secure: true,
       httpOnly: true,
       sameSite: 'None',

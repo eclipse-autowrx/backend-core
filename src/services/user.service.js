@@ -23,6 +23,7 @@ const createUser = async (userBody) => {
  * @param {number} [options.page] - Current page (default = 1)
  * @param {Object} advanced - Advanced search options
  * @param {string} [advanced.search] - Full text search
+ * @param {string} [advanced.includeFullDetails] - Whether to include full user details or not
  * @returns {Promise<QueryResult>}
  */
 const queryUsers = async (filter, options, advanced) => {
@@ -37,16 +38,31 @@ const queryUsers = async (filter, options, advanced) => {
     };
   }
 
-  const users = await User.paginate(filter, options);
-  return users;
+  if (!advanced.includeFullDetails) {
+    return User.paginate(filter, {
+      ...options,
+      fields: 'name,id,image_file',
+    });
+  }
+
+  return User.paginate(filter, options);
 };
 
 /**
  * Get user by id
  * @param {ObjectId} id
+ * @param {boolean} [includeFullDetails = false] - Include full details or not
  * @returns {Promise<import('../models/user.model').User>}
  */
-const getUserById = async (id) => {
+const getUserById = async (id, includeFullDetails = false) => {
+  if (!includeFullDetails) {
+    return User.findById(id, {
+      name: 1,
+      image_file: 1,
+      _id: 1,
+    });
+  }
+
   return User.findById(id);
 };
 

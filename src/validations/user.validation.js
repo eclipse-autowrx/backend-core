@@ -38,12 +38,16 @@ const getUsers = {
     limit: Joi.number().integer(),
     page: Joi.number().integer(),
     search: Joi.string(),
+    includeFullDetails: Joi.boolean().default(false),
   }),
 };
 
 const getUser = {
   params: Joi.object().keys({
     userId: Joi.string().custom(objectId),
+  }),
+  query: Joi.object().keys({
+    includeFullDetails: Joi.boolean().default(false),
   }),
 };
 

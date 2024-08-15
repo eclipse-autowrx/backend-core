@@ -40,14 +40,10 @@ const userSchema = mongoose.Schema(
       minlength: 8,
       private: true, // used by the toJSON plugin
     },
-    role: {
-      type: String,
-      enum: roles,
-      default: 'user',
-    },
     email_verified: {
       type: Boolean,
       default: false,
+      private: true,
     },
     image_file: {
       type: String,
