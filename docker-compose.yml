@@ -1,22 +1,20 @@
-# upload/Dockerfile
-version: '3'
-
 services:
   playground-be:
     platform: linux/amd64
+    container_name: ${ENV:-dev}-playground-be
     build: .
-    image: playground-be
+    image: boschvn/playground-be:${IMAGE_TAG:-latest}
     ports:
       - '${PORT}:${PORT}'
     depends_on:
       - playground-db
       - upload
-    volumes:
-      - .:/usr/src/playground-be
     networks:
       - node-network
+    restart: ${RESTART_POLICY:-always}
 
   playground-db:
+    container_name: ${ENV:-dev}-playground-db
     image: mongo:4.4.6-bionic
     ports:
       - '${MONGO_EXPOSE_PORT}:27017'
@@ -24,23 +22,24 @@ services:
       - dbdata:/data/db
     networks:
       - node-network
+    restart: ${RESTART_POLICY:-always}
 
   upload:
     platform: linux/amd64
+    container_name: ${ENV:-dev}-upload
     build: ./upload/
-    image: upload
+    image: boschvn/upload:${IMAGE_TAG:-latest}
     ports:
       - '${UPLOAD_PORT}:${UPLOAD_PORT}'
     volumes:
-      - ./upload:/usr/src/upload
-      - /usr/src/upload/node_modules/
       - '${UPLOAD_PATH}:/usr/src/upload/data'
+
     networks:
       - node-network
+    restart: ${RESTART_POLICY:-always}
 
 volumes:
   dbdata:
-
 
 networks:
   node-network:

@@ -1,7 +1,11 @@
-version: '3'
-
 services:
   playground-be:
     command: yarn dev -L
+    volumes:
+      - .:/usr/src/playground-be
+
   upload:
     command: npm start
+    volumes:
+      - ./upload:/usr/src/upload
+      - /usr/src/upload/node_modules/

@@ -1,6 +1,5 @@
-version: '3'
-
 services:
   playground-be:
-    container_name: playground-be-test
     command: yarn test
+    volumes:
+      - .:/usr/src/playground-be

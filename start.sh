@@ -37,7 +37,10 @@ if [ ! -d "$UPLOAD_PATH" ]; then
 fi
 
 # Replace env file to upload directory
-cp .env ./upload/ -f
+if ! cp .env ./upload/ -f; then
+  echo "Failed to copy .env file to ./upload/"
+  exit 1
+fi
 
 # Set permissions for the directory
 echo "Setting permissions for $UPLOAD_PATH"
@@ -48,24 +51,46 @@ sudo chmod -R 775 "$UPLOAD_PATH"
 DOCKER_COMMAND=""
 NO_CACHE=""
 DETACH=""
+BUILD=""
 
-# Check for --no-cache argument
+# Check for arguments
 for arg in "$@"
 do
-  if [ "$arg" == "--no-cache" ]; then
-    NO_CACHE="--no-cache"
-  fi
-  if [ "$arg" == "-d" ]; then
-    DETACH="-d"
-  fi
+  case $arg in
+    --no-cache)
+      NO_CACHE="--no-cache"
+      shift
+      ;;
+    -d)
+      DETACH="-d"
+      shift
+      ;;
+    --build)
+      BUILD="--build"
+      shift
+      ;;
+    -prod)
+      ENV_SUFFIX="prod"
+      shift
+      ;;
+    *)
+      # Handle unexpected arguments
+      echo "Unknown argument: $arg"
+      exit 1
+      ;;
+  esac
 done
 
-# Determine the command to run based on the argument
-if [ "$1" == "-prod" ]; then
-  DOCKER_COMMAND="docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build $NO_CACHE $DETACH"
+# Determine the Docker Compose command based on the -prod flag
+if [ "$ENV_SUFFIX" == "prod" ]; then
+  RESTART_POLICY="always"
+  DOCKER_COMMAND="docker compose -p ${ENV}-playground-be -f docker-compose.yml -f docker-compose.prod.yml up $BUILD $NO_CACHE $DETACH"
 else
-  DOCKER_COMMAND="docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build $NO_CACHE $DETACH"
+  RESTART_POLICY="no"
+  DOCKER_COMMAND="docker compose -p ${ENV}-playground-be -f docker-compose.yml -f docker-compose.dev.yml up $BUILD $NO_CACHE $DETACH"
 fi
+
+export RESTART_POLICY
 
 # Run Docker Compose
 echo "Starting Docker Compose with command: $DOCKER_COMMAND"
