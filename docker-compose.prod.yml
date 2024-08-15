@@ -1,7 +1,5 @@
-version: '3'
-
 services:
   playground-be:
-    command: yarn dev -L
+    command: yarn start
   upload:
     command: npm run prod
