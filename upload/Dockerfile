@@ -12,4 +12,3 @@ USER node
 RUN npm install
 
 COPY --chown=node:node . .
-
