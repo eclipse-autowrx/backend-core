@@ -139,9 +139,23 @@ const getRecentCachedPrototypes = async (userId) => {
  */
 const listRecentPrototypes = async (userId) => {
   const recentData = await getRecentCachedPrototypes(userId);
-  const prototypeIds = recentData.map((data) => data.referenceId);
-  const prototypes = await Prototype.find({ _id: { $in: prototypeIds } }).populate('model', 'name visibility');
-  return prototypes;
+
+  // Create map
+  const prototypeMap = new Map();
+  recentData.forEach((data) => {
+    prototypeMap.set(data.referenceId, data);
+  });
+
+  const prototypes = await Prototype.find({ _id: { $in: Array.from(prototypeMap.keys()) } })
+    .select('name model_id description image_file executed_turns')
+    .populate('model', 'name visibility');
+  return prototypes.map((prototype) => {
+    return {
+      ...prototype.toJSON(),
+      last_visited: prototypeMap.get(prototype.id).time,
+      last_page: prototypeMap.get(prototype.id).page,
+    };
+  });
 };
 
 /**
@@ -161,7 +175,11 @@ const executeCode = async (id, _) => {
  * @returns {Promise<import('../typedefs/prototypeDef').Prototype[]>}
  */
 const listPopularPrototypes = async () => {
-  return Prototype.find().sort({ executed_turns: -1 }).limit(8).populate('model', 'name visibility');
+  return Prototype.find()
+    .sort({ executed_turns: -1 })
+    .limit(8)
+    .select('name model_id description image_file executed_turns')
+    .populate('model', 'name visibility');
 };
 
 module.exports = {
