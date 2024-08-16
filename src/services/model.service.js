@@ -4,7 +4,6 @@ const permissionService = require('./permission.service');
 const { Model, Role } = require('../models');
 const ApiError = require('../utils/ApiError');
 const { PERMISSIONS } = require('../config/roles');
-const mongoose = require('mongoose');
 
 /**
  *
@@ -32,7 +31,15 @@ const createModel = async (userId, modelBody) => {
 };
 
 /**
- * Query for users
+ * Query for models with filters
+ * @param {Object} filter
+ */
+const getModels = async (filter) => {
+  return Model.find(filter);
+};
+
+/**
+ * Query for users with filters, pagination and authorized user check
  * @param {Object} filter - Mongo filter
  * @param {Object} options - Query options
  * @param {string} [options.sortBy] - Sort option in the format: sortField:(desc|asc)
@@ -195,7 +202,6 @@ const updateModelById = async (id, updateBody, userId) => {
   if (!model) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Model not found');
   }
-  const user = await userService.getUserById(userId);
 
   Object.assign(model, updateBody);
   await model.save();
@@ -214,7 +220,6 @@ const deleteModelById = async (id, userId) => {
   if (!model) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Model not found');
   }
-  const user = await userService.getUserById(userId);
 
   await model.remove();
 };
@@ -300,6 +305,7 @@ const getAccessibleModels = async (userId) => {
 
 module.exports = {
   createModel,
+  getModels,
   queryModels,
   getModelById,
   updateModelById,

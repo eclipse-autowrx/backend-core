@@ -6,6 +6,7 @@ const { PERMISSIONS } = require('../config/roles');
 const { default: axios, isAxiosError } = require('axios');
 const config = require('../config/config');
 const logger = require('../config/logger');
+const modelService = require('./model.service');
 
 /**
  *
@@ -175,7 +176,14 @@ const executeCode = async (id, _) => {
  * @returns {Promise<import('../typedefs/prototypeDef').Prototype[]>}
  */
 const listPopularPrototypes = async () => {
-  return Prototype.find()
+  const publicModelIds = (
+    await modelService.getModels({
+      visibility: 'public',
+    })
+  ).map((model) => String(model._id));
+  return Prototype.find({
+    model_id: { $in: publicModelIds },
+  })
     .sort({ executed_turns: -1 })
     .limit(8)
     .select('name model_id description image_file executed_turns')
