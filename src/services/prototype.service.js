@@ -144,6 +144,26 @@ const listRecentPrototypes = async (userId) => {
   return prototypes;
 };
 
+/**
+ *
+ * @param {string} id
+ * @param {Object} [body]
+ * @returns {Promise<void>}
+ */
+const executeCode = async (id, _) => {
+  const prototype = await Prototype.findById(id);
+  prototype.executed_turns += 1;
+  await prototype.save();
+};
+
+/**
+ *
+ * @returns {Promise<import('../typedefs/prototypeDef').Prototype[]>}
+ */
+const listPopularPrototypes = async () => {
+  return Prototype.find().sort({ executed_turns: -1 }).limit(8);
+};
+
 module.exports = {
   createPrototype,
   queryPrototypes,
@@ -151,4 +171,6 @@ module.exports = {
   updatePrototypeById,
   deletePrototypeById,
   listRecentPrototypes,
+  executeCode,
+  listPopularPrototypes,
 };

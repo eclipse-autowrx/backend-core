@@ -138,10 +138,17 @@ const deletePrototype = {
   }),
 };
 
+const executeCode = {
+  params: Joi.object().keys({
+    id: Joi.string().required().custom(objectId),
+  }),
+};
+
 module.exports = {
   listPrototypes,
   createPrototype,
   getPrototype,
   updatePrototype,
   deletePrototype,
+  executeCode,
 };

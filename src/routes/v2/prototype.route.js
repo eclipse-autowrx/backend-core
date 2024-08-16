@@ -21,8 +21,12 @@ router
   );
 
 router.route('/recent').get(auth(), prototypeController.listRecentPrototypes);
-
-router.route('/recent').get(auth(), prototypeController.listRecentPrototypes);
+router.route('/popular').get(
+  auth({
+    optional: !config.strictAuth,
+  }),
+  prototypeController.listPopularPrototypes
+);
 
 router
   .route('/:id')
@@ -45,5 +49,7 @@ router
     validate(prototypeValidation.deletePrototype),
     prototypeController.deletePrototype
   );
+
+router.route('/:id/execute-code').post(auth(), validate(prototypeValidation.executeCode), prototypeController.executeCode);
 
 module.exports = router;

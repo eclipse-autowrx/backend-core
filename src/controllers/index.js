@@ -3,7 +3,6 @@ module.exports.userController = require('./user.controller');
 module.exports.modelLegacyController = require('./model.legacy.controller');
 module.exports.prototypeLegacyController = require('./prototype.legacy.controller');
 module.exports.tagController = require('./tag.controller');
-
 module.exports.modelController = require('./model.controller');
 module.exports.prototypeController = require('./prototype.controller');
 module.exports.apiController = require('./api.controller');

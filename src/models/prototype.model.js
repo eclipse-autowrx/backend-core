@@ -186,6 +186,10 @@ const prototypeSchema = mongoose.Schema({
     ref: 'User',
     required: true,
   },
+  executed_turns: {
+    type: Number,
+    default: 0,
+  },
 });
 
 // add plugin that converts mongoose to json

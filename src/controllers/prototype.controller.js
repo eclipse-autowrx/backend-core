@@ -45,6 +45,18 @@ const listRecentPrototypes = catchAsync(async (req, res) => {
   res.send(prototypes);
 });
 
+const executeCode = catchAsync(async (req, res) => {
+  // Check if user has permission to view the prototype
+  await prototypeService.getPrototypeById(req.params.id, req.user?.id);
+  await prototypeService.executeCode(req.params.id, req.body);
+  res.send('OK');
+});
+
+const listPopularPrototypes = catchAsync(async (req, res) => {
+  const prototypes = await prototypeService.listPopularPrototypes(req.user.id);
+  res.send(prototypes);
+});
+
 module.exports = {
   createPrototype,
   listPrototypes,
@@ -52,4 +64,6 @@ module.exports = {
   updatePrototype,
   deletePrototype,
   listRecentPrototypes,
+  listPopularPrototypes,
+  executeCode,
 };
