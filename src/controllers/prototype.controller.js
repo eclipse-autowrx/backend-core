@@ -22,10 +22,10 @@ const listPrototypes = catchAsync(async (req, res) => {
 
   // Check if user has permission to view the model
   if (readableModelIds !== '*') {
-    if (filter.model_id && !readableModelIds.includes(filter.model_id)) {
-      throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
-    } else {
+    if (!filter.model_id) {
       filter.model_id = { $in: readableModelIds };
+    } else if (!readableModelIds.includes(filter.model_id)) {
+      throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
     }
   }
 
