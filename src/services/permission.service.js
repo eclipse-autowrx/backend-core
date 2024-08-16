@@ -189,6 +189,47 @@ const getPermissions = () => {
   });
 };
 
+/**
+ *
+ * @param {string} userId
+ * @returns {Promise<string[] | '*'>}
+ */
+const listReadableModelIds = async (userId) => {
+  // If user is not logged in return public models
+  if (!userId) {
+    return (await Model.find({ visibility: 'public' }).select('_id')).map((model) => String(model._id));
+  }
+
+  const userRoles = await getUserRoles(userId);
+  const roleMap = getMappedRoles(userRoles);
+
+  // If user has permission to read all models return '*'
+  if (roleMap.has('*') && roleMap.get('*').includes(PERMISSIONS.READ_MODEL)) {
+    return '*';
+  }
+
+  const results = new Set();
+
+  // Add authorized models
+  roleMap.forEach((value, key) => {
+    if ((value || []).includes(PERMISSIONS.READ_MODEL)) {
+      results.add(key);
+    }
+  });
+  // Add own models
+  const ownModels = await Model.find({ created_by: userId }).select('_id');
+  ownModels.forEach((model) => {
+    results.add(String(model._id));
+  });
+  // Add public models
+  const publicModels = await Model.find({ visibility: 'public' }).select('_id');
+  publicModels.forEach((model) => {
+    results.add(String(model._id));
+  });
+
+  return Array.from(results);
+};
+
 module.exports = {
   listAuthorizedUser,
   assignRoleToUser,
@@ -200,4 +241,5 @@ module.exports = {
   containsPermission,
   getRoles,
   getPermissions,
+  listReadableModelIds,
 };

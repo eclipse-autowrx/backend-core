@@ -15,8 +15,20 @@ const createPrototype = catchAsync(async (req, res) => {
 });
 
 const listPrototypes = catchAsync(async (req, res) => {
+  const readableModelIds = await permissionService.listReadableModelIds(req.user?.id);
+
   const filter = pick(req.query, ['state', 'model_id', 'name', 'complexity_level', 'autorun', 'created_by']);
   const options = pick(req.query, ['sortBy', 'limit', 'page', 'fields']);
+
+  // Check if user has permission to view the model
+  if (readableModelIds !== '*') {
+    if (filter.model_id && !readableModelIds.includes(filter.model_id)) {
+      throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
+    } else {
+      filter.model_id = { $in: readableModelIds };
+    }
+  }
+
   const prototypes = await prototypeService.queryPrototypes(filter, {
     ...options,
     populate: ['created_by', 'name image_file'],
