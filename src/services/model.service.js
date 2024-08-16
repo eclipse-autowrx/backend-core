@@ -196,9 +196,7 @@ const updateModelById = async (id, updateBody, userId) => {
     throw new ApiError(httpStatus.NOT_FOUND, 'Model not found');
   }
   const user = await userService.getUserById(userId);
-  if (user.role !== 'admin' && String(model.created_by) !== String(userId)) {
-    throw new ApiError(httpStatus.FORBIDDEN, "You don't have permission to update this model");
-  }
+
   Object.assign(model, updateBody);
   await model.save();
   return model._id;
@@ -217,9 +215,6 @@ const deleteModelById = async (id, userId) => {
     throw new ApiError(httpStatus.NOT_FOUND, 'Model not found');
   }
   const user = await userService.getUserById(userId);
-  if (user.role !== 'admin' && String(model.created_by) !== String(userId)) {
-    throw new ApiError(httpStatus.FORBIDDEN, "You don't have permission to delete this model");
-  }
 
   await model.remove();
 };
@@ -302,6 +297,13 @@ const getAccessibleModels = async (userId) => {
 
   return visibleModels;
 };
+
+/**
+ *
+ * @param {string} userId
+ * @returns {Promise<string[]>}
+ */
+const listReadableModelIds = async (userId) => {};
 
 module.exports = {
   createModel,
