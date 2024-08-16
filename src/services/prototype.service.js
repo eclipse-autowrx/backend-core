@@ -140,7 +140,7 @@ const getRecentCachedPrototypes = async (userId) => {
 const listRecentPrototypes = async (userId) => {
   const recentData = await getRecentCachedPrototypes(userId);
   const prototypeIds = recentData.map((data) => data.referenceId);
-  const prototypes = await Prototype.find({ _id: { $in: prototypeIds } });
+  const prototypes = await Prototype.find({ _id: { $in: prototypeIds } }).populate('model', 'name visibility');
   return prototypes;
 };
 
@@ -161,7 +161,7 @@ const executeCode = async (id, _) => {
  * @returns {Promise<import('../typedefs/prototypeDef').Prototype[]>}
  */
 const listPopularPrototypes = async () => {
-  return Prototype.find().sort({ executed_turns: -1 }).limit(8);
+  return Prototype.find().sort({ executed_turns: -1 }).limit(8).populate('model', 'name visibility');
 };
 
 module.exports = {
