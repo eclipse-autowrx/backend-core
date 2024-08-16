@@ -83,10 +83,14 @@ done
 
 # Determine the Docker Compose command based on the -prod flag
 if [ "$ENV_SUFFIX" == "prod" ]; then
+  RESTART_POLICY="always"
   DOCKER_COMMAND="docker compose -p ${ENV}-playground-be -f docker-compose.yml -f docker-compose.prod.yml up $BUILD $NO_CACHE $DETACH"
 else
+  RESTART_POLICY="no"
   DOCKER_COMMAND="docker compose -p ${ENV}-playground-be -f docker-compose.yml -f docker-compose.dev.yml up $BUILD $NO_CACHE $DETACH"
 fi
+
+export RESTART_POLICY
 
 # Run Docker Compose
 echo "Starting Docker Compose with command: $DOCKER_COMMAND"

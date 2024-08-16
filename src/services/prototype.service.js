@@ -49,7 +49,16 @@ const queryPrototypes = async (filter, options) => {
  * @returns {Promise<import('../models/prototype.model').Prototype>}
  */
 const getPrototypeById = async (id, userId) => {
-  const prototype = await Prototype.findById(id).populate('model_id').populate('created_by');
+  const prototype = await Prototype.findById(id).populate([
+    {
+      path: 'created_by',
+      select: 'name image_file',
+    },
+    {
+      path: 'model_id',
+      select: 'name visibility',
+    },
+  ]);
 
   if (!prototype) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Prototype not found');
@@ -131,8 +140,28 @@ const getRecentCachedPrototypes = async (userId) => {
 const listRecentPrototypes = async (userId) => {
   const recentData = await getRecentCachedPrototypes(userId);
   const prototypeIds = recentData.map((data) => data.referenceId);
-  const prototypes = await Prototype.find({ _id: { $in: prototypeIds } });
+  const prototypes = await Prototype.find({ _id: { $in: prototypeIds } }).populate('model', 'name visibility');
   return prototypes;
+};
+
+/**
+ *
+ * @param {string} id
+ * @param {Object} [body]
+ * @returns {Promise<void>}
+ */
+const executeCode = async (id, _) => {
+  const prototype = await Prototype.findById(id);
+  prototype.executed_turns += 1;
+  await prototype.save();
+};
+
+/**
+ *
+ * @returns {Promise<import('../typedefs/prototypeDef').Prototype[]>}
+ */
+const listPopularPrototypes = async () => {
+  return Prototype.find().sort({ executed_turns: -1 }).limit(8).populate('model', 'name visibility');
 };
 
 module.exports = {
@@ -142,4 +171,6 @@ module.exports = {
   updatePrototypeById,
   deletePrototypeById,
   listRecentPrototypes,
+  executeCode,
+  listPopularPrototypes,
 };

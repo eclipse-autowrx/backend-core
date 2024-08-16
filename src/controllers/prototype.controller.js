@@ -16,8 +16,11 @@ const createPrototype = catchAsync(async (req, res) => {
 
 const listPrototypes = catchAsync(async (req, res) => {
   const filter = pick(req.query, ['state', 'model_id', 'name', 'complexity_level', 'autorun', 'created_by']);
-  const options = pick(req.query, ['sortBy', 'limit', 'page', 'fields', 'populate']);
-  const prototypes = await prototypeService.queryPrototypes(filter, options);
+  const options = pick(req.query, ['sortBy', 'limit', 'page', 'fields']);
+  const prototypes = await prototypeService.queryPrototypes(filter, {
+    ...options,
+    populate: ['created_by', 'name image_file'],
+  });
   res.send(prototypes);
 });
 
@@ -42,6 +45,18 @@ const listRecentPrototypes = catchAsync(async (req, res) => {
   res.send(prototypes);
 });
 
+const executeCode = catchAsync(async (req, res) => {
+  // Check if user has permission to view the prototype
+  await prototypeService.getPrototypeById(req.params.id, req.user?.id);
+  await prototypeService.executeCode(req.params.id, req.body);
+  res.send('OK');
+});
+
+const listPopularPrototypes = catchAsync(async (req, res) => {
+  const prototypes = await prototypeService.listPopularPrototypes(req.user.id);
+  res.send(prototypes);
+});
+
 module.exports = {
   createPrototype,
   listPrototypes,
@@ -49,4 +64,6 @@ module.exports = {
   updatePrototype,
   deletePrototype,
   listRecentPrototypes,
+  listPopularPrototypes,
+  executeCode,
 };

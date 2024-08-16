@@ -45,6 +45,10 @@ const envVarsSchema = Joi.object()
     ETAS_CLIENT_SECRET: Joi.string().description('ETAS client secret'),
     ETAS_SCOPE: Joi.string().description('ETAS scope'),
     ETAS_INSTANCE_ENDPOINT: Joi.string().description('ETAS instance endpoint'),
+    // Certivity
+    CERTIVITY_CLIENT_ID: Joi.string().required().description('Certivity client id'),
+    CERTIVITY_CLIENT_SECRET: Joi.string().required().description('Certivity client secret'),
+    STRICT_AUTH: Joi.boolean().description('Strict auth'),
   })
   .unknown();
 
@@ -57,6 +61,7 @@ if (error) {
 const config = {
   env: envVars.NODE_ENV,
   port: envVars.PORT,
+  strictAuth: envVars.STRICT_AUTH,
   mongoose: {
     url: envVars.MONGODB_URL + (envVars.NODE_ENV === 'test' ? '-test' : ''),
     options: {
@@ -73,7 +78,6 @@ const config = {
     resetPasswordExpirationMinutes: envVars.JWT_RESET_PASSWORD_EXPIRATION_MINUTES,
     verifyEmailExpirationMinutes: envVars.JWT_VERIFY_EMAIL_EXPIRATION_MINUTES,
     cookieRefreshOptions: {
-      // TODO: change this to true when deploy
       secure: true,
       httpOnly: true,
       sameSite: 'None',
@@ -138,6 +142,14 @@ const config = {
     instanceEndpoint: envVars.ETAS_INSTANCE_ENDPOINT,
   },
   githubIssueSubmitUrl: 'https://api.github.com/repos/digital-auto/vehicle_signal_specification/issues',
+  certivity: {
+    authBaseUrl: 'https://certivity-dev.eu.auth0.com/oauth/token',
+    authAudience: 'https://service-api-dev.certivity.io',
+    authGrantType: 'client_credentials',
+    clientId: envVars.CERTIVITY_CLIENT_ID,
+    clientSecret: envVars.CERTIVITY_CLIENT_SECRET,
+    regulationBaseUrl: 'https://ctvt-service-api.azurewebsites.net/api/v1/protected/regulation',
+  },
 };
 
 if (config.env === 'development') {

@@ -3,13 +3,20 @@ const validate = require('../../middlewares/validate');
 const auth = require('../../middlewares/auth');
 const { feedbackValidation } = require('../../validations');
 const { feedbackController } = require('../../controllers');
+const config = require('../../config/config');
 
 const router = express.Router();
 
 router
   .route('/')
   .post(auth(), validate(feedbackValidation.createFeedback), feedbackController.createFeedback)
-  .get(validate(feedbackValidation.listFeedbacks), feedbackController.listFeedbacks);
+  .get(
+    auth({
+      optional: !config.strictAuth,
+    }),
+    validate(feedbackValidation.listFeedbacks),
+    feedbackController.listFeedbacks
+  );
 
 router
   .route('/:id')

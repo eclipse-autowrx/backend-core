@@ -1,5 +1,6 @@
 services:
   playground-be:
+    platform: linux/amd64
     container_name: ${ENV:-dev}-playground-be
     build: .
     image: boschvn/playground-be:${IMAGE_TAG:-latest}
@@ -10,7 +11,7 @@ services:
       - upload
     networks:
       - node-network
-    restart: always
+    restart: ${RESTART_POLICY:-always}
 
   playground-db:
     container_name: ${ENV:-dev}-playground-db
@@ -21,9 +22,10 @@ services:
       - dbdata:/data/db
     networks:
       - node-network
-    restart: always
+    restart: ${RESTART_POLICY:-always}
 
   upload:
+    platform: linux/amd64
     container_name: ${ENV:-dev}-upload
     build: ./upload/
     image: boschvn/upload:${IMAGE_TAG:-latest}
@@ -34,7 +36,7 @@ services:
 
     networks:
       - node-network
-    restart: always
+    restart: ${RESTART_POLICY:-always}
 
 volumes:
   dbdata:

@@ -64,7 +64,7 @@ const listPrototypes = {
     limit: Joi.number().integer(),
     page: Joi.number().integer(),
     fields: Joi.string(),
-    populate: Joi.string(),
+    // populate: Joi.string(),
   }),
 };
 
@@ -138,10 +138,17 @@ const deletePrototype = {
   }),
 };
 
+const executeCode = {
+  params: Joi.object().keys({
+    id: Joi.string().required().custom(objectId),
+  }),
+};
+
 module.exports = {
   listPrototypes,
   createPrototype,
   getPrototype,
   updatePrototype,
   deletePrototype,
+  executeCode,
 };

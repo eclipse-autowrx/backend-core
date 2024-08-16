@@ -12,7 +12,7 @@ router.post(
   '/',
   // validate(genaiValidation.invokeBedrock),
   auth({
-    optional: true,
+    optional: !config.strictAuth,
   }),
   genaiPermission,
   invokeBedrockModel
@@ -22,20 +22,18 @@ router.post(
   '/openai',
   // validate(genaiValidation.invokeOpenAI),
   auth({
-    optional: true,
+    optional: !config.strictAuth,
   }),
   genaiPermission,
   genaiController.invokeOpenAIController
 );
 
-if (config.etas.enabled) {
-  router.post(
-    '/etas',
-    auth({
-      optional: true,
-    }),
-    genaiController.generateAIContent
-  );
-}
+router.post(
+  '/etas',
+  auth({
+    optional: !config.strictAuth,
+  }),
+  genaiController.generateAIContent
+);
 
 module.exports = router;

@@ -4,6 +4,7 @@ const permissionService = require('./permission.service');
 const { Model, Role } = require('../models');
 const ApiError = require('../utils/ApiError');
 const { PERMISSIONS } = require('../config/roles');
+const mongoose = require('mongoose');
 
 /**
  *
@@ -53,6 +54,7 @@ const queryModels = async (filter, options, advanced, userId) => {
     permissionFilter.$or.push({ visibility: 'public' });
   }
 
+  // List based on permissions
   if (userId) {
     const roles = await permissionService.getUserRoles(userId);
     const roleMap = permissionService.getMappedRoles(roles);
@@ -104,6 +106,41 @@ const queryModels = async (filter, options, advanced, userId) => {
   pipeline.push({ $skip: skip });
   pipeline.push({ $limit: limit });
 
+  pipeline.push(
+    ...[
+      {
+        $lookup: {
+          from: 'users',
+          let: { created_by: '$created_by' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ['$_id', '$$created_by'],
+                },
+              },
+            },
+            {
+              $project: {
+                id: '$_id',
+                image_file: 1,
+                name: 1,
+                _id: 0,
+              },
+            },
+          ],
+          as: 'created_by',
+        },
+      },
+      {
+        $unwind: {
+          path: '$created_by',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+    ]
+  );
+
   const models = await Model.aggregate(pipeline).exec();
 
   const totalResultsCount = totalResults.length > 0 ? totalResults[0].count : 0;
@@ -131,7 +168,7 @@ const queryModels = async (filter, options, advanced, userId) => {
  * @returns {Promise<Model>}
  */
 const getModelById = async (id, userId) => {
-  const model = await Model.findById(id);
+  const model = await Model.findById(id).populate('created_by', 'id name image_file');
   if (!model) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Model not found');
   }
@@ -159,9 +196,7 @@ const updateModelById = async (id, updateBody, userId) => {
     throw new ApiError(httpStatus.NOT_FOUND, 'Model not found');
   }
   const user = await userService.getUserById(userId);
-  if (user.role !== 'admin' && String(model.created_by) !== String(userId)) {
-    throw new ApiError(httpStatus.FORBIDDEN, "You don't have permission to update this model");
-  }
+
   Object.assign(model, updateBody);
   await model.save();
   return model._id;
@@ -180,9 +215,6 @@ const deleteModelById = async (id, userId) => {
     throw new ApiError(httpStatus.NOT_FOUND, 'Model not found');
   }
   const user = await userService.getUserById(userId);
-  if (user.role !== 'admin' && String(model.created_by) !== String(userId)) {
-    throw new ApiError(httpStatus.FORBIDDEN, "You don't have permission to delete this model");
-  }
 
   await model.remove();
 };
@@ -265,6 +297,13 @@ const getAccessibleModels = async (userId) => {
 
   return visibleModels;
 };
+
+/**
+ *
+ * @param {string} userId
+ * @returns {Promise<string[]>}
+ */
+const listReadableModelIds = async (userId) => {};
 
 module.exports = {
   createModel,

@@ -6,7 +6,7 @@ const config = require('../config/config');
 const register = catchAsync(async (req, res) => {
   const user = await userService.createUser({
     ...req.body,
-    provider: 'Email',
+    provider: req.body?.provider || 'Email',
   });
   const tokens = await tokenService.generateAuthTokens(user);
   res.cookie('token', tokens.refresh.token, {
