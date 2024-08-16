@@ -14,8 +14,11 @@ const createFeedback = catchAsync(async (req, res) => {
 
 const listFeedbacks = catchAsync(async (req, res) => {
   const filter = pick(req.query, ['ref', 'ref_type', 'id', 'avg_score', 'model_id', 'created_by']);
-  const options = pick(req.query, ['sortBy', 'limit', 'page', 'fields', 'populate']);
-  const feedbacks = await feedbackService.queryFeedbacks(filter, options);
+  const options = pick(req.query, ['sortBy', 'limit', 'page', 'fields']);
+  const feedbacks = await feedbackService.queryFeedbacks(filter, {
+    ...options,
+    populate: ['created_by', 'name image_file'],
+  });
   res.send(feedbacks);
 });
 

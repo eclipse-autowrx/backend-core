@@ -4,6 +4,7 @@ const ApiError = require('../utils/ApiError');
 const catchAsync = require('../utils/catchAsync');
 const { userService, permissionService } = require('../services');
 const { Role } = require('../models');
+const { PERMISSIONS } = require('../config/roles');
 
 const createUser = catchAsync(async (req, res) => {
   const user = await userService.createUser(req.body);
@@ -13,17 +14,34 @@ const createUser = catchAsync(async (req, res) => {
 const getUsers = catchAsync(async (req, res) => {
   const filter = pick(req.query, ['name', 'role']);
   const options = pick(req.query, ['sortBy', 'limit', 'page']);
-  const result = await userService.queryUsers(filter, options);
+  const advanced = pick(req.query, ['search', 'includeFullDetails']);
+  if (advanced.includeFullDetails) {
+    // Check if has permission
+    if (!(await permissionService.hasPermission(req.user?.id, PERMISSIONS.MANAGE_USERS))) {
+      throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
+    }
+  }
+
+  const result = await userService.queryUsers(filter, options, advanced);
   res.send(result);
 });
 
 const getSelf = catchAsync(async (req, res) => {
-  const user = await userService.getUserById(req.user.id);
+  const user = await userService.getUserById(req.user.id, true);
   res.send(user);
 });
 
 const getUser = catchAsync(async (req, res) => {
-  const user = await userService.getUserById(req.params.userId);
+  if (req.query.includeFullDetails) {
+    // Check if has permission
+    if (
+      req.user?.id !== req.params.userId &&
+      !(await permissionService.hasPermission(req.user?.id, PERMISSIONS.MANAGE_USERS))
+    ) {
+      throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
+    }
+  }
+  const user = await userService.getUserById(req.params.userId, req.query.includeFullDetails);
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
   }

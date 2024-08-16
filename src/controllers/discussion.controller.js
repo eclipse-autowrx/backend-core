@@ -14,13 +14,16 @@ const createDiscussion = catchAsync(async (req, res) => {
 
 const listDiscussions = catchAsync(async (req, res) => {
   const filter = pick(req.query, ['ref', 'ref_type', 'id', 'parent']);
-  const options = pick(req.query, ['sortBy', 'limit', 'page', 'fields', 'populate']);
+  const options = pick(req.query, ['sortBy', 'limit', 'page', 'fields']);
   const discussions = await discussionService.queryDiscussions(
     {
       ...filter,
       parent: { $exists: false },
     },
-    options
+    {
+      ...options,
+      populate: ['created_by', 'name image_file'],
+    }
   );
   // TODO: Optimize the code below
   const promises = [];

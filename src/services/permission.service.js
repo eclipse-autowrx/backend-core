@@ -161,8 +161,8 @@ const checkPrototypePermission = (prototype, userId, permission) => {
  * @returns {Promise<boolean>}
  */
 const hasPermission = async (userId, permission, id) => {
-  const model = await Model.findById(id);
-  const prototype = await Prototype.findById(id).populate('model_id');
+  const model = await Model.findById(id).select('created_by');
+  const prototype = await Prototype.findById(id).populate('model_id').select('created_by model_id');
 
   if (!userId) {
     return false;

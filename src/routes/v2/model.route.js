@@ -5,6 +5,7 @@ const { modelController } = require('../../controllers');
 const auth = require('../../middlewares/auth');
 const { checkPermission } = require('../../middlewares/permission');
 const { PERMISSIONS } = require('../../config/roles');
+const config = require('../../config/config');
 
 const router = express.Router();
 
@@ -13,7 +14,7 @@ router
   .post(auth(), validate(modelValidation.createModel), modelController.createModel)
   .get(
     auth({
-      optional: true,
+      optional: !config.strictAuth,
     }),
     validate(modelValidation.listModels),
     modelController.listModels
@@ -23,7 +24,7 @@ router
   .route('/:id')
   .get(
     auth({
-      optional: true,
+      optional: !config.strictAuth,
     }),
     validate(modelValidation.getModel),
     modelController.getModel

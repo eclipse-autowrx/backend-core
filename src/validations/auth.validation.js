@@ -6,6 +6,8 @@ const register = {
     email: Joi.string().required().email(),
     password: Joi.string().required().custom(password),
     name: Joi.string().required(),
+    image_file: Joi.string().allow(''),
+    provider: Joi.string().allow(''),
   }),
 };
 

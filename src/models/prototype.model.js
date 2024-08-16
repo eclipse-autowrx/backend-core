@@ -186,11 +186,25 @@ const prototypeSchema = mongoose.Schema({
     ref: 'User',
     required: true,
   },
+  executed_turns: {
+    type: Number,
+    default: 0,
+  },
 });
 
 // add plugin that converts mongoose to json
 prototypeSchema.plugin(toJSON);
 prototypeSchema.plugin(paginate);
+prototypeSchema.set('toJSON', {
+  virtuals: true,
+});
+
+prototypeSchema.virtual('model', {
+  ref: 'Model',
+  localField: 'model_id',
+  foreignField: '_id',
+  justOne: true,
+});
 
 prototypeSchema.statics.existsPrototypeInModel = async function (model_id, name, excludeId) {
   const prototype = await this.findOne({ name, model_id, _id: { $ne: excludeId } });
