@@ -21,7 +21,7 @@ const listAuthorizedUser = async ({ role, ...condition }) => {
   const userRoles = await UserRole.find({
     ...condition,
     role: roleObject._id,
-  }).populate('user');
+  }).populate('user', 'id image_file name');
   return userRoles.map((userRole) => userRole.user);
 };
 
