@@ -4,6 +4,7 @@ const permissionService = require('./permission.service');
 const { Model, Role } = require('../models');
 const ApiError = require('../utils/ApiError');
 const { PERMISSIONS } = require('../config/roles');
+const mongoose = require('mongoose');
 
 /**
  *
@@ -50,6 +51,15 @@ const getModels = async (filter) => {
  */
 const queryModels = async (filter, options, advanced, userId) => {
   const { sortBy, limit = 10, page = 1, fields } = options;
+
+  // Cast id to ObjectId if have
+  if (filter.id) {
+    filter._id = new mongoose.Types.ObjectId(filter.id);
+    delete filter.id;
+  }
+  if (filter.created_by) {
+    filter.created_by = new mongoose.Types.ObjectId(filter.created_by);
+  }
 
   const pipeline = [{ $match: filter }];
 
