@@ -32,20 +32,21 @@ const getModel = catchAsync(async (req, res) => {
   if (!model) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Model not found');
   }
-  const contributors = await permissionService.listAuthorizedUser({
-    role: 'model_contributor',
-    ref: req.params.id,
-  });
-  const members = await permissionService.listAuthorizedUser({
-    role: 'model_member',
-    ref: req.params.id,
-  });
 
-  const finalResult = {
-    ...model.toJSON(),
-    contributors,
-    members,
-  };
+  const finalResult = model.toJSON();
+
+  if (req.user?.id === model.created_by?.id) {
+    const contributors = await permissionService.listAuthorizedUser({
+      role: 'model_contributor',
+      ref: req.params.id,
+    });
+    const members = await permissionService.listAuthorizedUser({
+      role: 'model_member',
+      ref: req.params.id,
+    });
+    finalResult.contributors = contributors;
+    finalResult.members = members;
+  }
 
   res.send(finalResult);
 });
