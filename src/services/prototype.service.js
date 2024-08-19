@@ -150,13 +150,19 @@ const listRecentPrototypes = async (userId) => {
   const prototypes = await Prototype.find({ _id: { $in: Array.from(prototypeMap.keys()) } })
     .select('name model_id description image_file executed_turns')
     .populate('model', 'name visibility');
-  return prototypes.map((prototype) => {
-    return {
-      ...prototype.toJSON(),
-      last_visited: prototypeMap.get(prototype.id).time,
-      last_page: prototypeMap.get(prototype.id).page,
-    };
+
+  const results = [];
+  recentData.forEach((data) => {
+    const correspondingPrototype = prototypes.find((prototype) => String(prototype._id) === data.referenceId);
+    if (correspondingPrototype) {
+      results.push({
+        ...correspondingPrototype.toJSON(),
+        last_visited: data.time,
+        last_page: data.page,
+      });
+    }
   });
+  return results;
 };
 
 /**
