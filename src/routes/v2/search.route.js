@@ -16,4 +16,13 @@ router.get(
   searchController.search
 );
 
+router.get(
+  '/email/:email',
+  auth({
+    optional: !config.strictAuth,
+  }),
+  validate(searchValidation.searchUserByEmail),
+  searchController.searchUserByEmail
+);
+
 module.exports = router;

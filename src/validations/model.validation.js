@@ -90,7 +90,7 @@ const deleteModel = {
 
 const addAuthorizedUser = {
   body: Joi.object().keys({
-    userId: Joi.string().custom(objectId),
+    userId: Joi.string().required(),
     role: Joi.string().valid('model_contributor', 'model_member'),
   }),
   params: Joi.object().keys({

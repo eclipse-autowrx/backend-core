@@ -69,7 +69,13 @@ const deleteModel = catchAsync(async (req, res) => {
 });
 
 const addAuthorizedUser = catchAsync(async (req, res) => {
-  await modelService.addAuthorizedUser(req.params.id, req.body, req.user.id);
+  const userIds = req.body.userId?.split(',');
+  const promises = userIds.map((userId) =>
+    modelService.addAuthorizedUser(req.params.id, { userId, role: req.body.role }, req.user.id)
+  );
+  await Promise.all(promises).catch((err) => {
+    throw new ApiError(httpStatus.BAD_REQUEST, err.message);
+  });
   res.status(httpStatus.CREATED).send();
 });
 

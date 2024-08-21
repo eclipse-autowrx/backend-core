@@ -9,6 +9,13 @@ const search = {
   }),
 };
 
+const searchUserByEmail = {
+  params: Joi.object().keys({
+    email: Joi.string().email().required(),
+  }),
+};
+
 module.exports = {
   search,
+  searchUserByEmail,
 };
