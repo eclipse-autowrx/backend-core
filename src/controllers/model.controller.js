@@ -3,6 +3,7 @@ const { modelService, apiService, permissionService } = require('../services');
 const catchAsync = require('../utils/catchAsync');
 const pick = require('../utils/pick');
 const ApiError = require('../utils/ApiError');
+const { PERMISSIONS } = require('../config/roles');
 
 const createModel = catchAsync(async (req, res) => {
   const { cvi, custom_apis, ...reqBody } = req.body;
@@ -28,14 +29,16 @@ const listModels = catchAsync(async (req, res) => {
 });
 
 const getModel = catchAsync(async (req, res) => {
-  const model = await modelService.getModelById(req.params.id, req.user?.id);
+  const hasWritePermission = await permissionService.hasPermission(req.user?.id, PERMISSIONS.WRITE_MODEL, req.params.id);
+
+  const model = await modelService.getModelById(req.params.id, req.user?.id, hasWritePermission);
   if (!model) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Model not found');
   }
 
   const finalResult = model.toJSON();
 
-  if (req.user?.id === model.created_by?.id) {
+  if (hasWritePermission) {
     const contributors = await permissionService.listAuthorizedUser({
       role: 'model_contributor',
       ref: req.params.id,

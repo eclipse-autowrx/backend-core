@@ -182,10 +182,14 @@ const queryModels = async (filter, options, advanced, userId) => {
  *
  * @param {string} id
  * @param {string} userId
+ * @param {boolean} [includeCreatorFullDetails]
  * @returns {Promise<Model>}
  */
-const getModelById = async (id, userId) => {
-  const model = await Model.findById(id).populate('created_by', 'id name image_file');
+const getModelById = async (id, userId, includeCreatorFullDetails) => {
+  const model = await Model.findById(id).populate(
+    'created_by',
+    includeCreatorFullDetails ? 'id name image_file email' : 'id name image_file'
+  );
   if (!model) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Model not found');
   }
