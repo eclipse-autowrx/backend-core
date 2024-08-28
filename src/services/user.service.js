@@ -45,7 +45,12 @@ const queryUsers = async (filter, options, advanced) => {
     });
   }
 
-  return User.paginate(filter, options);
+  const results = await User.paginate(filter, options);
+  results.results = results.results.map((user, index) => ({
+    ...user.toJSON(),
+    created_at: user.createdAt,
+  }));
+  return results;
 };
 
 /**
