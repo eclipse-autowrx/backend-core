@@ -34,7 +34,6 @@ const userSchema = mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
       trim: true,
       minlength: 8,
       private: true, // used by the toJSON plugin
@@ -52,6 +51,10 @@ const userSchema = mongoose.Schema(
     provider: {
       type: String,
       default: 'Email',
+      trim: true,
+    },
+    provider_user_id: {
+      type: String,
       trim: true,
     },
     uid: {

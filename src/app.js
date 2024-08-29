@@ -16,7 +16,6 @@ const routesV2 = require('./routes/v2');
 const { errorConverter, errorHandler } = require('./middlewares/error');
 const ApiError = require('./utils/ApiError');
 const setupProxy = require('./config/proxyHandler');
-const LLMServices = require('./services/llm.service');
 
 const app = express();
 
@@ -87,5 +86,27 @@ app.use(errorConverter);
 
 // handle error
 app.use(errorHandler);
+
+// Test function
+(async () => {
+  try {
+    const pixelmatch = require('pixelmatch');
+    const fileService = require('./services/file.service');
+    const file1 = await fileService.getFileFromURL(
+      'https://www.mcgawgraphics.com/cdn/shop/articles/V1716_1024x1024.jpg?v=1490384051',
+      'Buffer'
+    );
+    const file2 = await fileService.getFileFromURL(
+      'https://www.mcgawgraphics.com/cdn/shop/articles/V1716_1024x1024.jpg?v=1490384051',
+      'Buffer'
+    );
+
+    const result = pixelmatch(file1, file2, file1, 1024, 817);
+    console.log('result', result);
+    console.log(file1);
+  } catch (error) {
+    console.log(error);
+  }
+})();
 
 module.exports = app;

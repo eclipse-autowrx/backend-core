@@ -1,7 +1,9 @@
 const httpStatus = require('http-status');
 const catchAsync = require('../utils/catchAsync');
-const { authService, userService, tokenService, emailService } = require('../services');
+const { authService, userService, tokenService, emailService, fileService } = require('../services');
 const config = require('../config/config');
+const ApiError = require('../utils/ApiError');
+const logger = require('../config/logger');
 
 const register = catchAsync(async (req, res) => {
   const user = await userService.createUser({
@@ -71,14 +73,47 @@ const verifyEmail = catchAsync(async (req, res) => {
 const githubCallback = catchAsync(async (req, res) => {
   try {
     const { origin, code, userId } = req.query;
-    console.log('origin', origin);
-    console.log('code', code);
-    console.log('userId', userId);
     await authService.githubCallback(code, userId);
     res.redirect(`${origin || 'http://127.0.0.1:3000'}/auth/github/success`);
   } catch (error) {
     res.status(httpStatus.UNAUTHORIZED).send('Unauthorized. Please try again.');
   }
+});
+
+const sso = catchAsync(async (req, res) => {
+  const { msAccessToken } = req.body;
+
+  const graphData = await authService.callMsGraph(msAccessToken);
+  if (!graphData) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'Unauthorized');
+  }
+
+  let user = await userService.getUserByEmail(graphData.mail);
+
+  if (!user) {
+    const file = await fileService.getFileFromURL(graphData.userPhotoUrl);
+    let url;
+    if (file) {
+      url = (await fileService.upload(file)).url;
+    }
+
+    user = await userService.createUser({
+      name: graphData.displayName,
+      email: graphData.mail,
+      email_verified: true,
+      image_file: url,
+      provider_user_id: graphData.id,
+    });
+  }
+
+  const tokens = await tokenService.generateAuthTokens(user);
+  res.cookie('token', tokens.refresh.token, {
+    expires: tokens.refresh.expires,
+    ...config.jwt.cookieRefreshOptions,
+  });
+  delete tokens.refresh;
+
+  res.send({ user, tokens });
 });
 
 module.exports = {
@@ -91,4 +126,5 @@ module.exports = {
   sendVerificationEmail,
   verifyEmail,
   githubCallback,
+  sso,
 };

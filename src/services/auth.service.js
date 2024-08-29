@@ -132,6 +132,97 @@ const verifyEmail = async (verifyEmailToken) => {
   }
 };
 
+/**
+ *
+ * @param {string} msAccessToken
+ */
+const getSSOUser = async (msAccessToken) => {
+  const { id, displayName, mail, userPhotoUrl } = await callMsGraph(msAccessToken);
+};
+
+/**
+ *
+ * @param {string} accessToken
+ */
+const handleSSOAuthSuccess = async (accessToken) => {
+  const graphResponse = await callMsGraph(accessToken);
+  const { id, displayName, mail, userPhotoUrl } = graphResponse;
+
+  try {
+    await loginService(mail, id);
+  } catch (loginError) {
+    console.error('SSO login failed, attempting to register user:', loginError);
+
+    // If login fails, attempt to register the user
+    try {
+      const response = await fetch(userPhotoUrl);
+      const blob = await response.blob();
+      const file = new File([blob], 'avatar.jpg', { type: blob.type });
+      const { url } = await uploadFileService(file);
+      await registerService(displayName, mail, id, url, 'BOSCH_SSO');
+      // await addLog({
+      //   name: `User registered`,
+      //   description: `User registered with email: ${mail}`,
+      //   type: 'user-register@email',
+      //   create_by: mail,
+      // })
+
+      // Retry logging in after successful registration
+      await loginService(mail, id);
+    } catch (registrationError) {
+      console.error('SSO registration failed:', registrationError);
+    }
+  } finally {
+    // Redirect or update state after successful login or registration
+    window.location.href = window.location.href;
+  }
+};
+/**
+ *
+ * @param {string} accessToken
+ * @returns {Promise<{
+ *  id: string,
+ *  displayName: string,
+ *  mail: string,
+ *  userPhotoUrl: string
+ * }>}
+ */
+const callMsGraph = async (accessToken) => {
+  logger.debug(`Fetching user data from: ${config.sso.msGraphMeEndpoint}`);
+
+  // Fetch user data
+  const userData = await fetch(config.sso.msGraphMeEndpoint, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  })
+    .then((response) => response.json())
+    .catch((error) => {
+      logger.error(`Error fetching user data: ${JSON.stringify(error)}`);
+      throw new ApiError(httpStatus.UNAUTHORIZED, 'Failed to fetch user data');
+    });
+
+  // Fetch user profile photo
+  let userPhotoUrl = null;
+  await fetch(`${config.sso.msGraphMeEndpoint}/photo/$value`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  })
+    .then((response) => {
+      if (!response.ok) throw new Error('Photo not found');
+      return response.blob();
+    })
+    .then((blob) => {
+      userPhotoUrl = URL.createObjectURL(blob);
+    })
+    .catch((error) => {
+      console.error('Error fetching user photo:', error);
+    });
+
+  return { ...userData, userPhotoUrl };
+};
+
 module.exports = {
   loginUserWithEmailAndPassword,
   logout,
@@ -139,4 +230,5 @@ module.exports = {
   resetPassword,
   verifyEmail,
   githubCallback,
+  callMsGraph,
 };

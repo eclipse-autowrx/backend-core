@@ -53,6 +53,12 @@ const legacyRegister = {
   }),
 };
 
+const sso = {
+  body: Joi.object().keys({
+    msAccessToken: Joi.string().required(),
+  }),
+};
+
 module.exports = {
   register,
   login,
@@ -61,4 +67,5 @@ module.exports = {
   resetPassword,
   verifyEmail,
   legacyRegister,
+  sso,
 };
