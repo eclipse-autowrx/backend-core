@@ -102,14 +102,17 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
-userSchema.pre('updateOne', async function (next) {
+const onUpdatePassword = async function (next) {
   const update = this.getUpdate();
   if (update && update.password) {
     const hashedPassword = await bcrypt.hash(update.password, 8);
     this.setUpdate({ ...update, password: hashedPassword });
   }
   next();
-});
+};
+
+userSchema.pre('updateOne', onUpdatePassword);
+userSchema.pre('findOneAndUpdate', onUpdatePassword);
 
 /**
  * @typedef {Object} UserRoles

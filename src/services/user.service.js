@@ -89,7 +89,7 @@ const getUserByEmail = async (email) => {
  * @returns {Promise<User>}
  */
 const updateUserById = async (userId, updateBody) => {
-  const user = await getUserById(userId);
+  const user = await getUserById(userId, true);
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
   }
@@ -97,7 +97,7 @@ const updateUserById = async (userId, updateBody) => {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
   }
 
-  if (updateBody.password && (await user.isPasswordMatch(updateBody.password))) {
+  if (updateBody.password && user.password && (await user.isPasswordMatch(updateBody.password))) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'New password must be different from the current password');
   }
 
