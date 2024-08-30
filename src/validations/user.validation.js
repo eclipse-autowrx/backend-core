@@ -17,7 +17,7 @@ const createUser = {
   body: Joi.object().keys({
     name: Joi.string().required().trim(),
     email: Joi.string().required().email().trim(),
-    password: Joi.string().required().custom(password),
+    password: Joi.string().custom(password),
     role: Joi.string()
       .valid(...roles)
       .default('user'),
