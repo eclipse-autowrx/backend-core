@@ -88,25 +88,11 @@ app.use(errorConverter);
 app.use(errorHandler);
 
 // Test function
-(async () => {
-  try {
-    const pixelmatch = require('pixelmatch');
-    const fileService = require('./services/file.service');
-    const file1 = await fileService.getFileFromURL(
-      'https://www.mcgawgraphics.com/cdn/shop/articles/V1716_1024x1024.jpg?v=1490384051',
-      'Buffer'
-    );
-    const file2 = await fileService.getFileFromURL(
-      'https://www.mcgawgraphics.com/cdn/shop/articles/V1716_1024x1024.jpg?v=1490384051',
-      'Buffer'
-    );
-
-    const result = pixelmatch(file1, file2, file1, 1024, 817);
-    console.log('result', result);
-    console.log(file1);
-  } catch (error) {
-    console.log(error);
-  }
-})();
+// (async () => {
+//   try {
+//   } catch (error) {
+//     console.log(error);
+//   }
+// })();
 
 module.exports = app;

@@ -23,7 +23,7 @@ const upload = async (file) => {
 /**
  * @param {string} url
  * @param {'File' | 'Buffer' | 'Uint8Array'} [encoding]
- * @returns {Promise<File | Buffer | Uint8Array>}
+ * @returns {Promise<File>}
  */
 const getFileFromURL = async (url, encoding = 'File') => {
   try {

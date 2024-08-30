@@ -4,6 +4,7 @@ const { authService, userService, tokenService, emailService, fileService } = re
 const config = require('../config/config');
 const ApiError = require('../utils/ApiError');
 const logger = require('../config/logger');
+const image = require('../utils/image');
 
 const register = catchAsync(async (req, res) => {
   const user = await userService.createUser({
@@ -84,26 +85,15 @@ const sso = catchAsync(async (req, res) => {
   const { msAccessToken } = req.body;
 
   const graphData = await authService.callMsGraph(msAccessToken);
-  if (!graphData) {
-    throw new ApiError(httpStatus.UNAUTHORIZED, 'Unauthorized');
+  if (graphData.error) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'Invalid MS access token');
   }
 
   let user = await userService.getUserByEmail(graphData.mail);
-
   if (!user) {
-    const file = await fileService.getFileFromURL(graphData.userPhotoUrl);
-    let url;
-    if (file) {
-      url = (await fileService.upload(file)).url;
-    }
-
-    user = await userService.createUser({
-      name: graphData.displayName,
-      email: graphData.mail,
-      email_verified: true,
-      image_file: url,
-      provider_user_id: graphData.id,
-    });
+    user = await userService.createSSOUser(graphData);
+  } else {
+    user = await userService.updateSSOUser(user, graphData);
   }
 
   const tokens = await tokenService.generateAuthTokens(user);
