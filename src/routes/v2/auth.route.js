@@ -3,13 +3,16 @@ const validate = require('../../middlewares/validate');
 const authValidation = require('../../validations/auth.validation');
 const authController = require('../../controllers/auth.controller');
 const auth = require('../../middlewares/auth');
+const config = require('../../config/config');
 
 const router = express.Router();
 
 router.get('/github/callback', authController.githubCallback);
 router.post('/sso', validate(authValidation.sso), authController.sso);
-router.post('/register', validate(authValidation.register), authController.register);
-router.post('/login', validate(authValidation.login), authController.login);
+if (!config.strictAuth) {
+  router.post('/register', validate(authValidation.register), authController.register);
+  router.post('/login', validate(authValidation.login), authController.login);
+}
 router.post('/logout', authController.logout);
 router.post('/refresh-tokens', authController.refreshTokens);
 router.post('/forgot-password', validate(authValidation.forgotPassword), authController.forgotPassword);

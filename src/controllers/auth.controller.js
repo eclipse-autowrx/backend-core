@@ -91,6 +91,9 @@ const sso = catchAsync(async (req, res) => {
 
   let user = await userService.getUserByEmail(graphData.mail);
   if (!user) {
+    if (config.strictAuth) {
+      throw new ApiError(httpStatus.UNAUTHORIZED, 'User not registered. Contact admin to register your account.');
+    }
     user = await userService.createSSOUser(graphData);
   } else {
     user = await userService.updateSSOUser(user, graphData);
