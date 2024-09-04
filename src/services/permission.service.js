@@ -1,5 +1,5 @@
 const httpStatus = require('http-status');
-const { UserRole, Model, Prototype, Role } = require('../models');
+const { UserRole, Model, Prototype, Role, Asset } = require('../models');
 const ApiError = require('../utils/ApiError');
 const roleModel = require('../models/role.model');
 const { PERMISSIONS, ROLES } = require('../config/roles');
@@ -125,17 +125,17 @@ const getMappedRoles = (roles) => {
 };
 
 // Check if the role map contains the permission
-const containsPermission = (roleMap, permission, modelId) => {
-  const stringModelId = String(modelId);
+const containsPermission = (roleMap, permission, id) => {
+  const stringId = String(id);
   const firstCondition = roleMap.has('*') && roleMap.get('*').includes(permission);
-  const secondCondition = roleMap.has(stringModelId) && roleMap.get(stringModelId).includes(permission);
+  const secondCondition = roleMap.has(stringId) && roleMap.get(stringId).includes(permission);
   return firstCondition || secondCondition;
 };
 
-const check = async (userId, permission, modelId) => {
+const check = async (userId, permission, id) => {
   const userRoles = await getUserRoles(userId);
   const roleMap = getMappedRoles(userRoles);
-  return containsPermission(roleMap, permission, modelId);
+  return containsPermission(roleMap, permission, id);
 };
 
 const checkModelPermission = (model, userId, permission) => {
@@ -153,32 +153,50 @@ const checkPrototypePermission = (prototype, userId, permission) => {
   return check(userId, permission, prototype.model_id._id);
 };
 
+const checkAssetPermission = (asset, userId, permission) => {
+  if (String(asset.created_by) === String(userId)) {
+    return true;
+  }
+  return check(userId, permission, asset._id);
+};
+
 /**
  *
  * @param {string} userId
  * @param {string} [id]
  * @param {string} permission
+ * @param {string} [type]
  * @returns {Promise<boolean>}
  */
-const hasPermission = async (userId, permission, id) => {
-  const model = await Model.findById(id).select('created_by');
-  const prototype = await Prototype.findById(id).populate('model_id').select('created_by model_id');
-
+const hasPermission = async (userId, permission, id, type) => {
   if (!userId) {
     return false;
   }
 
-  if (id) {
-    if (model) {
-      return checkModelPermission(model, userId, permission);
-    }
-    if (prototype) {
-      return checkPrototypePermission(prototype, userId, permission);
-    }
-    throw new ApiError(httpStatus.NOT_FOUND, 'Resource not found');
-  } else {
+  if (!id) {
     return check(userId, permission);
   }
+
+  if (type === 'asset') {
+    const asset = await Asset.findById(id).select('created_by');
+    if (!asset) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'Resource not found');
+    }
+    return checkAssetPermission(asset, userId, permission);
+  }
+
+  const model = await Model.findById(id).select('created_by');
+  const prototype = await Prototype.findById(id).populate('model_id').select('created_by model_id');
+
+  if (model) {
+    return checkModelPermission(model, userId, permission);
+  }
+
+  if (prototype) {
+    return checkPrototypePermission(prototype, userId, permission);
+  }
+
+  throw new ApiError(httpStatus.NOT_FOUND, 'Resource not found');
 };
 
 const getPermissions = () => {

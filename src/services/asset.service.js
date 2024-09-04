@@ -1,4 +1,9 @@
+const permissionService = require('./permission.service');
+const { PERMISSIONS, RESOURCES } = require('../config/roles');
+const { Role } = require('../models');
 const Asset = require('../models/asset.model');
+const ApiError = require('../utils/ApiError');
+const httpStatus = require('http-status');
 
 /**
  *
@@ -52,10 +57,35 @@ const updateAsset = (assetId, assetBody) => {
   );
 };
 
+/**
+ *
+ * @param {string} assetId
+ */
 const deleteAsset = (assetId) => {
   return Asset.findOneAndDelete({
     _id: assetId,
   });
+};
+
+/**
+ *
+ * @param {string} id
+ * @param {{
+ *  role: 'model_contributor' | 'model_member',
+ *  userId: string,
+ * }} roleBody
+ * @returns {Promise<void>}
+ */
+const addAuthorizedUser = async (id, roleBody) => {
+  const role = await Role.findOne({
+    ref: roleBody.role,
+  });
+  if (!role) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Role not found');
+  }
+  // eslint-disable-next-line no-param-reassign
+  roleBody.role = role._id;
+  await permissionService.assignRoleToUser(roleBody.userId, roleBody.role, id);
 };
 
 module.exports = {
@@ -64,4 +94,5 @@ module.exports = {
   updateAsset,
   getAssetById,
   deleteAsset,
+  addAuthorizedUser,
 };

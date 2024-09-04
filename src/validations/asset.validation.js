@@ -1,5 +1,6 @@
 const Joi = require('joi');
-const { objectId } = require('./custom.validation');
+const { objectId, objectIdList } = require('./custom.validation');
+const { PERMISSIONS } = require('../config/roles');
 
 const createAsset = {
   body: Joi.object().keys({
@@ -21,13 +22,13 @@ const getAssets = {
 
 const getAsset = {
   params: Joi.object().keys({
-    assetId: Joi.string().required().custom(objectId),
+    id: Joi.string().required().custom(objectId),
   }),
 };
 
 const updateAsset = {
   params: Joi.object().keys({
-    assetId: Joi.string().required().custom(objectId),
+    id: Joi.string().required().custom(objectId),
   }),
   body: Joi.object()
     .keys({
@@ -40,13 +41,23 @@ const updateAsset = {
 
 const deleteAsset = {
   params: Joi.object().keys({
-    assetId: Joi.string().required().custom(objectId),
+    id: Joi.string().required().custom(objectId),
   }),
 };
 
 const generateToken = {
   params: Joi.object().keys({
-    assetId: Joi.string().required().custom(objectId),
+    id: Joi.string().required().custom(objectId),
+  }),
+};
+
+const addAuthorizedUser = {
+  params: Joi.object().keys({
+    id: Joi.string().required().custom(objectId),
+  }),
+  body: Joi.object().keys({
+    userId: Joi.string().required().custom(objectIdList),
+    role: Joi.string().valid('read_asset', 'write_asset').required(),
   }),
 };
 
@@ -57,4 +68,5 @@ module.exports = {
   getAsset,
   deleteAsset,
   generateToken,
+  addAuthorizedUser,
 };

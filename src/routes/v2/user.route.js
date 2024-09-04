@@ -12,7 +12,7 @@ const router = express.Router();
 
 router
   .route('/')
-  .post(auth(), checkPermission(PERMISSIONS.MANAGE_USERS), validate(userValidation.createUser), userController.createUser)
+  .post(auth(), checkPermission(PERMISSIONS.ADMIN), validate(userValidation.createUser), userController.createUser)
   .get(
     auth({
       optional: !config.strictAuth,
@@ -35,8 +35,8 @@ router
     validate(userValidation.getUser),
     userController.getUser
   )
-  .patch(auth(), checkPermission(PERMISSIONS.MANAGE_USERS), validate(userValidation.updateUser), userController.updateUser)
-  .delete(auth(), checkPermission(PERMISSIONS.MANAGE_USERS), validate(userValidation.deleteUser), userController.deleteUser);
+  .patch(auth(), checkPermission(PERMISSIONS.ADMIN), validate(userValidation.updateUser), userController.updateUser)
+  .delete(auth(), checkPermission(PERMISSIONS.ADMIN), validate(userValidation.deleteUser), userController.deleteUser);
 
 router.route('/self/promote').post(auth(), userController.selfPromote);
 

@@ -9,7 +9,7 @@ const roleRights = new Map(Object.entries(allRoles));
 const PERMISSIONS = {
   // *
   UNLIMITED_MODEL: 'unlimitedModel',
-  MANAGE_USERS: 'manageUsers',
+  ADMIN: 'manageUsers',
 
   // model_id
   READ_MODEL: 'readModel',
@@ -17,11 +17,15 @@ const PERMISSIONS = {
 
   // genai,
   GENERATIVE_AI: 'generativeAI',
+
+  // read assets,
+  READ_ASSET: 'readAsset',
+  WRITE_ASSET: 'writeAsset',
 };
 
 const PERMISSIONS_DESCRIPTION = {
   [PERMISSIONS.UNLIMITED_MODEL]: 'Unlimited access',
-  [PERMISSIONS.MANAGE_USERS]: 'Manage users',
+  [PERMISSIONS.ADMIN]: 'Manage users',
   [PERMISSIONS.READ_MODEL]: 'Read model',
   [PERMISSIONS.WRITE_MODEL]: 'Write model',
   [PERMISSIONS.GENERATIVE_AI]: 'Generative AI',
@@ -55,13 +59,31 @@ const ROLES = {
     permissions: [
       PERMISSIONS.READ_MODEL,
       PERMISSIONS.WRITE_MODEL,
-      PERMISSIONS.MANAGE_USERS,
+      PERMISSIONS.ADMIN,
       PERMISSIONS.UNLIMITED_MODEL,
       PERMISSIONS.GENERATIVE_AI,
+      PERMISSIONS.READ_ASSET,
+      PERMISSIONS.WRITE_ASSET,
     ],
     ref: 'admin',
     name: 'Admin',
   },
+  read_asset: {
+    permissions: [PERMISSIONS.READ_ASSET],
+    ref: 'read_asset',
+    name: 'Read asset',
+  },
+  write_asset: {
+    permissions: [PERMISSIONS.READ_ASSET, PERMISSIONS.WRITE_ASSET],
+    ref: 'write_asset',
+    name: 'Write asset',
+  },
+};
+
+const RESOURCES = {
+  MODEL: 'model',
+  PROTOTYPE: 'prototype',
+  ASSET: 'asset',
 };
 
 module.exports = {
@@ -70,4 +92,5 @@ module.exports = {
   ROLES,
   PERMISSIONS,
   PERMISSIONS_DESCRIPTION,
+  RESOURCES,
 };
