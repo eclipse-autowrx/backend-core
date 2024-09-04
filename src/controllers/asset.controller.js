@@ -1,4 +1,6 @@
+const httpStatus = require('http-status');
 const { assetService } = require('../services');
+const ApiError = require('../utils/ApiError');
 const catchAsync = require('../utils/catchAsync');
 const pick = require('../utils/pick');
 
@@ -24,7 +26,34 @@ const getAssets = catchAsync(async (req, res) => {
   res.send(result);
 });
 
+const getAsset = catchAsync(async (req, res) => {
+  const asset = await assetService.getAssetById(req.params.assetId);
+  if (!asset) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Asset not found');
+  }
+  res.send(asset);
+});
+
+const updateAsset = catchAsync(async (req, res) => {
+  const asset = await assetService.updateAsset(req.params.assetId, req.body);
+  if (!asset) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Asset not found');
+  }
+  res.status(200).send();
+});
+
+const deleteAsset = catchAsync(async (req, res) => {
+  const asset = await assetService.deleteAsset(req.params.assetId);
+  if (!asset) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Asset not found');
+  }
+  res.status(200).send();
+});
+
 module.exports = {
   createAsset,
   getAssets,
+  updateAsset,
+  getAsset,
+  deleteAsset,
 };

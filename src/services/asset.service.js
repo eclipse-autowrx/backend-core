@@ -18,10 +18,50 @@ const createAsset = (data) => {
  * @param {number} options.page
  */
 const queryAssets = (filter, options) => {
+  if (filter.name) {
+    filter.name = new RegExp(filter.name, 'i');
+  }
+  if (filter.type) {
+    filter.type = new RegExp(filter.type, 'i');
+  }
   return Asset.paginate(filter, options);
+};
+
+/**
+ *
+ * @param {string} assetId
+ */
+const getAssetById = (assetId) => {
+  return Asset.findById(assetId);
+};
+
+/**
+ *
+ * @param {string} assetId
+ * @param {{
+ * name?:string
+ * type?:string
+ * data?:any}} assetBody
+ */
+const updateAsset = (assetId, assetBody) => {
+  return Asset.findOneAndUpdate(
+    {
+      _id: assetId,
+    },
+    assetBody
+  );
+};
+
+const deleteAsset = (assetId) => {
+  return Asset.findOneAndDelete({
+    _id: assetId,
+  });
 };
 
 module.exports = {
   createAsset,
   queryAssets,
+  updateAsset,
+  getAssetById,
+  deleteAsset,
 };

@@ -1,5 +1,6 @@
 const Joi = require('joi');
 const { query } = require('../config/logger');
+const { objectId } = require('./custom.validation');
 
 const createAsset = {
   body: Joi.object().keys({
@@ -19,7 +20,35 @@ const getAssets = {
   }),
 };
 
+const getAsset = {
+  params: Joi.object().keys({
+    assetId: Joi.string().required().custom(objectId),
+  }),
+};
+
+const updateAsset = {
+  params: Joi.object().keys({
+    assetId: Joi.string().required().custom(objectId),
+  }),
+  body: Joi.object()
+    .keys({
+      name: Joi.string(),
+      type: Joi.string(),
+      data: Joi.any(),
+    })
+    .min(1),
+};
+
+const deleteAsset = {
+  params: Joi.object().keys({
+    assetId: Joi.string().required().custom(objectId),
+  }),
+};
+
 module.exports = {
   createAsset,
   getAssets,
+  updateAsset,
+  getAsset,
+  deleteAsset,
 };

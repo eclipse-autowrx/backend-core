@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
 const { toJSON, paginate } = require('./plugins');
 
+/**
+ * @constructor
+ */
 const assetSchema = new mongoose.Schema(
   {
     name: {

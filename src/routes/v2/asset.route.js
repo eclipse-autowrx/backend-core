@@ -11,4 +11,10 @@ router
   .post(auth(), validate(assetValidation.createAsset), assetController.createAsset)
   .get(auth(), validate(assetValidation.getAssets), assetController.getAssets);
 
+router
+  .route('/:assetId')
+  .get(auth(), validate(assetValidation.getAsset), assetController.getAsset)
+  .patch(auth(), validate(assetValidation.updateAsset), assetController.updateAsset)
+  .delete(auth(), validate(assetValidation.deleteAsset), assetController.deleteAsset);
+
 module.exports = router;
