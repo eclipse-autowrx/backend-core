@@ -1,5 +1,5 @@
 const httpStatus = require('http-status');
-const { assetService } = require('../services');
+const { assetService, tokenService } = require('../services');
 const ApiError = require('../utils/ApiError');
 const catchAsync = require('../utils/catchAsync');
 const pick = require('../utils/pick');
@@ -50,10 +50,21 @@ const deleteAsset = catchAsync(async (req, res) => {
   res.status(200).send();
 });
 
+const generateToken = catchAsync(async (req, res) => {
+  const asset = await assetService.getAssetById(req.params.assetId);
+  if (!asset) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Asset not found');
+  }
+  const tokens = await tokenService.generateAuthTokens(asset);
+  delete tokens.refresh;
+  res.send({ tokens });
+});
+
 module.exports = {
   createAsset,
   getAssets,
   updateAsset,
   getAsset,
   deleteAsset,
+  generateToken,
 };

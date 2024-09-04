@@ -17,4 +17,8 @@ router
   .patch(auth(), validate(assetValidation.updateAsset), assetController.updateAsset)
   .delete(auth(), validate(assetValidation.deleteAsset), assetController.deleteAsset);
 
+router
+  .route('/:assetId/generate-token')
+  .post(auth(), validate(assetValidation.generateToken), assetController.generateToken);
+
 module.exports = router;

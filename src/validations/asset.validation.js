@@ -1,5 +1,4 @@
 const Joi = require('joi');
-const { query } = require('../config/logger');
 const { objectId } = require('./custom.validation');
 
 const createAsset = {
@@ -45,10 +44,17 @@ const deleteAsset = {
   }),
 };
 
+const generateToken = {
+  params: Joi.object().keys({
+    assetId: Joi.string().required().custom(objectId),
+  }),
+};
+
 module.exports = {
   createAsset,
   getAssets,
   updateAsset,
   getAsset,
   deleteAsset,
+  generateToken,
 };
