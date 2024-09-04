@@ -37,7 +37,7 @@ if [ ! -d "$UPLOAD_PATH" ]; then
 fi
 
 # Replace env file to upload directory
-if ! cp .env ./upload/ -f; then
+if ! cp -f .env ./upload/; then
   echo "Failed to copy .env file to ./upload/"
   exit 1
 fi
