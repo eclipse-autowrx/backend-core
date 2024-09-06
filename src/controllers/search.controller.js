@@ -20,4 +20,23 @@ const searchUserByEmail = catchAsync(async (req, res) => {
   res.send(result);
 });
 
-module.exports = { search, searchUserByEmail };
+const searchPrototypesBySignal = catchAsync(async (req, res) => {
+  const { signal } = req.params;
+  const prototypes = await searchService.searchPrototypesBySignal(signal);
+  res.send(
+    prototypes.map((prototype) => {
+      const json = prototype.toJSON();
+      return {
+        id: json.id,
+        name: json.name,
+        image_file: json.image_file,
+        model: {
+          id: json.model_id?.id,
+          name: json.model_id?.name,
+        },
+      };
+    })
+  );
+});
+
+module.exports = { search, searchUserByEmail, searchPrototypesBySignal };

@@ -25,4 +25,13 @@ router.get(
   searchController.searchUserByEmail
 );
 
+router.get(
+  '/prototypes/by-signal/:signal',
+  auth({
+    optional: !config.strictAuth,
+  }),
+  validate(searchValidation.searchPrototypesBySignal),
+  searchController.searchPrototypesBySignal
+);
+
 module.exports = router;

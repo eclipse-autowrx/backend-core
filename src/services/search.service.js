@@ -40,4 +40,13 @@ const searchUserByEmail = async (email) => {
   }).select('email name image_file');
 };
 
-module.exports = { search, searchUserByEmail };
+/**
+ *
+ * @param {string} signal
+ */
+const searchPrototypesBySignal = async (signal) => {
+  const prototypes = await Prototype.find().select('model_id code name image_file').populate('model_id');
+  return prototypes.filter((prototype) => prototype.code?.includes(signal));
+};
+
+module.exports = { search, searchUserByEmail, searchPrototypesBySignal };

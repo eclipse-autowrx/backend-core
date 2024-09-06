@@ -15,7 +15,14 @@ const searchUserByEmail = {
   }),
 };
 
+const searchPrototypesBySignal = {
+  params: Joi.object().keys({
+    signal: Joi.string().required(),
+  }),
+};
+
 module.exports = {
   search,
   searchUserByEmail,
+  searchPrototypesBySignal,
 };
