@@ -71,7 +71,7 @@ const deleteAsset = (assetId) => {
  *
  * @param {string} id
  * @param {{
- *  role: 'model_contributor' | 'model_member',
+ *  role: 'read_asset' | 'write_asset',
  *  userId: string,
  * }} roleBody
  * @returns {Promise<void>}
@@ -88,6 +88,26 @@ const addAuthorizedUser = async (id, roleBody) => {
   await permissionService.assignRoleToUser(roleBody.userId, roleBody.role, id);
 };
 
+/**
+ *
+ * @param {string} id
+ * @param {{
+ *  role: 'read_asset' | 'write_asset',
+ *  userId: string,
+ * }} roleBody
+ * @param {string} userId
+ * @returns {Promise<void>}
+ */
+const deleteAuthorizedUser = async (id, roleBody) => {
+  const role = await Role.findOne({
+    ref: roleBody.role,
+  });
+  if (!role) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Role not found');
+  }
+  await permissionService.removeRoleFromUser(roleBody.userId, role, id);
+};
+
 module.exports = {
   createAsset,
   queryAssets,
@@ -95,4 +115,5 @@ module.exports = {
   getAssetById,
   deleteAsset,
   addAuthorizedUser,
+  deleteAuthorizedUser,
 };

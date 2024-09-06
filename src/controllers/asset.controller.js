@@ -3,7 +3,7 @@ const { assetService, tokenService, permissionService } = require('../services')
 const ApiError = require('../utils/ApiError');
 const catchAsync = require('../utils/catchAsync');
 const pick = require('../utils/pick');
-const { PERMISSIONS } = require('../config/roles');
+const { PERMISSIONS, ROLES, RESOURCES } = require('../config/roles');
 
 const createAsset = catchAsync(async (req, res) => {
   const asset = await assetService.createAsset({
@@ -28,10 +28,27 @@ const getAssets = catchAsync(async (req, res) => {
 });
 
 const getAsset = catchAsync(async (req, res) => {
-  const asset = await assetService.getAssetById(req.params.id);
+  let asset = await assetService.getAssetById(req.params.id);
   if (!asset) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Asset not found');
   }
+
+  if (await permissionService.hasPermission(req.user.id, PERMISSIONS.WRITE_ASSET, req.params.id, RESOURCES.ASSET)) {
+    asset = asset.toJSON();
+
+    const readAccessUsers = await permissionService.listAuthorizedUser({
+      ref: req.params.id,
+      role: ROLES.read_asset.ref,
+    });
+    asset.readAccessUsers = readAccessUsers;
+
+    const writeAccessUsers = await permissionService.listAuthorizedUser({
+      ref: req.params.id,
+      role: ROLES.write_asset.ref,
+    });
+    asset.writeAccessUsers = writeAccessUsers;
+  }
+
   res.send(asset);
 });
 
@@ -70,6 +87,14 @@ const addAuthorizedUser = catchAsync(async (req, res) => {
   res.status(httpStatus.CREATED).send();
 });
 
+const deleteAuthorizedUser = catchAsync(async (req, res) => {
+  await assetService.deleteAuthorizedUser(req.params.id, {
+    role: req.query.role,
+    userId: req.query.userId,
+  });
+  res.status(httpStatus.NO_CONTENT).send();
+});
+
 module.exports = {
   createAsset,
   getAssets,
@@ -78,4 +103,5 @@ module.exports = {
   deleteAsset,
   generateToken,
   addAuthorizedUser,
+  deleteAuthorizedUser,
 };

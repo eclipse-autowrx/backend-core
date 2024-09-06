@@ -61,6 +61,16 @@ const addAuthorizedUser = {
   }),
 };
 
+const deleteAuthorizedUser = {
+  params: Joi.object().keys({
+    id: Joi.string().required().custom(objectId),
+  }),
+  query: Joi.object().keys({
+    userId: Joi.string().required().custom(objectId),
+    role: Joi.string().valid('read_asset', 'write_asset').required(),
+  }),
+};
+
 module.exports = {
   createAsset,
   getAssets,
@@ -69,4 +79,5 @@ module.exports = {
   deleteAsset,
   generateToken,
   addAuthorizedUser,
+  deleteAuthorizedUser,
 };

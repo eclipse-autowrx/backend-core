@@ -50,6 +50,12 @@ router
     checkPermission(PERMISSIONS.WRITE_ASSET, RESOURCES.ASSET),
     validate(assetValidation.addAuthorizedUser),
     assetController.addAuthorizedUser
+  )
+  .delete(
+    auth(),
+    checkPermission(PERMISSIONS.WRITE_ASSET, RESOURCES.ASSET),
+    validate(assetValidation.deleteAuthorizedUser),
+    assetController.deleteAuthorizedUser
   );
 
 module.exports = router;

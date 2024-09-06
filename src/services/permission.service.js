@@ -22,7 +22,12 @@ const listAuthorizedUser = async ({ role, ...condition }) => {
     ...condition,
     role: roleObject._id,
   }).populate('user', 'id image_file name email');
-  return userRoles.map((userRole) => userRole.user);
+  return userRoles.reduce((acc, userRole) => {
+    if (userRole && userRole.user) {
+      acc.push(userRole.user);
+    }
+    return acc;
+  }, []);
 };
 
 const getRoles = async () => {
@@ -112,11 +117,14 @@ const getMappedRoles = (roles) => {
     const roleRef = String(role.ref || '*');
 
     if (map.has(roleRef)) {
-      const existingRole = map.get(roleRef);
-      if (!existingRole.permissions) {
-        existingRole.permissions = [];
+      let existingRolePermissions = map.get(roleRef);
+      if (!Array.isArray(existingRolePermissions)) {
+        existingRolePermissions = [];
+      } else {
+        const newArray = existingRolePermissions.concat(role.role.permissions);
+        existingRolePermissions = Array.from(new Set(newArray));
       }
-      existingRole.permissions.push(role.role.permissions);
+      map.set(roleRef, existingRolePermissions);
     } else {
       map.set(roleRef, role.role.permissions);
     }
