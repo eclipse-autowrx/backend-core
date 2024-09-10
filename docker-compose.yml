@@ -29,6 +29,8 @@ services:
     depends_on:
       - playground-db
       - upload
+    ports:
+      - '${PORT}:${PORT}'
     networks:
       - node-network
     restart: ${RESTART_POLICY:-always}
