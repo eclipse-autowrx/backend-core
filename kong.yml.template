@@ -29,7 +29,7 @@ plugins:
     config:
       fault_tolerant: true
       hide_client_headers: false
-      limit_by: consumer
+      limit_by: ip
       minute: 30
       policy: local
       redis_database: 0
