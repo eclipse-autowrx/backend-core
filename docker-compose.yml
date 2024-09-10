@@ -11,7 +11,7 @@ services:
       KONG_DATABASE: "off"
       KONG_DECLARATIVE_CONFIG: /kong/declarative/kong.yml
     ports:
-      - "${KONG_PROXY_PORT}:8000"
+      - "${KONG_PROXY_PORT}:8443"
 
     restart: ${RESTART_POLICY:-always}
     networks:
