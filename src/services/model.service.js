@@ -317,6 +317,13 @@ const getAccessibleModels = async (userId) => {
   return visibleModels;
 };
 
+/**
+ *
+ * @param {string} userId
+ * @returns {Promise<string[]>}
+ */
+const listReadableModelIds = async (userId) => {};
+
 module.exports = {
   createModel,
   getModels,
