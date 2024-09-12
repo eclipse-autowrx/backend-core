@@ -31,6 +31,6 @@ plugins:
       hide_client_headers: false
       minute: 40
       limit_by: header
-      header_name: x-real-ip
+      header_name: x-forwarded-for
       policy: local
       sync_rate: -1
