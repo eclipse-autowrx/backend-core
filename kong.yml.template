@@ -29,7 +29,7 @@ plugins:
     config:
       fault_tolerant: true
       hide_client_headers: false
-      minute: 40
+      minute: 60
       limit_by: header
       header_name: x-forwarded-for
       policy: local
