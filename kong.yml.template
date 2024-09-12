@@ -29,12 +29,8 @@ plugins:
     config:
       fault_tolerant: true
       hide_client_headers: false
-      limit_by: ip
-      minute: 30
+      minute: 40
+      limit_by: header
+      header_name: x-real-ip
       policy: local
-      redis_database: 0
-      redis_port: 6379
-      redis_ssl: false
-      redis_ssl_verify: false
-      redis_timeout: 2000
       sync_rate: -1
