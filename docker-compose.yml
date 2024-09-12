@@ -34,7 +34,7 @@ services:
     restart: ${RESTART_POLICY:-always}
 
   playground-db:
-    container_name: ${ENV:-dev}-playground-db
+    container_name: ${DB_CONTAINER_NAME:-playground-db}
     image: mongo:4.4.6-bionic
     ports:
       - '${MONGO_EXPOSE_PORT}:27017'
