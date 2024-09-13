@@ -102,6 +102,12 @@ router.post('/:dir', async (req, res, next) => {
       return;
     }
 
+    if (!req.file) {
+      return res.status(400).json({
+        msg: constant.MISSING_FILE,
+      });
+    }
+
     if (req.query?.disableResize !== 'true') {
       limitImageSize(req.file);
     }

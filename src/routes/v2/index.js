@@ -13,6 +13,7 @@ const extendedApiRoute = require('./extendedApi.route');
 const issueRoute = require('./issue.route');
 const searchRoute = require('./search.route');
 const certivityRoute = require('./certivity.route');
+const assetRoute = require('./asset.route');
 
 const router = express.Router();
 
@@ -72,6 +73,10 @@ const defaultRoutes = [
   {
     path: '/certivity',
     route: certivityRoute,
+  },
+  {
+    path: '/assets',
+    route: assetRoute,
   },
 ];
 

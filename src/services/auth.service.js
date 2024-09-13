@@ -132,6 +132,47 @@ const verifyEmail = async (verifyEmailToken) => {
   }
 };
 
+/**
+ *
+ * @param {string} accessToken
+ * @returns {Promise<import('../typedefs/msGraph').MSGraph>}
+ */
+const callMsGraph = async (accessToken) => {
+  logger.debug(`Fetching user data from: ${config.sso.msGraphMeEndpoint}`);
+
+  // Fetch user data
+  const userData = await fetch(config.sso.msGraphMeEndpoint, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  })
+    .then((response) => response.json())
+    .catch((error) => {
+      logger.error(`Error fetching user data: ${JSON.stringify(error)}`);
+      throw new ApiError(httpStatus.UNAUTHORIZED, 'Failed to fetch user data');
+    });
+
+  // Fetch user profile photo
+  let userPhotoUrl = null;
+  await fetch(`${config.sso.msGraphMeEndpoint}/photo/$value`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  })
+    .then((response) => {
+      if (!response.ok) throw new Error('Photo not found');
+      return response.blob();
+    })
+    .then((blob) => {
+      userPhotoUrl = URL.createObjectURL(blob);
+    })
+    .catch((error) => {
+      console.error('Error fetching user photo:', error);
+    });
+
+  return { ...userData, userPhotoUrl };
+};
+
 module.exports = {
   loginUserWithEmailAndPassword,
   logout,
@@ -139,4 +180,5 @@ module.exports = {
   resetPassword,
   verifyEmail,
   githubCallback,
+  callMsGraph,
 };

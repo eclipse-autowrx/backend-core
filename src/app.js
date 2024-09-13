@@ -16,7 +16,6 @@ const routesV2 = require('./routes/v2');
 const { errorConverter, errorHandler } = require('./middlewares/error');
 const ApiError = require('./utils/ApiError');
 const setupProxy = require('./config/proxyHandler');
-const LLMServices = require('./services/llm.service');
 
 const app = express();
 
@@ -87,5 +86,13 @@ app.use(errorConverter);
 
 // handle error
 app.use(errorHandler);
+
+// Test function
+// (async () => {
+//   try {
+//   } catch (error) {
+//     console.log(error);
+//   }
+// })();
 
 module.exports = app;

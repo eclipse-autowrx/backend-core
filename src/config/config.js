@@ -150,6 +150,9 @@ const config = {
     clientSecret: envVars.CERTIVITY_CLIENT_SECRET,
     regulationBaseUrl: 'https://ctvt-service-api.azurewebsites.net/api/v1/protected/regulation',
   },
+  sso: {
+    msGraphMeEndpoint: 'https://graph.microsoft.com/v1.0/me',
+  },
 };
 
 if (config.env === 'development') {

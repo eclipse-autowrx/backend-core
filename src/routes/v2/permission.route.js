@@ -13,18 +13,18 @@ router.get('/', auth(), validate(permissionValidation.getPermissions), permissio
 // router.get('/', auth(), validate(permissionValidation.hasPermission), permissionController.hasPermission);
 router.get('/has-permission', auth(), validate(permissionValidation.hasPermission), permissionController.hasPermission);
 router.get('/roles', auth(), permissionController.getRoles);
-router.get('/users-by-roles', auth(), checkPermission(PERMISSIONS.MANAGE_USERS), permissionController.getRoleUsers);
+router.get('/users-by-roles', auth(), checkPermission(PERMISSIONS.ADMIN), permissionController.getRoleUsers);
 router
   .route('/')
   .post(
     auth(),
-    checkPermission(PERMISSIONS.MANAGE_USERS),
+    checkPermission(PERMISSIONS.ADMIN),
     validate(permissionValidation.assignRoleToUser),
     permissionController.assignRoleToUser
   )
   .delete(
     auth(),
-    checkPermission(PERMISSIONS.MANAGE_USERS),
+    checkPermission(PERMISSIONS.ADMIN),
     validate(permissionValidation.removeRoleFromUser),
     permissionController.removeRoleFromUser
   );

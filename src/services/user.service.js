@@ -1,6 +1,8 @@
 const httpStatus = require('http-status');
 const { User } = require('../models');
 const ApiError = require('../utils/ApiError');
+const image = require('../utils/image');
+const fileService = require('./file.service');
 
 /**
  * Create a user
@@ -45,7 +47,12 @@ const queryUsers = async (filter, options, advanced) => {
     });
   }
 
-  return User.paginate(filter, options);
+  const results = await User.paginate(filter, options);
+  results.results = results.results.map((user, index) => ({
+    ...user.toJSON(),
+    created_at: user.createdAt,
+  }));
+  return results;
 };
 
 /**
@@ -82,7 +89,7 @@ const getUserByEmail = async (email) => {
  * @returns {Promise<User>}
  */
 const updateUserById = async (userId, updateBody) => {
-  const user = await getUserById(userId);
+  const user = await getUserById(userId, true);
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
   }
@@ -90,11 +97,11 @@ const updateUserById = async (userId, updateBody) => {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
   }
 
-  if (updateBody.password && (await user.isPasswordMatch(updateBody.password))) {
+  if (updateBody.password && user.password && (await user.isPasswordMatch(updateBody.password))) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'New password must be different from the current password');
   }
 
-  return User.updateOne(
+  return User.findOneAndUpdate(
     {
       _id: userId,
     },
@@ -119,6 +126,58 @@ const deleteUserById = async (userId) => {
   return user;
 };
 
+/**
+ *
+ * @param {import('../models/user.model').User} userId
+ * @param {import('../typedefs/msGraph').MSGraph} graphData
+ * @returns {Promise<import('../models/user.model').User>}
+ */
+const updateSSOUser = async (user, graphData) => {
+  const userPhoto = await fileService.getFileFromURL(graphData.userPhotoUrl);
+  const updateBody = {};
+
+  if (user.name !== graphData.displayName) {
+    updateBody.name = graphData.displayName;
+  }
+
+  if (userPhoto) {
+    const photoBuffer = await userPhoto.arrayBuffer();
+    const diff = await image.diff(user?.image_file, photoBuffer);
+    if (diff > 0.1 || diff === -1) {
+      const { url } = await fileService.upload(userPhoto);
+      updateBody.image_file = url;
+    }
+  }
+
+  if (Object.keys(updateBody).length === 0) {
+    return user;
+  }
+
+  return updateUserById(user.id, updateBody);
+};
+
+/**
+ *
+ * @param {import('../typedefs/msGraph').MSGraph} graphData
+ * @returns {Promise<import('../models/user.model').User>}
+ */
+const createSSOUser = async (graphData) => {
+  const userPhoto = await fileService.getFileFromURL(graphData.userPhotoUrl);
+  const userBody = {
+    name: graphData.displayName,
+    email: graphData.mail,
+    email_verified: true,
+    provider_user_id: graphData.id,
+  };
+
+  if (userPhoto) {
+    const { url } = await fileService.upload(userPhoto);
+    userBody.image_file = url;
+  }
+
+  return createUser(userBody);
+};
+
 module.exports = {
   createUser,
   queryUsers,
@@ -126,4 +185,6 @@ module.exports = {
   getUserByEmail,
   updateUserById,
   deleteUserById,
+  updateSSOUser,
+  createSSOUser,
 };

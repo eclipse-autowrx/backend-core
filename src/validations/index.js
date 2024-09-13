@@ -14,3 +14,4 @@ module.exports.issueValidation = require('./issue.validation');
 module.exports.genaiValidation = require('./genai.validation');
 module.exports.searchValidation = require('./search.validation');
 module.exports.certivityValidation = require('./certivity.validation');
+module.exports.assetValidation = require('./asset.validation');

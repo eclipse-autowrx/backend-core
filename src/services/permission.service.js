@@ -1,5 +1,5 @@
 const httpStatus = require('http-status');
-const { UserRole, Model, Prototype, Role } = require('../models');
+const { UserRole, Model, Prototype, Role, Asset } = require('../models');
 const ApiError = require('../utils/ApiError');
 const roleModel = require('../models/role.model');
 const { PERMISSIONS, ROLES } = require('../config/roles');
@@ -21,8 +21,13 @@ const listAuthorizedUser = async ({ role, ...condition }) => {
   const userRoles = await UserRole.find({
     ...condition,
     role: roleObject._id,
-  }).populate('user');
-  return userRoles.map((userRole) => userRole.user);
+  }).populate('user', 'id image_file name email');
+  return userRoles.reduce((acc, userRole) => {
+    if (userRole && userRole.user) {
+      acc.push(userRole.user);
+    }
+    return acc;
+  }, []);
 };
 
 const getRoles = async () => {
@@ -112,11 +117,14 @@ const getMappedRoles = (roles) => {
     const roleRef = String(role.ref || '*');
 
     if (map.has(roleRef)) {
-      const existingRole = map.get(roleRef);
-      if (!existingRole.permissions) {
-        existingRole.permissions = [];
+      let existingRolePermissions = map.get(roleRef);
+      if (!Array.isArray(existingRolePermissions)) {
+        existingRolePermissions = [];
+      } else {
+        const newArray = existingRolePermissions.concat(role.role.permissions);
+        existingRolePermissions = Array.from(new Set(newArray));
       }
-      existingRole.permissions.push(role.role.permissions);
+      map.set(roleRef, existingRolePermissions);
     } else {
       map.set(roleRef, role.role.permissions);
     }
@@ -125,17 +133,17 @@ const getMappedRoles = (roles) => {
 };
 
 // Check if the role map contains the permission
-const containsPermission = (roleMap, permission, modelId) => {
-  const stringModelId = String(modelId);
+const containsPermission = (roleMap, permission, id) => {
+  const stringId = String(id);
   const firstCondition = roleMap.has('*') && roleMap.get('*').includes(permission);
-  const secondCondition = roleMap.has(stringModelId) && roleMap.get(stringModelId).includes(permission);
+  const secondCondition = roleMap.has(stringId) && roleMap.get(stringId).includes(permission);
   return firstCondition || secondCondition;
 };
 
-const check = async (userId, permission, modelId) => {
+const check = async (userId, permission, id) => {
   const userRoles = await getUserRoles(userId);
   const roleMap = getMappedRoles(userRoles);
-  return containsPermission(roleMap, permission, modelId);
+  return containsPermission(roleMap, permission, id);
 };
 
 const checkModelPermission = (model, userId, permission) => {
@@ -153,32 +161,50 @@ const checkPrototypePermission = (prototype, userId, permission) => {
   return check(userId, permission, prototype.model_id._id);
 };
 
+const checkAssetPermission = (asset, userId, permission) => {
+  if (String(asset.created_by) === String(userId)) {
+    return true;
+  }
+  return check(userId, permission, asset._id);
+};
+
 /**
  *
  * @param {string} userId
  * @param {string} [id]
  * @param {string} permission
+ * @param {string} [type]
  * @returns {Promise<boolean>}
  */
-const hasPermission = async (userId, permission, id) => {
-  const model = await Model.findById(id).select('created_by');
-  const prototype = await Prototype.findById(id).populate('model_id').select('created_by model_id');
-
+const hasPermission = async (userId, permission, id, type) => {
   if (!userId) {
     return false;
   }
 
-  if (id) {
-    if (model) {
-      return checkModelPermission(model, userId, permission);
-    }
-    if (prototype) {
-      return checkPrototypePermission(prototype, userId, permission);
-    }
-    throw new ApiError(httpStatus.NOT_FOUND, 'Resource not found');
-  } else {
+  if (!id) {
     return check(userId, permission);
   }
+
+  if (type === 'asset') {
+    const asset = await Asset.findById(id).select('created_by');
+    if (!asset) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'Resource not found');
+    }
+    return checkAssetPermission(asset, userId, permission);
+  }
+
+  const model = await Model.findById(id).select('created_by');
+  const prototype = await Prototype.findById(id).populate('model_id').select('created_by model_id');
+
+  if (model) {
+    return checkModelPermission(model, userId, permission);
+  }
+
+  if (prototype) {
+    return checkPrototypePermission(prototype, userId, permission);
+  }
+
+  throw new ApiError(httpStatus.NOT_FOUND, 'Resource not found');
 };
 
 const getPermissions = () => {
@@ -187,6 +213,47 @@ const getPermissions = () => {
       $ne: true,
     },
   });
+};
+
+/**
+ *
+ * @param {string} userId
+ * @returns {Promise<string[] | '*'>}
+ */
+const listReadableModelIds = async (userId) => {
+  // If user is not logged in return public models
+  if (!userId) {
+    return (await Model.find({ visibility: 'public' }).select('_id')).map((model) => String(model._id));
+  }
+
+  const userRoles = await getUserRoles(userId);
+  const roleMap = getMappedRoles(userRoles);
+
+  // If user has permission to read all models return '*'
+  if (roleMap.has('*') && roleMap.get('*').includes(PERMISSIONS.READ_MODEL)) {
+    return '*';
+  }
+
+  const results = new Set();
+
+  // Add authorized models
+  roleMap.forEach((value, key) => {
+    if ((value || []).includes(PERMISSIONS.READ_MODEL)) {
+      results.add(key);
+    }
+  });
+  // Add own models
+  const ownModels = await Model.find({ created_by: userId }).select('_id');
+  ownModels.forEach((model) => {
+    results.add(String(model._id));
+  });
+  // Add public models
+  const publicModels = await Model.find({ visibility: 'public' }).select('_id');
+  publicModels.forEach((model) => {
+    results.add(String(model._id));
+  });
+
+  return Array.from(results);
 };
 
 module.exports = {
@@ -200,4 +267,5 @@ module.exports = {
   containsPermission,
   getRoles,
   getPermissions,
+  listReadableModelIds,
 };

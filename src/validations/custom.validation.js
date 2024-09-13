@@ -7,6 +7,17 @@ const objectId = (value, helpers) => {
   return value;
 };
 
+const objectIdList = (value, helpers) => {
+  const origin = value;
+  value = value.split(',');
+  for (const id of value) {
+    if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+      return helpers.message('"{{#label}}" must be a list of valid mongo ids');
+    }
+  }
+  return origin;
+};
+
 const password = (value, helpers) => {
   if (value.length < 8) {
     return helpers.message('password must be at least 8 characters');
@@ -33,6 +44,7 @@ const slug = (value, helpers) => {
 
 module.exports = {
   objectId,
+  objectIdList,
   password,
   jsonString,
   slug,

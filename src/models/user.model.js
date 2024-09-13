@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const { toJSON, paginate } = require('./plugins');
-const { roles } = require('../config/roles');
 
 const userInfo = mongoose.Schema(
   {
@@ -35,7 +34,6 @@ const userSchema = mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
       trim: true,
       minlength: 8,
       private: true, // used by the toJSON plugin
@@ -53,6 +51,10 @@ const userSchema = mongoose.Schema(
     provider: {
       type: String,
       default: 'Email',
+      trim: true,
+    },
+    provider_user_id: {
+      type: String,
       trim: true,
     },
     uid: {
@@ -100,14 +102,17 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
-userSchema.pre('updateOne', async function (next) {
+const onUpdatePassword = async function (next) {
   const update = this.getUpdate();
   if (update && update.password) {
     const hashedPassword = await bcrypt.hash(update.password, 8);
     this.setUpdate({ ...update, password: hashedPassword });
   }
   next();
-});
+};
+
+userSchema.pre('updateOne', onUpdatePassword);
+userSchema.pre('findOneAndUpdate', onUpdatePassword);
 
 /**
  * @typedef {Object} UserRoles

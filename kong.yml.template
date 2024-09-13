@@ -1,0 +1,36 @@
+_format_version: '3.0'
+_transform: true
+
+services:
+  - host: ${ENV}-playground-be
+    name: main
+    port: ${PORT}
+    protocol: http
+    routes:
+      - name: main_route
+        methods:
+          - GET
+          - PUT
+          - POST
+          - PATCH
+          - DELETE
+          - OPTIONS
+          - HEAD
+          - CONNECT
+          - TRACE
+plugins:
+  - name: rate-limiting
+    enabled: true
+    protocols:
+      - grpc
+      - grpcs
+      - http
+      - https
+    config:
+      fault_tolerant: true
+      hide_client_headers: false
+      minute: 60
+      limit_by: header
+      header_name: x-forwarded-for
+      policy: local
+      sync_rate: -1

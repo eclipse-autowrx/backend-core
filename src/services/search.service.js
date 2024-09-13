@@ -1,7 +1,7 @@
 /* eslint-disable security/detect-non-literal-regexp */
 const mongoose = require('mongoose');
 const { modelService } = require('.');
-const { Prototype } = require('../models');
+const { Prototype, User } = require('../models');
 
 const search = async (query, options, userId) => {
   const accessibleModels = await modelService.getAccessibleModels(userId);
@@ -34,4 +34,19 @@ const search = async (query, options, userId) => {
   };
 };
 
-module.exports = { search };
+const searchUserByEmail = async (email) => {
+  return User.findOne({
+    email,
+  }).select('email name image_file');
+};
+
+/**
+ *
+ * @param {string} signal
+ */
+const searchPrototypesBySignal = async (signal) => {
+  const prototypes = await Prototype.find().select('model_id code name image_file').populate('model_id');
+  return prototypes.filter((prototype) => prototype.code?.includes(signal));
+};
+
+module.exports = { search, searchUserByEmail, searchPrototypesBySignal };

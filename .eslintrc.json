@@ -21,12 +21,12 @@
   },
   "rules": {
     // "no-console": "off",
-    "func-names": "off",
-    "no-underscore-dangle": "off",
-    "consistent-return": "off",
-    "jest/expect-expect": "off",
-    "security/detect-object-injection": "off",
-    "camelcase": "off",
+    "func-names": "warn",
+    "no-underscore-dangle": "warn",
+    "consistent-return": "warn",
+    "jest/expect-expect": "warn",
+    "security/detect-object-injection": "warn",
+    "camelcase": "warn",
     "import/no-unresolved": [
       "error",
       {
