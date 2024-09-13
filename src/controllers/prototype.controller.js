@@ -65,7 +65,7 @@ const executeCode = catchAsync(async (req, res) => {
 });
 
 const listPopularPrototypes = catchAsync(async (req, res) => {
-  const prototypes = await prototypeService.listPopularPrototypes(req.user.id);
+  const prototypes = await prototypeService.listPopularPrototypes(req.user?.id);
   res.send(prototypes);
 });
 
