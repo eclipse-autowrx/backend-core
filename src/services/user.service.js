@@ -3,6 +3,7 @@ const { User } = require('../models');
 const ApiError = require('../utils/ApiError');
 const image = require('../utils/image');
 const fileService = require('./file.service');
+const logger = require('../config/logger');
 
 /**
  * Create a user
@@ -140,13 +141,18 @@ const updateSSOUser = async (user, graphData) => {
     updateBody.name = graphData.displayName;
   }
 
-  if (userPhoto) {
-    const photoBuffer = await userPhoto.arrayBuffer();
-    const diff = await image.diff(user?.image_file, photoBuffer);
-    if (diff > 0.1 || diff === -1) {
-      const { url } = await fileService.upload(userPhoto);
-      updateBody.image_file = url;
+  try {
+    if (userPhoto) {
+      const photoBuffer = await userPhoto.arrayBuffer();
+      const diff = await image.diff(user?.image_file, photoBuffer);
+      if (diff > 0.1 || diff === -1) {
+        const { url } = await fileService.upload(userPhoto);
+        updateBody.image_file = url;
+      }
     }
+  } catch (error) {
+    logger.error('Error updating user photo');
+    logger.error(error);
   }
 
   if (Object.keys(updateBody).length === 0) {
@@ -170,9 +176,14 @@ const createSSOUser = async (graphData) => {
     provider_user_id: graphData.id,
   };
 
-  if (userPhoto) {
-    const { url } = await fileService.upload(userPhoto);
-    userBody.image_file = url;
+  try {
+    if (userPhoto) {
+      const { url } = await fileService.upload(userPhoto);
+      userBody.image_file = url;
+    }
+  } catch (error) {
+    logger.error('Error creating user photo');
+    logger.error(error);
   }
 
   return createUser(userBody);
