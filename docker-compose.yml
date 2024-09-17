@@ -36,8 +36,6 @@ services:
   playground-db:
     container_name: ${DB_CONTAINER_NAME:-playground-db}
     image: mongo:4.4.6-bionic
-    ports:
-      - '${MONGO_EXPOSE_PORT}:27017'
     volumes:
       - dbdata:/data/db
     networks:
