@@ -10,6 +10,7 @@ const config = require('../config/config');
 const axios = require('axios');
 const etasAuthorizationData = require('../states/etasAuthorization');
 const moment = require('moment');
+const { setupClient } = require('../utils/setupEtasStream');
 
 dotenv.config();
 
@@ -267,7 +268,7 @@ const generateAIContent = async (req, res) => {
 
     const instance = config.etas.instanceEndpoint;
 
-    // console.log('ETAS_INSTANCE_ENDPOINT', instance);
+    setupClient(token);
 
     const response = await axios.post(
       `https://${instance}/r2mm/GENERATE_AI`,
