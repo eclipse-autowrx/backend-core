@@ -46,6 +46,8 @@ services:
     platform: linux/amd64
     container_name: ${ENV:-dev}-upload
     image: boschvn/upload:latest
+    env_file:
+      - .env
     volumes:
       - '${UPLOAD_PATH}:/usr/src/upload/data'
     networks:
