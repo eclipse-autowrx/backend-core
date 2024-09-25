@@ -1,5 +1,11 @@
 const { Server } = require('socket.io');
 const logger = require('./logger');
+const ApiError = require('../utils/ApiError');
+const httpStatus = require('http-status');
+const jwt = require('jsonwebtoken');
+const config = require('./config');
+const { jwtVerify } = require('./passport');
+const { tokenTypes } = require('./tokens');
 
 let io = null;
 
@@ -15,6 +21,29 @@ const init = (server) => {
       ],
       credentials: true,
     },
+  });
+
+  io.use(function (socket, next) {
+    if (socket.handshake.headers && socket.handshake.headers.access_token) {
+      jwt.verify(socket.handshake.headers.access_token, config.jwt.secret, async function (err, decoded) {
+        if (err) return next(new ApiError(httpStatus.UNAUTHORIZED, 'Please authenticate'));
+        await jwtVerify(
+          {
+            type: tokenTypes.ACCESS,
+            sub: decoded.sub,
+          },
+          (error, user) => {
+            if (error || !user) {
+              return next(new ApiError(httpStatus.UNAUTHORIZED, 'Please authenticate'));
+            }
+            socket.user = user;
+            next();
+          }
+        );
+      });
+    } else {
+      next(new ApiError(httpStatus.UNAUTHORIZED, 'Please authenticate'));
+    }
   });
 
   io.on('connection', () => {
