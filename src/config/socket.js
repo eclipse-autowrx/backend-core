@@ -18,8 +18,8 @@ const init = (server) => {
   });
 
   io.use(function (socket, next) {
-    if (socket.handshake.headers && socket.handshake.headers.access_token) {
-      jwt.verify(socket.handshake.headers.access_token, config.jwt.secret, async function (err, decoded) {
+    if (socket.handshake.query && socket.handshake.query.access_token) {
+      jwt.verify(socket.handshake.query.access_token, config.jwt.secret, async function (err, decoded) {
         if (err) return next(new ApiError(httpStatus.UNAUTHORIZED, 'Please authenticate'));
         await jwtVerify(
           {
