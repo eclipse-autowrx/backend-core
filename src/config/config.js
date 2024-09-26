@@ -62,6 +62,16 @@ const config = {
   env: envVars.NODE_ENV,
   port: envVars.PORT,
   strictAuth: envVars.STRICT_AUTH,
+  cors: {
+    regex: [
+      /localhost:\d+/,
+      /\.digitalauto\.tech$/,
+      /\.digitalauto\.asia$/,
+      /\.digital\.auto$/,
+      'https://digitalauto.netlify.app',
+      /127\.0\.0\.1:\d+/,
+    ],
+  },
   mongoose: {
     url: envVars.MONGODB_URL + (envVars.NODE_ENV === 'test' ? '-test' : ''),
     options: {

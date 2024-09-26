@@ -47,14 +47,7 @@ app.use(compression());
 // enable cors
 app.use(
   cors({
-    origin: [
-      /localhost:\d+/,
-      /\.digitalauto\.tech$/,
-      /\.digitalauto\.asia$/,
-      /\.digital\.auto$/,
-      'https://digitalauto.netlify.app',
-      /127\.0\.0\.1:\d+/,
-    ],
+    origin: config.cors.regex,
     credentials: true,
   })
 );
@@ -63,12 +56,6 @@ app.options('*', cors());
 // jwt authentication
 app.use(passport.initialize());
 passport.use('jwt', jwtStrategy);
-
-// limit repeated failed requests to auth endpoints
-// if (config.env === 'production') {
-//  app.use('/v1/auth', authLimiter);
-//  app.use('/v2/auth', authLimiter);
-// }
 
 // v1 api routes
 app.use('/v1', routes);

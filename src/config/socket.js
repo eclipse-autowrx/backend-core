@@ -12,13 +12,7 @@ let io = null;
 const init = (server) => {
   io = new Server(server, {
     cors: {
-      origin: [
-        /localhost:\d+/,
-        /\.digitalauto\.tech$/,
-        /\.digitalauto\.asia$/,
-        /\.digital\.auto$/,
-        'https://digitalauto.netlify.app',
-      ],
+      origin: config.cors.regex,
       credentials: true,
     },
   });
