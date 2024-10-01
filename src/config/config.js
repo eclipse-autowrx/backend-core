@@ -62,6 +62,16 @@ const config = {
   env: envVars.NODE_ENV,
   port: envVars.PORT,
   strictAuth: envVars.STRICT_AUTH,
+  cors: {
+    regex: [
+      /localhost:\d+/,
+      /\.digitalauto\.tech$/,
+      /\.digitalauto\.asia$/,
+      /\.digital\.auto$/,
+      'https://digitalauto.netlify.app',
+      /127\.0\.0\.1:\d+/,
+    ],
+  },
   mongoose: {
     url: envVars.MONGODB_URL + (envVars.NODE_ENV === 'test' ? '-test' : ''),
     options: {
@@ -149,6 +159,9 @@ const config = {
     clientId: envVars.CERTIVITY_CLIENT_ID,
     clientSecret: envVars.CERTIVITY_CLIENT_SECRET,
     regulationBaseUrl: 'https://ctvt-service-api.azurewebsites.net/api/v1/protected/regulation',
+  },
+  sso: {
+    msGraphMeEndpoint: 'https://graph.microsoft.com/v1.0/me',
   },
 };
 

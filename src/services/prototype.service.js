@@ -6,6 +6,7 @@ const { PERMISSIONS } = require('../config/roles');
 const { default: axios, isAxiosError } = require('axios');
 const config = require('../config/config');
 const logger = require('../config/logger');
+const modelService = require('./model.service');
 
 /**
  *
@@ -139,9 +140,29 @@ const getRecentCachedPrototypes = async (userId) => {
  */
 const listRecentPrototypes = async (userId) => {
   const recentData = await getRecentCachedPrototypes(userId);
-  const prototypeIds = recentData.map((data) => data.referenceId);
-  const prototypes = await Prototype.find({ _id: { $in: prototypeIds } }).populate('model', 'name visibility');
-  return prototypes;
+
+  // Create map
+  const prototypeMap = new Map();
+  recentData.forEach((data) => {
+    prototypeMap.set(data.referenceId, data);
+  });
+
+  const prototypes = await Prototype.find({ _id: { $in: Array.from(prototypeMap.keys()) } })
+    .select('name model_id description image_file executed_turns')
+    .populate('model', 'name visibility');
+
+  const results = [];
+  recentData.forEach((data) => {
+    const correspondingPrototype = prototypes.find((prototype) => String(prototype._id) === data.referenceId);
+    if (correspondingPrototype) {
+      results.push({
+        ...correspondingPrototype.toJSON(),
+        last_visited: data.time,
+        last_page: data.page,
+      });
+    }
+  });
+  return results;
 };
 
 /**
@@ -161,7 +182,18 @@ const executeCode = async (id, _) => {
  * @returns {Promise<import('../typedefs/prototypeDef').Prototype[]>}
  */
 const listPopularPrototypes = async () => {
-  return Prototype.find().sort({ executed_turns: -1 }).limit(8).populate('model', 'name visibility');
+  const publicModelIds = (
+    await modelService.getModels({
+      visibility: 'public',
+    })
+  ).map((model) => String(model._id));
+  return Prototype.find({
+    model_id: { $in: publicModelIds },
+  })
+    .sort({ executed_turns: -1 })
+    .limit(8)
+    .select('name model_id description image_file executed_turns')
+    .populate('model', 'name visibility');
 };
 
 module.exports = {

@@ -9,6 +9,20 @@ const search = {
   }),
 };
 
+const searchUserByEmail = {
+  params: Joi.object().keys({
+    email: Joi.string().email().required(),
+  }),
+};
+
+const searchPrototypesBySignal = {
+  params: Joi.object().keys({
+    signal: Joi.string().required(),
+  }),
+};
+
 module.exports = {
   search,
+  searchUserByEmail,
+  searchPrototypesBySignal,
 };

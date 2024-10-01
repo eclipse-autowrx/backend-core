@@ -1,11 +1,31 @@
 services:
+  kong:
+    platform: linux/amd64
+    image: kong:3.7.1-ubuntu
+    container_name: ${ENV:-dev}-kong
+    environment:
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /kong/declarative/kong.yml
+    ports:
+      - "${KONG_PROXY_PORT}:8000"
+
+    restart: ${RESTART_POLICY:-always}
+    networks:
+      - node-network
+    volumes:
+      - "./:/kong/declarative/"
+    depends_on:
+      - playground-be
+
   playground-be:
     platform: linux/amd64
     container_name: ${ENV:-dev}-playground-be
     build: .
     image: boschvn/playground-be:${IMAGE_TAG:-latest}
-    ports:
-      - '${PORT}:${PORT}'
     depends_on:
       - playground-db
       - upload
@@ -14,10 +34,8 @@ services:
     restart: ${RESTART_POLICY:-always}
 
   playground-db:
-    container_name: ${ENV:-dev}-playground-db
+    container_name: ${DB_CONTAINER_NAME:-playground-db}
     image: mongo:4.4.6-bionic
-    ports:
-      - '${MONGO_EXPOSE_PORT}:27017'
     volumes:
       - dbdata:/data/db
     networks:
@@ -27,19 +45,18 @@ services:
   upload:
     platform: linux/amd64
     container_name: ${ENV:-dev}-upload
-    build: ./upload/
-    image: boschvn/upload:${IMAGE_TAG:-latest}
-    ports:
-      - '${UPLOAD_PORT}:${UPLOAD_PORT}'
+    image: boschvn/upload:latest
+    env_file:
+      - .env
     volumes:
       - '${UPLOAD_PATH}:/usr/src/upload/data'
-
     networks:
       - node-network
     restart: ${RESTART_POLICY:-always}
 
 volumes:
   dbdata:
+
 
 networks:
   node-network:

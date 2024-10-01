@@ -32,7 +32,15 @@ const createModel = async (userId, modelBody) => {
 };
 
 /**
- * Query for users
+ * Query for models with filters
+ * @param {Object} filter
+ */
+const getModels = async (filter) => {
+  return Model.find(filter);
+};
+
+/**
+ * Query for users with filters, pagination and authorized user check
  * @param {Object} filter - Mongo filter
  * @param {Object} options - Query options
  * @param {string} [options.sortBy] - Sort option in the format: sortField:(desc|asc)
@@ -43,6 +51,15 @@ const createModel = async (userId, modelBody) => {
  */
 const queryModels = async (filter, options, advanced, userId) => {
   const { sortBy, limit = 10, page = 1, fields } = options;
+
+  // Cast id to ObjectId if have
+  if (filter.id) {
+    filter._id = new mongoose.Types.ObjectId(filter.id);
+    delete filter.id;
+  }
+  if (filter.created_by) {
+    filter.created_by = new mongoose.Types.ObjectId(filter.created_by);
+  }
 
   const pipeline = [{ $match: filter }];
 
@@ -165,10 +182,14 @@ const queryModels = async (filter, options, advanced, userId) => {
  *
  * @param {string} id
  * @param {string} userId
+ * @param {boolean} [includeCreatorFullDetails]
  * @returns {Promise<Model>}
  */
-const getModelById = async (id, userId) => {
-  const model = await Model.findById(id).populate('created_by', 'id name image_file');
+const getModelById = async (id, userId, includeCreatorFullDetails) => {
+  const model = await Model.findById(id).populate(
+    'created_by',
+    includeCreatorFullDetails ? 'id name image_file email' : 'id name image_file'
+  );
   if (!model) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Model not found');
   }
@@ -195,7 +216,6 @@ const updateModelById = async (id, updateBody, userId) => {
   if (!model) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Model not found');
   }
-  const user = await userService.getUserById(userId);
 
   Object.assign(model, updateBody);
   await model.save();
@@ -214,7 +234,6 @@ const deleteModelById = async (id, userId) => {
   if (!model) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Model not found');
   }
-  const user = await userService.getUserById(userId);
 
   await model.remove();
 };
@@ -307,6 +326,7 @@ const listReadableModelIds = async (userId) => {};
 
 module.exports = {
   createModel,
+  getModels,
   queryModels,
   getModelById,
   updateModelById,

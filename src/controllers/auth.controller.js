@@ -2,6 +2,9 @@ const httpStatus = require('http-status');
 const catchAsync = require('../utils/catchAsync');
 const { authService, userService, tokenService, emailService } = require('../services');
 const config = require('../config/config');
+const ApiError = require('../utils/ApiError');
+const logger = require('../config/logger');
+const image = require('../utils/image');
 
 const register = catchAsync(async (req, res) => {
   const user = await userService.createUser({
@@ -71,14 +74,39 @@ const verifyEmail = catchAsync(async (req, res) => {
 const githubCallback = catchAsync(async (req, res) => {
   try {
     const { origin, code, userId } = req.query;
-    console.log('origin', origin);
-    console.log('code', code);
-    console.log('userId', userId);
     await authService.githubCallback(code, userId);
     res.redirect(`${origin || 'http://127.0.0.1:3000'}/auth/github/success`);
   } catch (error) {
     res.status(httpStatus.UNAUTHORIZED).send('Unauthorized. Please try again.');
   }
+});
+
+const sso = catchAsync(async (req, res) => {
+  const { msAccessToken } = req.body;
+
+  const graphData = await authService.callMsGraph(msAccessToken);
+  if (graphData.error) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'Invalid MS access token');
+  }
+
+  let user = await userService.getUserByEmail(graphData.mail);
+  if (!user) {
+    if (config.strictAuth) {
+      throw new ApiError(httpStatus.UNAUTHORIZED, 'User not registered. Contact admin to register your account.');
+    }
+    user = await userService.createSSOUser(graphData);
+  } else {
+    user = await userService.updateSSOUser(user, graphData);
+  }
+
+  const tokens = await tokenService.generateAuthTokens(user);
+  res.cookie('token', tokens.refresh.token, {
+    expires: tokens.refresh.expires,
+    ...config.jwt.cookieRefreshOptions,
+  });
+  delete tokens.refresh;
+
+  res.send({ user, tokens });
 });
 
 module.exports = {
@@ -91,4 +119,5 @@ module.exports = {
   sendVerificationEmail,
   verifyEmail,
   githubCallback,
+  sso,
 };

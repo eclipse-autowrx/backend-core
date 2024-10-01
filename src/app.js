@@ -16,7 +16,7 @@ const routesV2 = require('./routes/v2');
 const { errorConverter, errorHandler } = require('./middlewares/error');
 const ApiError = require('./utils/ApiError');
 const setupProxy = require('./config/proxyHandler');
-const LLMServices = require('./services/llm.service');
+const { init: initSocketIO } = require('./config/socket');
 
 const app = express();
 
@@ -47,14 +47,7 @@ app.use(compression());
 // enable cors
 app.use(
   cors({
-    origin: [
-      /localhost:\d+/,
-      /\.digitalauto\.tech$/,
-      /\.digitalauto\.asia$/,
-      /\.digital\.auto$/,
-      'https://digitalauto.netlify.app',
-      /127\.0\.0\.1:\d+/,
-    ],
+    origin: config.cors.regex,
     credentials: true,
   })
 );
@@ -64,18 +57,14 @@ app.options('*', cors());
 app.use(passport.initialize());
 passport.use('jwt', jwtStrategy);
 
-// limit repeated failed requests to auth endpoints
-// if (config.env === 'production') {
-//  app.use('/v1/auth', authLimiter);
-//  app.use('/v2/auth', authLimiter);
-// }
-
 // v1 api routes
 app.use('/v1', routes);
 app.use('/v2', routesV2);
 
 // Setup proxy to other services
 setupProxy(app);
+const server = require('http').createServer(app);
+initSocketIO(server);
 
 // send back a 404 error for any unknown api request
 app.use((req, res, next) => {
@@ -87,5 +76,13 @@ app.use(errorConverter);
 
 // handle error
 app.use(errorHandler);
+
+// Test function
+// (async () => {
+//   try {
+//   } catch (error) {
+//     console.log(error);
+//   }
+// })();
 
 module.exports = app;

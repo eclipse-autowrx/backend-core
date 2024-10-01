@@ -6,10 +6,26 @@ source .env
 yarn
 
 # Validate environment variables
+if [ -z "$ENV" ]; then
+  echo "ENV is not set"
+  exit 1
+fi
+
 if [ -z "$PORT" ]; then
   echo "PORT is not set"
   exit 1
 fi
+
+if [ -z "$KONG_PROXY_PORT" ]; then
+  echo "KONG_PROXY_PORT is not set"
+  exit 1
+fi
+
+if [ -z "$KONG_ADMIN_PORT" ]; then
+  echo "KONG_ADMIN_PORT is not set"
+  exit 1
+fi
+
 
 if [ -z "$UPLOAD_PATH" ]; then
   echo "UPLOAD_PATH is not set"
@@ -37,7 +53,7 @@ if [ ! -d "$UPLOAD_PATH" ]; then
 fi
 
 # Replace env file to upload directory
-if ! cp .env ./upload/ -f; then
+if ! cp -f .env ./upload/; then
   echo "Failed to copy .env file to ./upload/"
   exit 1
 fi
@@ -91,6 +107,10 @@ else
 fi
 
 export RESTART_POLICY
+
+# Replace the placeholders in kong.yml.template and overwrite kong.yml
+cp -f kong.yml.template kong.yml
+sed -i "s|\${ENV}|$ENV|g; s|\${PORT}|$PORT|g" kong.yml
 
 # Run Docker Compose
 echo "Starting Docker Compose with command: $DOCKER_COMMAND"

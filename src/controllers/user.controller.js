@@ -17,7 +17,7 @@ const getUsers = catchAsync(async (req, res) => {
   const advanced = pick(req.query, ['search', 'includeFullDetails']);
   if (advanced.includeFullDetails) {
     // Check if has permission
-    if (!(await permissionService.hasPermission(req.user?.id, PERMISSIONS.MANAGE_USERS))) {
+    if (!(await permissionService.hasPermission(req.user?.id, PERMISSIONS.ADMIN))) {
       throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
     }
   }
@@ -34,10 +34,7 @@ const getSelf = catchAsync(async (req, res) => {
 const getUser = catchAsync(async (req, res) => {
   if (req.query.includeFullDetails) {
     // Check if has permission
-    if (
-      req.user?.id !== req.params.userId &&
-      !(await permissionService.hasPermission(req.user?.id, PERMISSIONS.MANAGE_USERS))
-    ) {
+    if (req.user?.id !== req.params.userId && !(await permissionService.hasPermission(req.user?.id, PERMISSIONS.ADMIN))) {
       throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
     }
   }
