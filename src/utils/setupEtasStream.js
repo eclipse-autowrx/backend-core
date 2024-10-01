@@ -1,5 +1,6 @@
 const WebSocketClient = require('websocket').client;
 const { getIO } = require('../config/socket');
+const config = require('../config/config.js');
 let client = null;
 
 const setupClient = (token) => {
@@ -24,7 +25,7 @@ const setupClient = (token) => {
       });
     });
 
-    client.connect('wss://a96aee443681c44864878093f03f1586.app.pantaris.io/ws', null, null, {
+    client.connect(`wss://${config.etas.instanceEndpoint}/ws`, null, null, {
       authorization: `Bearer ${token}`,
     });
   }
