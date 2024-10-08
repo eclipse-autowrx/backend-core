@@ -33,6 +33,7 @@ router.post(
   auth({
     optional: !config.strictAuth,
   }),
+  genaiPermission,
   genaiController.generateAIContent
 );
 
