@@ -4,6 +4,7 @@ const config = require('./config/config');
 const logger = require('./config/logger');
 const initializeRoles = require('./utils/initializeRoles');
 const { init } = require('./config/socket');
+const setupScheduledCheck = require('./scripts/checkVSSUpdate');
 
 let server;
 mongoose.connect(config.mongoose.url, config.mongoose.options).then(() => {
@@ -40,3 +41,5 @@ process.on('SIGTERM', () => {
     server.close();
   }
 });
+
+setupScheduledCheck();
