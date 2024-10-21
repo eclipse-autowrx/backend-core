@@ -1,41 +1,69 @@
 const axios = require('axios');
 const fs = require('fs');
+const path = require('path');
 const moment = require('moment');
+const _ = require('lodash');
+const logger = require('../config/logger');
+const { fileService } = require('../services');
 
 const setLastCheckTime = () => {
-  fs.writeFileSync('clock.txt', moment().format());
+  fs.writeFileSync(path.join(__dirname, '../../data/clock.txt'), moment().format());
 };
 
 const getLastCheckTime = () => {
   try {
-    const lastCheckTime = fs.readFileSync('clock.txt', 'utf8');
+    const lastCheckTime = fs.readFileSync(path.join(__dirname, '../../data/clock.txt'), 'utf8');
     return moment(lastCheckTime);
   } catch (error) {
     return moment().subtract(1, 'hour');
   }
 };
 
-const updateVSS = async () => {
+/**
+ *
+ * @param {{name: string; published_at: string; browser_download_url: string}[]} releases
+ */
+const updateVSS = async (releases) => {
+  try {
+    fs.writeFileSync(path.join(__dirname, '../../data/vss.json'), JSON.stringify(releases, null, 2));
+    logger.info('Updated VSS version list');
+    logger.info('Downloading VSS versions data');
+    const promises = releases.map((release) =>
+      fileService.downloadFile(release.browser_download_url, path.join(__dirname, `../../data/${release.name}.json`))
+    );
+    await Promise.all(promises);
+    logger.info('Downloaded VSS versions data');
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+const checkUpdateVSS = async () => {
   try {
     const vssReleases = (await axios.get('https://api.github.com/repos/COVESA/vehicle_signal_specification/releases')).data;
-    console.log('vssReleases');
-    console.log('Hi i just triggered');
     setLastCheckTime();
 
-    let filtered = vssReleases?.map((release) => {
-      return {
-        name: release.name,
-        published_at: release.published_at,
-        assetUrl: release.assets?.find((asset) => asset.name.endsWith('.json'))?.url,
-      };
-    });
+    const filtered = vssReleases
+      ?.filter((release) => !(release.name && release.name.includes('rc')))
+      ?.map((release) => {
+        return {
+          name: release.name,
+          published_at: release.published_at,
+          browser_download_url: release.assets?.find((asset) => asset.name.endsWith('.json'))?.browser_download_url,
+        };
+      });
 
-    filtered = filtered?.filter((release) => !(release.name && release.name.includes('rc')));
+    const vssFilePath = path.join(__dirname, '../../data/vss.json');
 
-    console.log('filtered');
-    console.log(filtered);
+    try {
+      if (fs.existsSync(vssFilePath) && _.isEqual(filtered, JSON.parse(fs.readFileSync(vssFilePath, 'utf8')))) return;
+    } catch (error) {
+      logger.warn(error);
+    }
+
+    await updateVSS(filtered);
   } catch (error) {
-    console.error(error);
+    logger.error(error);
   }
 };
 
@@ -43,11 +71,11 @@ let interval = null;
 
 const setupScheduledCheck = () => {
   const lastCheckTime = getLastCheckTime();
-  if (moment().diff(lastCheckTime, 'second') > 1) {
-    updateVSS();
+  if (moment().diff(lastCheckTime, 'seconds') > 120) {
+    checkUpdateVSS();
   }
   if (!interval) {
-    interval = setInterval(updateVSS, 1000 * 60 * 60 * 24);
+    interval = setInterval(checkUpdateVSS, 1000 * 60 * 60 * 24);
   }
 };
 

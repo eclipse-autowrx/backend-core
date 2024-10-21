@@ -3,6 +3,7 @@ const ApiError = require('../utils/ApiError');
 const httpStatus = require('http-status');
 const logger = require('../config/logger');
 const config = require('../config/config');
+const fs = require('fs');
 
 /**
  *
@@ -47,6 +48,16 @@ const getFileFromURL = async (url, encoding = 'File') => {
   }
 };
 
+const downloadFile = async (url, path) => {
+  try {
+    const arrayBuffer = await (await fetch(url)).arrayBuffer();
+    fs.writeFileSync(path, new Uint8Array(arrayBuffer));
+  } catch (error) {
+    logger.error(`Failed to download file from ${url}`);
+    logger.error(error);
+  }
+};
+
 /**
  *
  * @param {File} file1
@@ -57,4 +68,5 @@ const compareImages = async (file1, file2) => {};
 module.exports = {
   upload,
   getFileFromURL,
+  downloadFile,
 };

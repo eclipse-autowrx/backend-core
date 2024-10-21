@@ -2,6 +2,9 @@ const httpStatus = require('http-status');
 const { userService } = require('.');
 const { Api } = require('../models');
 const ApiError = require('../utils/ApiError');
+const fs = require('fs');
+const path = require('path');
+const logger = require('../config/logger');
 
 /**
  *
@@ -78,10 +81,33 @@ const deleteApi = async (apiId, userId) => {
   await api.remove();
 };
 
+const listVSSVersions = async () => {
+  let versions;
+  try {
+    const rawData = fs.readFileSync(path.join(__dirname, '../../data/vss.json'));
+    versions = rawData ? JSON.parse(rawData, 'utf8') : [];
+  } catch (error) {
+    logger.error(error);
+    versions = [];
+  }
+  return versions;
+};
+
+const getVSSVersion = async (name) => {
+  const filePath = path.join(__dirname, `../../data/${name}.json`);
+  if (!fs.existsSync(filePath)) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'VSS version not found');
+  }
+  const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  return data;
+};
+
 module.exports = {
   createApi,
   getApi,
   getApiByModelId,
   updateApi,
   deleteApi,
+  listVSSVersions,
+  getVSSVersion,
 };

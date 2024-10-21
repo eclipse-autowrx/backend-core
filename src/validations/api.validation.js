@@ -38,10 +38,17 @@ const deleteApi = {
   }),
 };
 
+const getVSSVersion = {
+  params: Joi.object().keys({
+    name: Joi.string().required(),
+  }),
+};
+
 module.exports = {
   createApi,
   getApi,
   getApiByModelId,
   updateApi,
   deleteApi,
+  getVSSVersion,
 };
