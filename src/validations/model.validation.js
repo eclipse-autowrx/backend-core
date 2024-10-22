@@ -6,7 +6,7 @@ const createModel = {
   body: Joi.object().keys({
     extend: Joi.any(),
     custom_apis: Joi.string().custom(jsonString),
-    api_version: Joi.string().default('v4.1'),
+    api_version: Joi.string(),
     cvi: Joi.string().required().custom(jsonString),
     main_api: Joi.string().required().max(255),
     model_home_image_file: Joi.string()
@@ -54,7 +54,7 @@ const updateModel = {
     .keys({
       extend: Joi.any(),
       custom_apis: Joi.string().custom(jsonString),
-      api_version: Joi.string().default('v4.1'),
+      api_version: Joi.string(),
       cvi: Joi.string().custom(jsonString),
       main_api: Joi.string().max(255),
       model_home_image_file: Joi.string().allow(''),

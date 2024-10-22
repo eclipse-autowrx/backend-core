@@ -10,6 +10,10 @@ const { PERMISSIONS } = require('../config/roles');
  * @returns {Promise<ExtendedApi>}
  */
 const createExtendedApi = async (extendedApiBody) => {
+  const existingExtendedApi = await ExtendedApi.findOne({ apiName: extendedApiBody.apiName, model: extendedApiBody.model });
+  if (existingExtendedApi) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'An extended API with the same name already exists for this model');
+  }
   return ExtendedApi.create(extendedApiBody);
 };
 
