@@ -131,10 +131,14 @@ const computeVSSApi = async (modelId) => {
   extendedApis.forEach((extendedApi) => {
     try {
       const name = extendedApi.apiName.split('.').slice(1).join('.');
+      if (!name) return;
       ret['Vehicle'].children[name] = {
         description: extendedApi.description,
-        type: extendedApi.type,
+        type: extendedApi.type || 'branch',
         id: extendedApi._id,
+        isWishlist: true,
+        datatype: extendedApi.datatype,
+        name: extendedApi.apiName,
       };
     } catch (error) {
       logger.warn(`Error while processing extended API ${extendedApi._id} with name ${extendedApi.apiName}: ${error}`);
