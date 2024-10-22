@@ -73,6 +73,12 @@ const modelSchema = mongoose.Schema(
     extend: {
       type: mongoose.SchemaTypes.Mixed,
     },
+    api_version: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      default: 'v4.1',
+    },
   },
   {
     timestamps: true,

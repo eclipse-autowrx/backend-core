@@ -29,7 +29,7 @@ const extendedApiSchema = mongoose.Schema(
     type: {
       type: String,
     },
-    data_type: {
+    datatype: {
       type: String,
     },
     description: String,

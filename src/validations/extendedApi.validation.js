@@ -24,7 +24,7 @@ const createExtendedApi = {
 const getExtendedApis = {
   query: Joi.object().keys({
     apiName: Joi.string(),
-    model: Joi.string().custom(objectId),
+    model: Joi.string().custom(objectId).required(),
     sortBy: Joi.string(),
     limit: Joi.number().integer(),
     page: Joi.number().integer(),
@@ -46,7 +46,6 @@ const updateExtendedApi = {
       apiName: Joi.string()
         .regex(/^Vehicle\./)
         .message('apiName must start with Vehicle.'),
-      model: Joi.string().custom(objectId),
       skeleton: Joi.string().optional(),
       type: Joi.string(),
       data_type: Joi.string(),

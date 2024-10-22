@@ -256,6 +256,21 @@ const listReadableModelIds = async (userId) => {
   return Array.from(results);
 };
 
+/**
+ *
+ * @param {string} userId
+ * @param {string} modelId
+ * @returns {Promise<boolean>}
+ */
+const canAccessModel = async (userId, modelId) => {
+  const model = await Model.findById(modelId);
+  if (!model) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Model not found');
+  }
+  if (model.visibility === 'public') return true;
+  return hasPermission(userId, PERMISSIONS.READ_MODEL, modelId);
+};
+
 module.exports = {
   listAuthorizedUser,
   assignRoleToUser,
@@ -268,4 +283,5 @@ module.exports = {
   getRoles,
   getPermissions,
   listReadableModelIds,
+  canAccessModel,
 };

@@ -108,6 +108,12 @@ const deleteAuthorizedUser = {
   }),
 };
 
+const getApiByModelId = {
+  params: Joi.object().keys({
+    id: Joi.string().custom(objectId),
+  }),
+};
+
 module.exports = {
   createModel,
   listModels,
@@ -116,4 +122,5 @@ module.exports = {
   deleteModel,
   addAuthorizedUser,
   deleteAuthorizedUser,
+  getApiByModelId,
 };

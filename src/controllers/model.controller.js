@@ -94,6 +94,14 @@ const deleteAuthorizedUser = catchAsync(async (req, res) => {
   res.status(httpStatus.NO_CONTENT).send();
 });
 
+const getComputedVSSApi = catchAsync(async (req, res) => {
+  if (!(await permissionService.canAccessModel(req.user?.id, req.params.id))) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
+  }
+  const data = await apiService.computeVSSApi(req.params.id);
+  res.send(data);
+});
+
 module.exports = {
   createModel,
   listModels,
@@ -102,4 +110,5 @@ module.exports = {
   deleteModel,
   addAuthorizedUser,
   deleteAuthorizedUser,
+  getComputedVSSApi,
 };

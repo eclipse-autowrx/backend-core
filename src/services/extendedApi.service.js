@@ -1,6 +1,8 @@
 const httpStatus = require('http-status');
 const { ExtendedApi } = require('../models');
 const ApiError = require('../utils/ApiError');
+const { permissionService } = require('.');
+const { PERMISSIONS } = require('../config/roles');
 
 /**
  * Create a new ExtendedApi
@@ -38,12 +40,16 @@ const getExtendedApiById = async (id) => {
  * Update ExtendedApi by id
  * @param {ObjectId} extendedApiId
  * @param {Object} updateBody
+ * @param {string} userId
  * @returns {Promise<ExtendedApi>}
  */
-const updateExtendedApiById = async (extendedApiId, updateBody) => {
+const updateExtendedApiById = async (extendedApiId, updateBody, userId) => {
   const extendedApi = await getExtendedApiById(extendedApiId);
   if (!extendedApi) {
     throw new ApiError(httpStatus.NOT_FOUND, 'ExtendedApi not found');
+  }
+  if (!(await permissionService.hasPermission(userId, PERMISSIONS.WRITE_MODEL, extendedApi.model))) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden. You do not have permission to update extended API for this model');
   }
   Object.assign(extendedApi, updateBody);
   await extendedApi.save();
@@ -53,12 +59,16 @@ const updateExtendedApiById = async (extendedApiId, updateBody) => {
 /**
  * Delete ExtendedApi by id
  * @param {ObjectId} extendedApiId
+ * @param {string} userId
  * @returns {Promise<ExtendedApi>}
  */
-const deleteExtendedApiById = async (extendedApiId) => {
+const deleteExtendedApiById = async (extendedApiId, userId) => {
   const extendedApi = await getExtendedApiById(extendedApiId);
   if (!extendedApi) {
     throw new ApiError(httpStatus.NOT_FOUND, 'ExtendedApi not found');
+  }
+  if (!(await permissionService.hasPermission(userId, PERMISSIONS.WRITE_MODEL, extendedApi.model))) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden. You do not have permission to update extended API for this model');
   }
   await extendedApi.remove();
   return extendedApi;

@@ -1,10 +1,12 @@
 const httpStatus = require('http-status');
 const { userService } = require('.');
-const { Api } = require('../models');
+const { Api, Model, ExtendedApi } = require('../models');
 const ApiError = require('../utils/ApiError');
 const fs = require('fs');
 const path = require('path');
 const logger = require('../config/logger');
+const { isArray } = require('lodash');
+const { sortObject } = require('../utils/sort');
 
 /**
  *
@@ -93,6 +95,11 @@ const listVSSVersions = async () => {
   return versions;
 };
 
+/**
+ *
+ * @param {string} name
+ * @returns {Promise<object>}
+ */
 const getVSSVersion = async (name) => {
   const filePath = path.join(__dirname, `../../data/${name}.json`);
   if (!fs.existsSync(filePath)) {
@@ -100,6 +107,42 @@ const getVSSVersion = async (name) => {
   }
   const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
   return data;
+};
+
+/**
+ *
+ * @param {string} modelId
+ */
+const computeVSSApi = async (modelId) => {
+  const model = await Model.findById(modelId);
+  if (!model) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Model not found');
+  }
+  const apiVersion = model.api_version || 'v4.1';
+  const ret = await getVSSVersion(apiVersion);
+
+  const extendedApis = await ExtendedApi.find({
+    model: modelId,
+  });
+  extendedApis.forEach((extendedApi) => {
+    try {
+      const name = extendedApi.apiName.split('.').slice(1).join('.');
+      ret['Vehicle'].children[name] = {
+        description: extendedApi.description,
+        type: extendedApi.type,
+        id: extendedApi._id,
+      };
+    } catch (error) {
+      logger.warn(`Error while processing extended API ${extendedApi._id} with name ${extendedApi.apiName}: ${error}`);
+    }
+  });
+
+  try {
+    ret['Vehicle'].children = sortObject(ret['Vehicle'].children);
+  } catch (error) {
+    logger.warn(`Error while sorting object: ${error}`);
+  }
+  return ret;
 };
 
 module.exports = {
@@ -110,4 +153,5 @@ module.exports = {
   deleteApi,
   listVSSVersions,
   getVSSVersion,
+  computeVSSApi,
 };
