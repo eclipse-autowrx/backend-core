@@ -77,7 +77,6 @@ const modelSchema = mongoose.Schema(
       type: String,
       trim: true,
       lowercase: true,
-      default: 'v4.1',
     },
   },
   {
