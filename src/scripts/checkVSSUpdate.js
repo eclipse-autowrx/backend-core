@@ -70,6 +70,10 @@ const checkUpdateVSS = async () => {
 let interval = null;
 
 const setupScheduledCheck = () => {
+  const dataDirExist = fs.existsSync(path.join(__dirname, '../../data'));
+  if (!dataDirExist) {
+    fs.mkdirSync(path.join(__dirname, '../../data'));
+  }
   const lastCheckTime = getLastCheckTime();
   if (moment().diff(lastCheckTime, 'seconds') > 120) {
     checkUpdateVSS();
