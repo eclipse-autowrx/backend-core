@@ -121,12 +121,12 @@ const getMappedRoles = (roles) => {
       if (!Array.isArray(existingRolePermissions)) {
         existingRolePermissions = [];
       } else {
-        const newArray = existingRolePermissions.concat(role.role.permissions);
+        const newArray = existingRolePermissions.concat(role?.role?.permissions || []);
         existingRolePermissions = Array.from(new Set(newArray));
       }
       map.set(roleRef, existingRolePermissions);
     } else {
-      map.set(roleRef, role.role.permissions);
+      map.set(roleRef, role?.role?.permissions || []);
     }
   });
   return map;
