@@ -42,6 +42,7 @@ const createPrototype = {
     related_ea_components: Joi.string().allow(''),
     partner_logo: Joi.string().allow(''),
     language: Joi.string().default('python'),
+    requirements: Joi.string().allow(''),
     // rated_by: Joi.object().pattern(
     //   /^[0-9a-fA-F]{24}$/,
     //   Joi.object()
@@ -114,6 +115,7 @@ const updatePrototype = {
     related_ea_components: Joi.string().allow(''),
     partner_logo: Joi.string().allow(''),
     language: Joi.string().default('python'),
+    requirements: Joi.string().allow(''),
     // rated_by: Joi.object().pattern(
     //   /^[0-9a-fA-F]{24}$/,
     //   Joi.object()

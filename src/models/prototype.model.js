@@ -195,6 +195,9 @@ const prototypeSchema = mongoose.Schema({
     default: 'python',
     maxLength: 20,
   },
+  requirements: {
+    type: String,
+  },
 });
 
 // add plugin that converts mongoose to json
