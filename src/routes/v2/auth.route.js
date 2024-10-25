@@ -11,8 +11,8 @@ router.get('/github/callback', authController.githubCallback);
 router.post('/sso', validate(authValidation.sso), authController.sso);
 if (!config.strictAuth) {
   router.post('/register', validate(authValidation.register), authController.register);
-  router.post('/login', validate(authValidation.login), authController.login);
 }
+router.post('/login', validate(authValidation.login), authController.login);
 router.post('/logout', authController.logout);
 router.post('/refresh-tokens', authController.refreshTokens);
 router.post('/forgot-password', validate(authValidation.forgotPassword), authController.forgotPassword);
