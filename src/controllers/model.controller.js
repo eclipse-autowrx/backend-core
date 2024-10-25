@@ -15,33 +15,53 @@ const createModel = catchAsync(async (req, res) => {
   //   // await apiService.createApi(model._id, cvi);
   // }
 
-  if (extended_apis) {
-    await Promise.all(extended_apis.map((api) => extendedApiService.createExtendedApi(api)));
-  }
-
-  if (custom_apis) {
-    let apis = custom_apis;
-    try {
-      apis = JSON.parse(custom_apis);
-    } catch (error) {
-      // Do nothing
-    }
-
-    if (Array.isArray(apis)) {
+  try {
+    if (extended_apis) {
       await Promise.all(
-        apis.map((api) =>
+        extended_apis.map((api) =>
           extendedApiService.createExtendedApi({
             model: model._id,
-            apiName: api.name || api.apiName || 'Vehicle',
-            description: api.description || '',
-            skeleton: api.skeleton || '{}',
-            tags: api.tags || [],
-            type: api.type || 'branch',
-            datatype: api.datatype || (api.type !== 'branch' ? 'string' : null),
+            apiName: api.apiName,
+            description: api.description,
+            skeleton: api.skeleton,
+            tags: api.tags,
+            type: api.type,
+            datatype: api.datatype,
           })
         )
       );
     }
+  } catch (error) {
+    console.warn('Error in creating model with extended_apis', error);
+  }
+
+  try {
+    if (custom_apis) {
+      let apis = custom_apis;
+      try {
+        apis = JSON.parse(custom_apis);
+      } catch (error) {
+        // Do nothing
+      }
+
+      if (Array.isArray(apis)) {
+        await Promise.all(
+          apis.map((api) =>
+            extendedApiService.createExtendedApi({
+              model: model._id,
+              apiName: api.name || api.apiName || 'Vehicle',
+              description: api.description || '',
+              skeleton: api.skeleton || '{}',
+              tags: api.tags || [],
+              type: api.type || 'branch',
+              datatype: api.datatype || (api.type !== 'branch' ? 'string' : null),
+            })
+          )
+        );
+      }
+    }
+  } catch (error) {
+    console.warn('Error in creating model with custom_apis', error);
   }
 
   res.status(httpStatus.CREATED).send(model);
