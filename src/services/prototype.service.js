@@ -189,6 +189,7 @@ const listPopularPrototypes = async () => {
   ).map((model) => String(model._id));
   return Prototype.find({
     model_id: { $in: publicModelIds },
+    state: 'Released',
   })
     .sort({ executed_turns: -1 })
     .limit(8)
