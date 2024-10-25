@@ -1,21 +1,48 @@
 const httpStatus = require('http-status');
-const { modelService, apiService, permissionService } = require('../services');
+const { modelService, apiService, permissionService, extendedApiService } = require('../services');
 const catchAsync = require('../utils/catchAsync');
 const pick = require('../utils/pick');
 const ApiError = require('../utils/ApiError');
 const { PERMISSIONS } = require('../config/roles');
 
 const createModel = catchAsync(async (req, res) => {
-  const { cvi, custom_apis, ...reqBody } = req.body;
+  const { cvi, custom_apis, extended_apis, ...reqBody } = req.body;
   const model = await modelService.createModel(req.user.id, {
     ...reqBody,
-    ...(reqBody.custom_apis && { custom_apis: JSON.parse(reqBody.custom_apis) }),
   });
-  await apiService.createApi({
-    model: model._id,
-    cvi: JSON.parse(cvi),
-    created_by: req.user.id,
-  });
+
+  // if (cvi) {
+  //   // await apiService.createApi(model._id, cvi);
+  // }
+
+  if (extended_apis) {
+    await Promise.all(extended_apis.map((api) => extendedApiService.createExtendedApi(api)));
+  }
+
+  if (custom_apis) {
+    let apis = custom_apis;
+    try {
+      apis = JSON.parse(custom_apis);
+    } catch (error) {
+      // Do nothing
+    }
+
+    if (Array.isArray(apis)) {
+      await Promise.all(
+        apis.map((api) =>
+          extendedApiService.createExtendedApi({
+            model: model._id,
+            apiName: api.name || api.apiName || 'Vehicle',
+            description: api.description || '',
+            skeleton: api.skeleton || '{}',
+            tags: api.tags || [],
+            type: api.type || 'branch',
+            datatype: api.datatype || (api.type !== 'branch' ? 'string' : null),
+          })
+        )
+      );
+    }
+  }
 
   res.status(httpStatus.CREATED).send(model);
 });
