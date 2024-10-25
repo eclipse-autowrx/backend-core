@@ -118,12 +118,20 @@ const computeVSSApi = async (modelId) => {
   if (!model) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Model not found');
   }
+  let ret = null;
+
   const apiVersion = model.api_version;
   if (!apiVersion) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'This model does not have an API version');
+    ret = {
+      Vehicle: {
+        description: 'Vehicle',
+        type: 'branch',
+        children: {},
+      },
+    };
+  } else {
+    ret = await getVSSVersion(apiVersion);
   }
-
-  const ret = await getVSSVersion(apiVersion);
 
   const extendedApis = await ExtendedApi.find({
     model: modelId,
