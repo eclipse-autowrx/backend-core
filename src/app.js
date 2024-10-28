@@ -1,6 +1,5 @@
 const express = require('express');
 const helmet = require('helmet');
-const xss = require('xss-clean');
 const cookies = require('cookie-parser');
 const mongoSanitize = require('express-mongo-sanitize');
 const compression = require('compression');
@@ -38,7 +37,6 @@ app.use(express.json({ limit: '50mb', strict: false }));
 app.use(express.urlencoded({ extended: true, limit: '50mb', parameterLimit: 10000 }));
 
 // sanitize request data
-app.use(xss());
 app.use(mongoSanitize());
 
 // gzip compression
