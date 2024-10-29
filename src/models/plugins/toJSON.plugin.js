@@ -31,7 +31,7 @@ const toJSON = (schema) => {
       ret.id = ret._id.toString();
       delete ret._id;
       delete ret.__v;
-      // ret.created_at = ret.createdAt;
+      ret.created_at = ret.createdAt;
       delete ret.createdAt;
       delete ret.updatedAt;
       if (transform) {
