@@ -9,15 +9,12 @@ const createExtendedApi = {
     type: Joi.string(),
     datatype: Joi.string(),
     description: Joi.string().allow('').default(''),
-    tags: Joi.array()
-      .items(
-        Joi.object({
-          tagCategoryId: Joi.string(),
-          tagCategoryName: Joi.string(),
-          tag: Joi.string(),
-        })
-      )
-      .optional(),
+    tags: Joi.array().items(
+      Joi.object().keys({
+        title: Joi.string().required(),
+        description: Joi.string().allow(''),
+      })
+    ),
   }),
 };
 
@@ -50,15 +47,12 @@ const updateExtendedApi = {
       type: Joi.string(),
       datatype: Joi.string(),
       description: Joi.string().allow(''),
-      tags: Joi.array()
-        .items(
-          Joi.object({
-            tagCategoryId: Joi.string(),
-            tagCategoryName: Joi.string(),
-            tag: Joi.string(),
-          })
-        )
-        .optional(),
+      tags: Joi.array().items(
+        Joi.object().keys({
+          title: Joi.string().required(),
+          description: Joi.string().allow(''),
+        })
+      ),
     })
     .min(1),
 };

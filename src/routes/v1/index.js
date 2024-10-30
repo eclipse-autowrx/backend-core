@@ -56,10 +56,10 @@ const defaultRoutes = [
     path: '/plugins',
     route: pluginsRoute,
   },
-  {
-    path: '/tags',
-    route: tagsRoute,
-  },
+  // {
+  //   path: '/tags',
+  //   route: tagsRoute,
+  // },
   {
     path: '/medias',
     route: mediasRoute,

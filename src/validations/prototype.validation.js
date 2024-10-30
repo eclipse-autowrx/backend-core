@@ -32,9 +32,8 @@ const createPrototype = {
     skeleton: Joi.string().custom(jsonString),
     tags: Joi.array().items(
       Joi.object().keys({
-        tag: Joi.string().required(),
-        tagCategoryId: Joi.string().required().custom(slug),
-        tagCategoryName: Joi.string().required(),
+        title: Joi.string().required(),
+        description: Joi.string().allow(''),
       })
     ),
     widget_config: Joi.string().custom(jsonString),
@@ -105,9 +104,8 @@ const updatePrototype = {
     skeleton: Joi.string().custom(jsonString),
     tags: Joi.array().items(
       Joi.object().keys({
-        tag: Joi.string().required(),
-        tagCategoryId: Joi.string().required().custom(slug),
-        tagCategoryName: Joi.string().required(),
+        title: Joi.string().required(),
+        description: Joi.string().allow(''),
       })
     ),
     widget_config: Joi.string().custom(jsonString),

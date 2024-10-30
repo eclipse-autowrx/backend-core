@@ -51,17 +51,14 @@ const portfolioSchema = mongoose.Schema(
 
 const tagSchema = mongoose.Schema(
   {
-    tag: {
+    title: {
       type: String,
       required: true,
+      trim: true,
     },
-    tagCategoryId: {
+    description: {
       type: String,
-      required: true,
-    },
-    tagCategoryName: {
-      type: String,
-      required: true,
+      trim: true,
     },
   },
   {
