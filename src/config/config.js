@@ -45,6 +45,7 @@ const envVarsSchema = Joi.object()
     ETAS_CLIENT_SECRET: Joi.string().description('ETAS client secret'),
     ETAS_SCOPE: Joi.string().description('ETAS scope'),
     ETAS_INSTANCE_ENDPOINT: Joi.string().description('ETAS instance endpoint'),
+    ETAS_DEV_INSTANCE_ENDPOINT: Joi.string().description('ETAS dev instance endpoint'),
     // Certivity
     CERTIVITY_CLIENT_ID: Joi.string().required().description('Certivity client id'),
     CERTIVITY_CLIENT_SECRET: Joi.string().required().description('Certivity client secret'),
@@ -150,6 +151,7 @@ const config = {
     clientSecret: envVars.ETAS_CLIENT_SECRET,
     scope: envVars.ETAS_SCOPE,
     instanceEndpoint: envVars.ETAS_INSTANCE_ENDPOINT,
+    developmentEndpoint: envVars.ETAS_DEV_INSTANCE_ENDPOINT,
   },
   githubIssueSubmitUrl: 'https://api.github.com/repos/digital-auto/vehicle_signal_specification/issues',
   certivity: {

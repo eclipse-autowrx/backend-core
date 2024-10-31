@@ -37,4 +37,13 @@ router.post(
   genaiController.generateAIContent
 );
 
+router.post(
+  '/etas/:environment',
+  auth({
+    optional: !config.strictAuth,
+  }),
+  genaiPermission,
+  genaiController.generateAIContent
+);
+
 module.exports = router;

@@ -170,8 +170,8 @@ async function BedrockGenCode({ endpointURL, publicKey, secretKey, inputPrompt, 
       }
     }
   } catch (error) {
-    console.log("Error in BedrockGenCode");
-    console.log(error)
+    console.log('Error in BedrockGenCode');
+    console.log(error);
     try {
       const bedrockResponse = await bedrock.send(new InvokeModelCommand(input));
       const response = JSON.parse(new TextDecoder().decode(bedrockResponse.body));
@@ -254,8 +254,20 @@ const getAccessToken = async () => {
   }
 };
 
+const getInstance = (environment = 'prod') => {
+  switch (environment) {
+    case 'prod':
+      return config.etas.instanceEndpoint;
+    case 'dev':
+      return config.etas.developmentEndpoint;
+    default:
+      return config.etas.instanceEndpoint;
+  }
+};
+
 const generateAIContent = async (req, res) => {
   try {
+    const { environment } = req.params;
     const { prompt } = req.body;
     const authorizationData = etasAuthorizationData.getAuthorizationData();
     let token = authorizationData.accessToken;
@@ -268,7 +280,7 @@ const generateAIContent = async (req, res) => {
       });
     }
 
-    const instance = config.etas.instanceEndpoint;
+    const instance = getInstance(environment);
 
     setupClient(token);
 
