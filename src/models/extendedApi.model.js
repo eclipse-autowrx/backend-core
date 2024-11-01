@@ -40,6 +40,10 @@ const extendedApiSchema = mongoose.Schema(
     },
     description: String,
     tags: [tagSchema],
+    isWishlist: {
+      type: Boolean,
+      default: false
+    }
   },
   {
     timestamps: true,

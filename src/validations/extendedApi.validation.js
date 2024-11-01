@@ -15,6 +15,7 @@ const createExtendedApi = {
         description: Joi.string().allow(''),
       })
     ),
+    isWishlist: Joi.boolean().default(false),
   }),
 };
 
@@ -53,6 +54,7 @@ const updateExtendedApi = {
           description: Joi.string().allow(''),
         })
       ),
+      isWishlist: Joi.boolean(),
     })
     .min(1),
 };
