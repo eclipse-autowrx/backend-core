@@ -34,6 +34,7 @@ const main = async () => {
         type: custom_api.type || 'branch',
         datatype: custom_api.datatype || (custom_api.type !== 'branch' ? 'string' : null),
         description: custom_api.description || '',
+        isWishlist: true
       };
       promises.push(db.collection('extendedapis').insertOne(newData));
     });
