@@ -32,9 +32,9 @@ const init = (server) => {
             if (error || !user) {
               return next(new ApiError(httpStatus.UNAUTHORIZED, 'Please authenticate'));
             }
-            if (!(await permissionService.hasPermission(user.id, PERMISSIONS.GENERATIVE_AI))) {
-              return next(new ApiError(httpStatus.UNAUTHORIZED, 'You are not authorized to access this'));
-            }
+            // if (!(await permissionService.hasPermission(user.id, PERMISSIONS.GENERATIVE_AI)))
+            //   return next(new ApiError(httpStatus.UNAUTHORIZED, 'You are not authorized to access this'));
+            // }
             socket.user = user;
             next();
           }

@@ -4,7 +4,11 @@ const findSocketByUser = (userId) => {
   const io = getIO();
   let socket = null;
   io.sockets.sockets.forEach((value) => {
-    if (String(value.request._query.userId) === String(userId)) {
+    const user = value.user;
+    if (!user) {
+      return;
+    }
+    if (String(user._id) === String(userId)) {
       socket = value;
     }
   });

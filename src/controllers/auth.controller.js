@@ -77,6 +77,7 @@ const githubCallback = catchAsync(async (req, res) => {
     await authService.githubCallback(code, userId);
     res.redirect(`${origin || 'http://127.0.0.1:3000'}/auth/github/success`);
   } catch (error) {
+    logger.error(error);
     res.status(httpStatus.UNAUTHORIZED).send('Unauthorized. Please try again.');
   }
 });
