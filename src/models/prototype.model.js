@@ -32,6 +32,9 @@ const descriptionSchema = mongoose.Schema(
       type: String,
       max: 255,
     },
+    text: {
+      type: String,
+    },
   },
   {
     _id: false,
