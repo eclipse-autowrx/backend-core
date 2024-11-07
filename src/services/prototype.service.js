@@ -149,7 +149,8 @@ const listRecentPrototypes = async (userId) => {
 
   const prototypes = await Prototype.find({ _id: { $in: Array.from(prototypeMap.keys()) } })
     .select('name model_id description image_file executed_turns')
-    .populate('model', 'name visibility');
+    .populate('model', 'name visibility')
+    .populate('created_by', 'name image_file');
 
   const results = [];
   recentData.forEach((data) => {
@@ -194,7 +195,8 @@ const listPopularPrototypes = async () => {
     .sort({ executed_turns: -1 })
     .limit(8)
     .select('name model_id description image_file executed_turns')
-    .populate('model', 'name visibility');
+    .populate('model', 'name visibility')
+    .populate('created_by', 'name image_file');
 };
 
 module.exports = {
