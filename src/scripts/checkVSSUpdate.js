@@ -42,9 +42,15 @@ const checkUpdateVSS = async () => {
   try {
     const vssReleases = (await axios.get('https://api.github.com/repos/COVESA/vehicle_signal_specification/releases')).data;
     setLastCheckTime();
+    const regex = /v(\d+\.\d+)/;
 
     const filtered = vssReleases
-      ?.filter((release) => !(release.name && release.name.includes('rc')))
+      ?.filter((release) => {
+        const match = release.name.match(regex);
+        if (match) {
+          return Number(match[1]) >= 3.0;
+        }
+      })
       ?.map((release) => {
         return {
           name: release.name,
