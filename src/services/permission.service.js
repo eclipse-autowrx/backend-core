@@ -135,7 +135,9 @@ const getMappedRoles = (roles) => {
 // Check if the role map contains the permission
 const containsPermission = (roleMap, permission, id) => {
   const stringId = String(id);
+  // In case user is admin, have access to all type of resources
   const firstCondition = roleMap.has('*') && roleMap.get('*').includes(permission);
+  // In case user has access to specific resource
   const secondCondition = roleMap.has(stringId) && roleMap.get(stringId).includes(permission);
   return firstCondition || secondCondition;
 };
@@ -154,7 +156,7 @@ const checkModelPermission = (model, userId, permission) => {
 };
 
 const checkPrototypePermission = (prototype, userId, permission) => {
-  if (String(prototype.created_by) === String(userId)) {
+  if (String(prototype.created_by) === String(userId) || String(prototype.model_id?.created_by) === String(userId)) {
     return true;
   }
 
