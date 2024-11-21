@@ -7,21 +7,21 @@ const config = require('../../config/config');
 
 const router = express.Router();
 
-if (config.env === 'development') {
-  router.route('').post(
-    validate(emailValidation.sendEmail),
-    catchAsync(async (req, res) => {
-      const { to, subject, content } = req.body;
-      let html;
-      try {
-        html = decodeURIComponent(content);
-      } catch (error) {
-        html = content;
-      }
-      await emailService.sendEmail(to, subject, html);
-      res.status(200).send();
-    })
-  );
-}
+// if (config.env === 'development') {
+//   router.route('').post(
+//     validate(emailValidation.sendEmail),
+//     catchAsync(async (req, res) => {
+//       const { to, subject, content } = req.body;
+//       let html;
+//       try {
+//         html = decodeURIComponent(content);
+//       } catch (error) {
+//         html = content;
+//       }
+//       await emailService.sendEmail(to, subject, html);
+//       res.status(200).send();
+//     })
+//   );
+// }
 
 module.exports = router;
