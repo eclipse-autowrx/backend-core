@@ -199,6 +199,9 @@ const prototypeSchema = mongoose.Schema(
     requirements: {
       type: String,
     },
+    flow: {
+      type: mongoose.SchemaTypes.Mixed,
+    },
   },
   {
     timestamps: true,
