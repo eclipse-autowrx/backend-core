@@ -79,6 +79,7 @@ const getPrototype = {
 
 const updatePrototype = {
   body: Joi.object().keys({
+    flow: Joi.any(),
     extend: Joi.any(),
     state: Joi.string().allow(...Object.values(stateTypes)),
     apis: Joi.object().keys({
