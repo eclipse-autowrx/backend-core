@@ -92,7 +92,7 @@ const config = {
       secure: true,
       httpOnly: true,
       sameSite: 'None',
-      domain: '.digital.auto',
+      // domain: '.digital.auto',
     },
   },
   email: {
