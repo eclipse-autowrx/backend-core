@@ -48,8 +48,11 @@ const login = catchAsync(async (req, res) => {
 
 const logout = catchAsync(async (req, res) => {
   await authService.logout(req.cookies.token);
-  res.clearCookie('token');
   res.clearCookie('token', {
+    ...config.jwt.cookieRefreshOptions,
+  });
+  res.clearCookie('token', {
+    ...config.jwt.cookieRefreshOptions,
     domain: config.jwt.cookieDomain,
   });
   res.status(httpStatus.NO_CONTENT).send();
