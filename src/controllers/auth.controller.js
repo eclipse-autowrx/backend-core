@@ -10,9 +10,9 @@ const getCookieDomain = (referer) => {
   try {
     const hostname = new URL(referer).hostname;
     if (hostname && hostname !== 'localhost' && hostname !== '127.0.0.1') {
-      return {
-        domain: config.jwt.cookieDomain,
-      };
+      // return {
+      //   domain: config.jwt.cookieDomain,
+      // };
     }
   } catch (error) {}
 };
@@ -54,6 +54,10 @@ const logout = catchAsync(async (req, res) => {
   res.clearCookie('token', {
     ...config.jwt.cookieRefreshOptions,
     domain: config.jwt.cookieDomain,
+  });
+  res.clearCookie('token', {
+    ...config.jwt.cookieRefreshOptions,
+    domain: 'backend-core-dev.digital.auto',
   });
   res.status(httpStatus.NO_CONTENT).send();
 });
