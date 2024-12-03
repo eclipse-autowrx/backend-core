@@ -92,8 +92,8 @@ const config = {
       secure: true,
       httpOnly: true,
       sameSite: 'None',
-      // domain: '.digital.auto',
     },
+    cookieDomain: '.digital.auto',
   },
   email: {
     smtp: {

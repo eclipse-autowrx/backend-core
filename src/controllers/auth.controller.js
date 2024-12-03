@@ -6,6 +6,17 @@ const ApiError = require('../utils/ApiError');
 const logger = require('../config/logger');
 const image = require('../utils/image');
 
+const getCookieDomain = (referer) => {
+  try {
+    const hostname = new URL(req.header('referer')).hostname;
+    if (hostname && hostname !== 'localhost' && hostname !== '127.0.0.1') {
+      return {
+        domain: config.jwt.cookieDomain,
+      };
+    }
+  } catch (error) {}
+};
+
 const register = catchAsync(async (req, res) => {
   const user = await userService.createUser({
     ...req.body,
@@ -15,7 +26,9 @@ const register = catchAsync(async (req, res) => {
   res.cookie('token', tokens.refresh.token, {
     expires: tokens.refresh.expires,
     ...config.jwt.cookieRefreshOptions,
+    ...getCookieDomain(req.header('referer')),
   });
+
   delete tokens.refresh;
   res.status(httpStatus.CREATED).send({ user, tokens });
 });
@@ -27,6 +40,7 @@ const login = catchAsync(async (req, res) => {
   res.cookie('token', tokens.refresh.token, {
     expires: tokens.refresh.expires,
     ...config.jwt.cookieRefreshOptions,
+    ...getCookieDomain(req.header('referer')),
   });
   delete tokens.refresh;
   res.send({ user, tokens });
@@ -43,6 +57,7 @@ const refreshTokens = catchAsync(async (req, res) => {
   res.cookie('token', tokens.refresh.token, {
     expires: tokens.refresh.expires,
     ...config.jwt.cookieRefreshOptions,
+    ...getCookieDomain(req.header('referer')),
   });
   delete tokens.refresh;
 
@@ -104,6 +119,7 @@ const sso = catchAsync(async (req, res) => {
   res.cookie('token', tokens.refresh.token, {
     expires: tokens.refresh.expires,
     ...config.jwt.cookieRefreshOptions,
+    ...getCookieDomain(req.header('referer')),
   });
   delete tokens.refresh;
 
