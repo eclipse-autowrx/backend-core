@@ -8,7 +8,7 @@ const image = require('../utils/image');
 
 const getCookieDomain = (referer) => {
   try {
-    const hostname = new URL(req.header('referer')).hostname;
+    const hostname = new URL(referer).hostname;
     if (hostname && hostname !== 'localhost' && hostname !== '127.0.0.1') {
       return {
         domain: config.jwt.cookieDomain,
