@@ -11,9 +11,9 @@ const register = catchAsync(async (req, res) => {
     provider: req.body?.provider || 'Email',
   });
   const tokens = await tokenService.generateAuthTokens(user);
-  res.cookie('token-shared', tokens.refresh.token, {
+  res.cookie(config.jwt.cookie.name, tokens.refresh.token, {
     expires: tokens.refresh.expires,
-    ...config.jwt.cookieRefreshOptions,
+    ...config.jwt.cookie.options,
   });
 
   delete tokens.refresh;
@@ -24,32 +24,28 @@ const login = catchAsync(async (req, res) => {
   const { email, password } = req.body;
   const user = await authService.loginUserWithEmailAndPassword(email, password);
   const tokens = await tokenService.generateAuthTokens(user);
-  res.cookie('token-shared', tokens.refresh.token, {
+  res.cookie(config.jwt.cookie.name, tokens.refresh.token, {
     expires: tokens.refresh.expires,
-    ...config.jwt.cookieRefreshOptions,
+    ...config.jwt.cookie.options,
   });
   delete tokens.refresh;
   res.send({ user, tokens });
 });
 
 const logout = catchAsync(async (req, res) => {
-  await authService.logout(req.cookies['token-shared']);
-  res.clearCookie('token-shared');
-  res.clearCookie('token-shared', {
-    ...config.jwt.cookieRefreshOptions,
-  });
-  res.clearCookie('token-shared', {
-    ...config.jwt.cookieRefreshOptions,
-    domain: 'backend-core-dev.digital.auto',
+  await authService.logout(req.cookies[config.jwt.cookie.name]);
+  res.clearCookie(config.jwt.cookie.name);
+  res.clearCookie(config.jwt.cookie.name, {
+    ...config.jwt.cookie.options,
   });
   res.status(httpStatus.NO_CONTENT).send();
 });
 
 const refreshTokens = catchAsync(async (req, res) => {
-  const tokens = await authService.refreshAuth(req.cookies['token-shared']);
-  res.cookie('token-shared', tokens.refresh.token, {
+  const tokens = await authService.refreshAuth(req.cookies[config.jwt.cookie.name]);
+  res.cookie(config.jwt.cookie.name, tokens.refresh.token, {
     expires: tokens.refresh.expires,
-    ...config.jwt.cookieRefreshOptions,
+    ...config.jwt.cookie.options,
   });
   delete tokens.refresh;
 
@@ -108,9 +104,9 @@ const sso = catchAsync(async (req, res) => {
   }
 
   const tokens = await tokenService.generateAuthTokens(user);
-  res.cookie('token-shared', tokens.refresh.token, {
+  res.cookie(config.jwt.cookie.name, tokens.refresh.token, {
     expires: tokens.refresh.expires,
-    ...config.jwt.cookieRefreshOptions,
+    ...config.jwt.cookie.options,
   });
   delete tokens.refresh;
 
