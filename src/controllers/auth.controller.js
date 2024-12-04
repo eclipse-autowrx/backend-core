@@ -72,6 +72,7 @@ const forgotPassword = catchAsync(async (req, res) => {
       type: 'forgot_password',
       created_by: req.body.email,
       description: `User with email ${req.body.email} has triggered forgot password flow`,
+      origin: req.get('referer'),
     });
   } catch (error) {
     logger.warn(`Failed to create log - forgot password log: ${error}`);
@@ -79,8 +80,22 @@ const forgotPassword = catchAsync(async (req, res) => {
 });
 
 const resetPassword = catchAsync(async (req, res) => {
-  await authService.resetPassword(req.query.token, req.body.password);
+  const user = await authService.resetPassword(req.query.token, req.body.password);
   res.status(httpStatus.NO_CONTENT).send();
+
+  try {
+    await logService.createLog({
+      name: 'Password reset',
+      type: 'password_reset',
+      created_by: user.email || user.id || user._id,
+      description: `User with email ${user.email}, id ${user.id || user._id} has reset their password`,
+      ref_type: 'user',
+      ref_id: user.id || user._id,
+      origin: req.get('referer'),
+    });
+  } catch (error) {
+    logger.warn(`Failed to create log: ${error}`);
+  }
 });
 
 const sendVerificationEmail = catchAsync(async (req, res) => {
