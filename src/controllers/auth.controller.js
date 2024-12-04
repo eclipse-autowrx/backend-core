@@ -4,18 +4,6 @@ const { authService, userService, tokenService, emailService } = require('../ser
 const config = require('../config/config');
 const ApiError = require('../utils/ApiError');
 const logger = require('../config/logger');
-const image = require('../utils/image');
-
-const getCookieDomain = (referer) => {
-  try {
-    const hostname = new URL(referer).hostname;
-    if (hostname && hostname !== 'localhost' && hostname !== '127.0.0.1') {
-      // return {
-      //   domain: config.jwt.cookieDomain,
-      // };
-    }
-  } catch (error) {}
-};
 
 const register = catchAsync(async (req, res) => {
   const user = await userService.createUser({
@@ -26,7 +14,6 @@ const register = catchAsync(async (req, res) => {
   res.cookie('token', tokens.refresh.token, {
     expires: tokens.refresh.expires,
     ...config.jwt.cookieRefreshOptions,
-    ...getCookieDomain(req.header('referer')),
   });
 
   delete tokens.refresh;
@@ -40,7 +27,6 @@ const login = catchAsync(async (req, res) => {
   res.cookie('token', tokens.refresh.token, {
     expires: tokens.refresh.expires,
     ...config.jwt.cookieRefreshOptions,
-    ...getCookieDomain(req.header('referer')),
   });
   delete tokens.refresh;
   res.send({ user, tokens });
@@ -48,12 +34,9 @@ const login = catchAsync(async (req, res) => {
 
 const logout = catchAsync(async (req, res) => {
   await authService.logout(req.cookies.token);
+  res.clearCookie('token');
   res.clearCookie('token', {
     ...config.jwt.cookieRefreshOptions,
-  });
-  res.clearCookie('token', {
-    ...config.jwt.cookieRefreshOptions,
-    domain: config.jwt.cookieDomain,
   });
   res.clearCookie('token', {
     ...config.jwt.cookieRefreshOptions,
@@ -67,7 +50,6 @@ const refreshTokens = catchAsync(async (req, res) => {
   res.cookie('token', tokens.refresh.token, {
     expires: tokens.refresh.expires,
     ...config.jwt.cookieRefreshOptions,
-    ...getCookieDomain(req.header('referer')),
   });
   delete tokens.refresh;
 
@@ -129,7 +111,6 @@ const sso = catchAsync(async (req, res) => {
   res.cookie('token', tokens.refresh.token, {
     expires: tokens.refresh.expires,
     ...config.jwt.cookieRefreshOptions,
-    ...getCookieDomain(req.header('referer')),
   });
   delete tokens.refresh;
 
