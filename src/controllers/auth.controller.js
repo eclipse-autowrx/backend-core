@@ -67,13 +67,20 @@ const forgotPassword = catchAsync(async (req, res) => {
   res.status(httpStatus.NO_CONTENT).send();
 
   try {
-    await logService.createLog({
-      name: 'Forgot password',
-      type: 'forgot_password',
-      created_by: req.body.email,
-      description: `User with email ${req.body.email} has triggered forgot password flow`,
-      origin: req.get('referer'),
-    });
+    await logService.createLog(
+      {
+        name: 'Forgot password',
+        type: 'forgot_password',
+        created_by: req.body.email,
+        description: `User with email ${req.body.email} has triggered forgot password flow`,
+      },
+      {
+        headers: {
+          origin: req.get('origin'),
+          referer: req.get('referer'),
+        },
+      }
+    );
   } catch (error) {
     logger.warn(`Failed to create log - forgot password log: ${error}`);
   }
@@ -84,15 +91,22 @@ const resetPassword = catchAsync(async (req, res) => {
   res.status(httpStatus.NO_CONTENT).send();
 
   try {
-    await logService.createLog({
-      name: 'Password reset',
-      type: 'password_reset',
-      created_by: user.email || user.id || user._id,
-      description: `User with email ${user.email}, id ${user.id || user._id} has reset their password`,
-      ref_type: 'user',
-      ref_id: user.id || user._id,
-      origin: req.get('referer'),
-    });
+    await logService.createLog(
+      {
+        name: 'Password reset',
+        type: 'password_reset',
+        created_by: user.email || user.id || user._id,
+        description: `User with email ${user.email}, id ${user.id || user._id} has reset their password`,
+        ref_type: 'user',
+        ref_id: user.id || user._id,
+      },
+      {
+        headers: {
+          origin: req.get('origin'),
+          referer: req.get('referer'),
+        },
+      }
+    );
   } catch (error) {
     logger.warn(`Failed to create log: ${error}`);
   }

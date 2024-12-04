@@ -12,12 +12,11 @@ const { logAxios } = require('../config/axios');
  * project_id?: string
  * image?: string
  * description?: string
- * origin?: string
  * }} message
  * @returns
  */
-const createLog = async (message) => {
-  return (await logAxios.post('/', message)).data;
+const createLog = async (message, options) => {
+  return (await logAxios.post('/', message, options)).data;
 };
 
 module.exports = {
