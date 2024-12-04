@@ -2,6 +2,7 @@ const axios = require('axios');
 const httpStatus = require('http-status');
 const tokenService = require('./token.service');
 const userService = require('./user.service');
+const logService = require('./log.service');
 const Token = require('../models/token.model');
 const ApiError = require('../utils/ApiError');
 const { tokenTypes } = require('../config/tokens');
@@ -101,12 +102,24 @@ const refreshAuth = async (refreshToken) => {
  */
 const resetPassword = async (resetPasswordToken, newPassword) => {
   const resetPasswordTokenDoc = await tokenService.verifyToken(resetPasswordToken, tokenTypes.RESET_PASSWORD);
-  const user = await userService.getUserById(resetPasswordTokenDoc.user);
+  const user = await userService.getUserById(resetPasswordTokenDoc.user, true);
   if (!user) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Password reset failed');
   }
   await userService.updateUserById(user.id, { password: newPassword });
   await Token.deleteMany({ user: user.id, type: tokenTypes.RESET_PASSWORD });
+  try {
+    await logService.createLog({
+      name: 'Password reset',
+      type: 'password_reset',
+      created_by: user.email || user.id || user._id,
+      description: `User with email ${user.email}, id ${user.id || user._id} has reset their password`,
+      ref_type: 'user',
+      ref_id: user.id || user._id,
+    });
+  } catch (error) {
+    logger.warn(`Failed to create log: ${error}`);
+  }
 };
 
 /**
