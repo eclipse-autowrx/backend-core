@@ -18,6 +18,8 @@ const envVarsSchema = Joi.object()
     JWT_VERIFY_EMAIL_EXPIRATION_MINUTES: Joi.number()
       .default(10)
       .description('minutes after which verify email token expires'),
+    JWT_COOKIE_NAME: Joi.string().required().description('JWT cookie name'),
+    JWT_COOKIE_DOMAIN: Joi.string().required().description('JWT cookie domain'),
     SMTP_HOST: Joi.string().description('server that will send the emails'),
     SMTP_PORT: Joi.number().description('port to connect to the email server'),
     SMTP_USERNAME: Joi.string().description('username for email server'),
@@ -88,12 +90,15 @@ const config = {
     refreshExpirationDays: envVars.JWT_REFRESH_EXPIRATION_DAYS,
     resetPasswordExpirationMinutes: envVars.JWT_RESET_PASSWORD_EXPIRATION_MINUTES,
     verifyEmailExpirationMinutes: envVars.JWT_VERIFY_EMAIL_EXPIRATION_MINUTES,
-    cookieRefreshOptions: {
-      secure: true,
-      httpOnly: true,
-      sameSite: 'None',
+    cookie: {
+      name: envVars.JWT_COOKIE_NAME,
+      options: {
+        secure: true,
+        httpOnly: true,
+        sameSite: 'None',
+        ...(envVars.NODE_ENV === 'production' && { domain: envVars.JWT_COOKIE_DOMAIN }),
+      },
     },
-    cookieDomain: '.digital.auto',
   },
   email: {
     smtp: {

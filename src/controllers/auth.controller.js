@@ -4,18 +4,6 @@ const { authService, userService, tokenService, emailService } = require('../ser
 const config = require('../config/config');
 const ApiError = require('../utils/ApiError');
 const logger = require('../config/logger');
-const image = require('../utils/image');
-
-const getCookieDomain = (referer) => {
-  try {
-    const hostname = new URL(referer).hostname;
-    if (hostname && hostname !== 'localhost' && hostname !== '127.0.0.1') {
-      // return {
-      //   domain: config.jwt.cookieDomain,
-      // };
-    }
-  } catch (error) {}
-};
 
 const register = catchAsync(async (req, res) => {
   const user = await userService.createUser({
@@ -23,10 +11,9 @@ const register = catchAsync(async (req, res) => {
     provider: req.body?.provider || 'Email',
   });
   const tokens = await tokenService.generateAuthTokens(user);
-  res.cookie('token', tokens.refresh.token, {
+  res.cookie(config.jwt.cookie.name, tokens.refresh.token, {
     expires: tokens.refresh.expires,
-    ...config.jwt.cookieRefreshOptions,
-    ...getCookieDomain(req.header('referer')),
+    ...config.jwt.cookie.options,
   });
 
   delete tokens.refresh;
@@ -37,37 +24,28 @@ const login = catchAsync(async (req, res) => {
   const { email, password } = req.body;
   const user = await authService.loginUserWithEmailAndPassword(email, password);
   const tokens = await tokenService.generateAuthTokens(user);
-  res.cookie('token', tokens.refresh.token, {
+  res.cookie(config.jwt.cookie.name, tokens.refresh.token, {
     expires: tokens.refresh.expires,
-    ...config.jwt.cookieRefreshOptions,
-    ...getCookieDomain(req.header('referer')),
+    ...config.jwt.cookie.options,
   });
   delete tokens.refresh;
   res.send({ user, tokens });
 });
 
 const logout = catchAsync(async (req, res) => {
-  await authService.logout(req.cookies.token);
-  res.clearCookie('token', {
-    ...config.jwt.cookieRefreshOptions,
-  });
-  res.clearCookie('token', {
-    ...config.jwt.cookieRefreshOptions,
-    domain: config.jwt.cookieDomain,
-  });
-  res.clearCookie('token', {
-    ...config.jwt.cookieRefreshOptions,
-    domain: 'backend-core-dev.digital.auto',
+  await authService.logout(req.cookies[config.jwt.cookie.name]);
+  res.clearCookie(config.jwt.cookie.name);
+  res.clearCookie(config.jwt.cookie.name, {
+    ...config.jwt.cookie.options,
   });
   res.status(httpStatus.NO_CONTENT).send();
 });
 
 const refreshTokens = catchAsync(async (req, res) => {
-  const tokens = await authService.refreshAuth(req.cookies.token);
-  res.cookie('token', tokens.refresh.token, {
+  const tokens = await authService.refreshAuth(req.cookies[config.jwt.cookie.name]);
+  res.cookie(config.jwt.cookie.name, tokens.refresh.token, {
     expires: tokens.refresh.expires,
-    ...config.jwt.cookieRefreshOptions,
-    ...getCookieDomain(req.header('referer')),
+    ...config.jwt.cookie.options,
   });
   delete tokens.refresh;
 
@@ -126,10 +104,9 @@ const sso = catchAsync(async (req, res) => {
   }
 
   const tokens = await tokenService.generateAuthTokens(user);
-  res.cookie('token', tokens.refresh.token, {
+  res.cookie(config.jwt.cookie.name, tokens.refresh.token, {
     expires: tokens.refresh.expires,
-    ...config.jwt.cookieRefreshOptions,
-    ...getCookieDomain(req.header('referer')),
+    ...config.jwt.cookie.options,
   });
   delete tokens.refresh;
 
