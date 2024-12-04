@@ -11,7 +11,7 @@ const register = catchAsync(async (req, res) => {
     provider: req.body?.provider || 'Email',
   });
   const tokens = await tokenService.generateAuthTokens(user);
-  res.cookie('token', tokens.refresh.token, {
+  res.cookie('token-shared', tokens.refresh.token, {
     expires: tokens.refresh.expires,
     ...config.jwt.cookieRefreshOptions,
   });
@@ -24,7 +24,7 @@ const login = catchAsync(async (req, res) => {
   const { email, password } = req.body;
   const user = await authService.loginUserWithEmailAndPassword(email, password);
   const tokens = await tokenService.generateAuthTokens(user);
-  res.cookie('token', tokens.refresh.token, {
+  res.cookie('token-shared', tokens.refresh.token, {
     expires: tokens.refresh.expires,
     ...config.jwt.cookieRefreshOptions,
   });
@@ -33,12 +33,12 @@ const login = catchAsync(async (req, res) => {
 });
 
 const logout = catchAsync(async (req, res) => {
-  await authService.logout(req.cookies.token);
-  res.clearCookie('token');
-  res.clearCookie('token', {
+  await authService.logout(req.cookies['token-shared']);
+  res.clearCookie('token-shared');
+  res.clearCookie('token-shared', {
     ...config.jwt.cookieRefreshOptions,
   });
-  res.clearCookie('token', {
+  res.clearCookie('token-shared', {
     ...config.jwt.cookieRefreshOptions,
     domain: 'backend-core-dev.digital.auto',
   });
@@ -46,8 +46,8 @@ const logout = catchAsync(async (req, res) => {
 });
 
 const refreshTokens = catchAsync(async (req, res) => {
-  const tokens = await authService.refreshAuth(req.cookies.token);
-  res.cookie('token', tokens.refresh.token, {
+  const tokens = await authService.refreshAuth(req.cookies['token-shared']);
+  res.cookie('token-shared', tokens.refresh.token, {
     expires: tokens.refresh.expires,
     ...config.jwt.cookieRefreshOptions,
   });
@@ -108,7 +108,7 @@ const sso = catchAsync(async (req, res) => {
   }
 
   const tokens = await tokenService.generateAuthTokens(user);
-  res.cookie('token', tokens.refresh.token, {
+  res.cookie('token-shared', tokens.refresh.token, {
     expires: tokens.refresh.expires,
     ...config.jwt.cookieRefreshOptions,
   });
