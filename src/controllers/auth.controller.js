@@ -81,7 +81,7 @@ const forgotPassword = catchAsync(async (req, res) => {
   try {
     const hostname = new URL(req.get('referer')).hostname;
     if (hostname === 'auth.digital.auto') {
-      domain = 'https://auth.digital.auto';
+      domain = hostname;
     }
   } catch (error) {}
 
