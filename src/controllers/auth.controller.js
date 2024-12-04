@@ -54,7 +54,16 @@ const refreshTokens = catchAsync(async (req, res) => {
 
 const forgotPassword = catchAsync(async (req, res) => {
   const resetPasswordToken = await tokenService.generateResetPasswordToken(req.body.email);
-  await emailService.sendResetPasswordEmail(req.body.email, resetPasswordToken);
+
+  let domain = undefined;
+  try {
+    const hostname = new URL(req.get('referer')).hostname;
+    if (hostname === 'auth.digital.auto') {
+      domain = hostname;
+    }
+  } catch (error) {}
+
+  await emailService.sendResetPasswordEmail(req.body.email, resetPasswordToken, domain);
   res.status(httpStatus.NO_CONTENT).send();
 });
 

@@ -40,10 +40,10 @@ const sendEmail = async (to, subject, html) => {
  * @param {string} token
  * @returns {Promise}
  */
-const sendResetPasswordEmail = async (to, token) => {
+const sendResetPasswordEmail = async (to, token, domain) => {
   const subject = 'Reset password';
   // replace this url with the link to the reset password page of your front-end app
-  const resetPasswordUrl = `${config.client.baseUrl}/reset-password?token=${token}`;
+  const resetPasswordUrl = `${domain || config.client.baseUrl}/reset-password?token=${token}`;
   const html = resetPasswordTemplate(to, resetPasswordUrl);
   await sendEmail(to, subject, html);
 };
