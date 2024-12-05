@@ -21,6 +21,9 @@ const PERMISSIONS = {
   // read assets,
   READ_ASSET: 'readAsset',
   WRITE_ASSET: 'writeAsset',
+
+  // deploy hardware
+  DEPLOY_HARDWARE: 'deployHardware',
 };
 
 const PERMISSIONS_DESCRIPTION = {
@@ -29,6 +32,7 @@ const PERMISSIONS_DESCRIPTION = {
   [PERMISSIONS.READ_MODEL]: 'Read model',
   [PERMISSIONS.WRITE_MODEL]: 'Write model',
   [PERMISSIONS.GENERATIVE_AI]: 'Generative AI',
+  [PERMISSIONS.DEPLOY_HARDWARE]: 'Deploy hardware',
 };
 
 // The role here is applied for the resources that the user is not the owner of
@@ -64,6 +68,7 @@ const ROLES = {
       PERMISSIONS.GENERATIVE_AI,
       PERMISSIONS.READ_ASSET,
       PERMISSIONS.WRITE_ASSET,
+      PERMISSIONS.DEPLOY_HARDWARE,
     ],
     ref: 'admin',
     name: 'Admin',
@@ -77,6 +82,11 @@ const ROLES = {
     permissions: [PERMISSIONS.READ_ASSET, PERMISSIONS.WRITE_ASSET],
     ref: 'write_asset',
     name: 'Write asset',
+  },
+  deploy_hardware: {
+    permissions: [PERMISSIONS.DEPLOY_HARDWARE],
+    ref: 'deploy_hardware',
+    name: 'Deploy hardware',
   },
 };
 
