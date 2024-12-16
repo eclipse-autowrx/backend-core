@@ -87,8 +87,14 @@ const forgotPassword = catchAsync(async (req, res) => {
 });
 
 const resetPassword = catchAsync(async (req, res) => {
-  const user = await authService.resetPassword(req.query.token, req.body.password);
-  res.status(httpStatus.NO_CONTENT).send();
+  let user;
+  try {
+    user = await authService.resetPassword(req.query.token, req.body.password);
+  } catch (error) {
+    logger.info(`Failed to reset password: ${error}`);
+  } finally {
+    res.status(httpStatus.NO_CONTENT).send();
+  }
 
   try {
     await logService.createLog(
