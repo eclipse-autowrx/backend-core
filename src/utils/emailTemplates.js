@@ -43,7 +43,7 @@ const resetPasswordTemplate = (fullName, link) => `
               " href="${link}">Reset Password</a>
           </button>
           <p>
-            or <a href="${link}">click here</a> if you cannot open the page.
+            or <a href="${link}">click here</a> to reset password if you cannot open the page.
           </p>
           <p>
             If you did not reset your password, you should visit
