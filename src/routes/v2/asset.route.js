@@ -14,6 +14,10 @@ router
   .get(auth(), validate(assetValidation.getAssets), assetController.getAssets);
 
 router
+  .route('/manage')
+  .get(auth(), checkPermission(PERMISSIONS.ADMIN), validate(assetValidation.getAssets), assetController.getAllAssets);
+
+router
   .route('/:id')
   .get(
     auth(),
