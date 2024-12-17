@@ -14,6 +14,20 @@ const createPrototype = catchAsync(async (req, res) => {
   res.status(201).send(prototypeId);
 });
 
+const bulkCreatePrototypes = catchAsync(async (req, res) => {
+  const modelIds = new Set(req.body.map((prototype) => prototype.model_id));
+  if (modelIds.size !== 1) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'All prototypes must belong to the same model');
+  }
+
+  if (!(await permissionService.hasPermission(req.user.id, PERMISSIONS.READ_MODEL, modelIds.values().next().value))) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
+  }
+
+  const prototypeIds = await prototypeService.bulkCreatePrototypes(req.user.id, req.body);
+  res.status(201).send(prototypeIds);
+});
+
 const listPrototypes = catchAsync(async (req, res) => {
   const readableModelIds = await permissionService.listReadableModelIds(req.user?.id);
 
@@ -78,4 +92,5 @@ module.exports = {
   listRecentPrototypes,
   listPopularPrototypes,
   executeCode,
+  bulkCreatePrototypes,
 };

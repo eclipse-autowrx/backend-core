@@ -30,6 +30,31 @@ const createPrototype = async (userId, prototypeBody) => {
 };
 
 /**
+ *
+ * @param {string} userId
+ * @param {Object[]} prototypes
+ * @returns {Promise<string>}create
+ */
+const bulkCreatePrototypes = async (userId, prototypes) => {
+  for (const prototype of prototypes) {
+    if (await Prototype.existsPrototypeInModel(prototype.model_id, prototype.name)) {
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        `Duplicate prototype name '${prototype.name}' in model ${prototype.model_id}`
+      );
+    }
+  }
+
+  const data = await Prototype.insertMany(
+    prototypes.map((prototype) => ({
+      ...prototype,
+      created_by: userId,
+    }))
+  );
+  return data.map((item) => item._id);
+};
+
+/**
  * Query for users
  * @param {Object} filter - Mongo filter
  * @param {Object} options - Query options
@@ -208,4 +233,5 @@ module.exports = {
   listRecentPrototypes,
   executeCode,
   listPopularPrototypes,
+  bulkCreatePrototypes,
 };
