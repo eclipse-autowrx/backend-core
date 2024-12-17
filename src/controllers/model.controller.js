@@ -55,6 +55,7 @@ const createModel = catchAsync(async (req, res) => {
               tags: api.tags || [],
               type: api.type || 'branch',
               datatype: api.datatype || (api.type !== 'branch' ? 'string' : null),
+              isWishlist: api.isWishlist || false,
             })
           )
         );
