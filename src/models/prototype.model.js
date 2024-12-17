@@ -92,7 +92,6 @@ const prototypeSchema = mongoose.Schema(
     },
     code: {
       type: String,
-      required: true,
       default:
         'from sdv_model import Vehicle import plugins from browser import aio vehicle = Vehicle() # write your code here',
     },
