@@ -4,6 +4,7 @@ const catchAsync = require('../utils/catchAsync');
 const pick = require('../utils/pick');
 const ApiError = require('../utils/ApiError');
 const { PERMISSIONS } = require('../config/roles');
+const logger = require('../config/logger');
 
 const createModel = catchAsync(async (req, res) => {
   const { cvi, custom_apis, extended_apis, ...reqBody } = req.body;
@@ -27,12 +28,13 @@ const createModel = catchAsync(async (req, res) => {
             tags: api.tags,
             type: api.type,
             datatype: api.datatype,
+            isWishlist: api.isWishlist || false,
           })
         )
       );
     }
   } catch (error) {
-    console.warn('Error in creating model with extended_apis', error);
+    logger.warn(`Error in creating model (creating extended_apis): ${error}`);
   }
 
   try {
@@ -62,7 +64,7 @@ const createModel = catchAsync(async (req, res) => {
       }
     }
   } catch (error) {
-    console.warn('Error in creating model with custom_apis', error);
+    logger.warn(`Error in creating model (creating extended_apis): ${error}`);
   }
 
   res.status(httpStatus.CREATED).send(model);
