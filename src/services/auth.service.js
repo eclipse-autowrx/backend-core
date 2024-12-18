@@ -49,11 +49,11 @@ const githubCallback = async (code, userId) => {
  */
 const loginUserWithEmailAndPassword = async (email, password) => {
   const user = await userService.getUserByEmail(email);
-  if (user.provider_user_id && !user.password) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Please login with SSO');
-  }
   if (!user || !(await user.isPasswordMatch(password))) {
     throw new ApiError(httpStatus.UNAUTHORIZED, 'Incorrect email or password');
+  }
+  if (user.provider_user_id && !user.password) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Please login with SSO');
   }
   return user;
 };
