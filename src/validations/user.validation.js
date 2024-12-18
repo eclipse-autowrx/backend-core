@@ -44,6 +44,7 @@ const getUsers = {
     limit: Joi.number().integer(),
     page: Joi.number().integer(),
     search: Joi.string(),
+    id: Joi.string(),
     includeFullDetails: Joi.boolean().default(false),
   }),
 };

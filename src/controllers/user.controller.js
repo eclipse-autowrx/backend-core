@@ -14,7 +14,8 @@ const createUser = catchAsync(async (req, res) => {
 const getUsers = catchAsync(async (req, res) => {
   const filter = pick(req.query, ['name', 'role']);
   const options = pick(req.query, ['sortBy', 'limit', 'page']);
-  const advanced = pick(req.query, ['search', 'includeFullDetails']);
+  const advanced = pick(req.query, ['search', 'includeFullDetails', 'id']);
+
   if (advanced.includeFullDetails) {
     // Check if has permission
     if (!(await permissionService.hasPermission(req.user?.id, PERMISSIONS.ADMIN))) {
