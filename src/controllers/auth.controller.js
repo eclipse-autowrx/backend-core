@@ -53,6 +53,8 @@ const refreshTokens = catchAsync(async (req, res) => {
 });
 
 const forgotPassword = catchAsync(async (req, res) => {
+  const returnRawToken = req.query.return_raw_token;
+
   const resetPasswordToken = await tokenService.generateResetPasswordToken(req.body.email);
 
   let domain = undefined;
@@ -63,8 +65,12 @@ const forgotPassword = catchAsync(async (req, res) => {
     }
   } catch (error) {}
 
-  await emailService.sendResetPasswordEmail(req.body.email, resetPasswordToken, domain);
-  res.status(httpStatus.NO_CONTENT).send();
+  if (returnRawToken) {
+    res.status(httpStatus.OK).send({ resetPasswordToken });
+  } else {
+    await emailService.sendResetPasswordEmail(req.body.email, resetPasswordToken, domain);
+    res.status(httpStatus.NO_CONTENT).send();
+  }
 
   try {
     await logService.createLog(
