@@ -7,6 +7,7 @@ const createModel = {
     extend: Joi.any(),
     custom_apis: Joi.string().custom(jsonString),
     api_version: Joi.string(),
+    api_data_url: Joi.string(),
     cvi: Joi.string().custom(jsonString),
     extended_apis: Joi.array().items(Joi.any()),
     main_api: Joi.string().required().max(255),

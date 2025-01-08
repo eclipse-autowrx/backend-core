@@ -5,6 +5,8 @@ const { Model, Role } = require('../models');
 const ApiError = require('../utils/ApiError');
 const { PERMISSIONS } = require('../config/roles');
 const mongoose = require('mongoose');
+const logger = require('../config/logger');
+const _ = require('lodash');
 
 /**
  *
@@ -319,10 +321,54 @@ const getAccessibleModels = async (userId) => {
 
 /**
  *
- * @param {string} userId
- * @returns {Promise<string[]>}
+ * @param {object} api
+ * @returns {object}
  */
-const listReadableModelIds = async (userId) => {};
+const convertToExtendedApiFormat = (api) => {
+  const { name, ...rest } = api;
+  return {
+    apiName: name,
+    ...rest,
+  };
+};
+
+/**
+ *
+ * @param {string} apiDataUrl
+ * @returns {Promise<{api_version: string; extended_apis: any[]} | undefined>}
+ */
+const processApiDataUrl = async (apiDataUrl) => {
+  try {
+    const response = await fetch(apiDataUrl);
+    const data = await response.json();
+    const wishlist = [];
+    Object.entries(data.Vehicle.children).forEach(([key, value]) => {
+      if (value.isWishlist) {
+        wishlist.push(convertToExtendedApiFormat(data.Vehicle.children[key]));
+        delete data.Vehicle.children[key];
+      }
+    });
+
+    const result = {};
+    if (wishlist.length > 0) {
+      result.extended_apis = wishlist;
+    }
+
+    const versionList = require('../../data/vss.json');
+    for (const version of versionList) {
+      const file = require(`../../data/${version.name}.json`);
+      const isEqual = _.isEqual(file, data);
+      if (isEqual) {
+        result.api_version = version.name;
+        break;
+      }
+    }
+
+    return result;
+  } catch (error) {
+    logger.warn(`Error in processing api data url: ${error}`);
+  }
+};
 
 module.exports = {
   createModel,
@@ -334,4 +380,5 @@ module.exports = {
   addAuthorizedUser,
   deleteAuthorizedUser,
   getAccessibleModels,
+  processApiDataUrl,
 };

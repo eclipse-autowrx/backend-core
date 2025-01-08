@@ -7,14 +7,19 @@ const { PERMISSIONS } = require('../config/roles');
 const logger = require('../config/logger');
 
 const createModel = catchAsync(async (req, res) => {
-  const { cvi, custom_apis, extended_apis, ...reqBody } = req.body;
+  let { cvi, custom_apis, extended_apis, api_data_url, ...reqBody } = req.body;
+
+  if (api_data_url) {
+    const result = await modelService.processApiDataUrl(api_data_url);
+    if (result) {
+      extended_apis = result.extended_apis || extended_apis;
+      reqBody.api_version = result.api_version || reqBody.api_version;
+    }
+  }
+
   const model = await modelService.createModel(req.user.id, {
     ...reqBody,
   });
-
-  // if (cvi) {
-  //   // await apiService.createApi(model._id, cvi);
-  // }
 
   try {
     if (extended_apis) {
