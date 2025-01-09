@@ -114,7 +114,6 @@ const getModel = catchAsync(async (req, res) => {
     finalResult.contributors = contributors;
     finalResult.members = members;
   }
-  r;
   res.send(finalResult);
 });
 
