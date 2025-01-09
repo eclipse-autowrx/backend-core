@@ -30,6 +30,7 @@ const createModel = {
         description: Joi.string().allow(''),
       })
     ),
+    state: Joi.string().max(255).default('draft'),
   }),
 };
 
@@ -71,6 +72,7 @@ const updateModel = {
           description: Joi.string().allow(''),
         })
       ),
+      state: Joi.string().max(255),
     })
     .min(1),
   params: Joi.object().keys({

@@ -47,6 +47,12 @@ const modelSchema = mongoose.Schema(
       required: true,
       enums: Object.values(visibilityTypes),
     },
+    state: {
+      type: String,
+      default: 'draft',
+      trim: true,
+      maxLength: 255,
+    },
     vehicle_category: {
       type: String,
       required: true,
