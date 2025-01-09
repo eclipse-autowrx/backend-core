@@ -76,7 +76,16 @@ const createModel = catchAsync(async (req, res) => {
 });
 
 const listModels = catchAsync(async (req, res) => {
-  const filter = pick(req.query, ['name', 'visibility', 'tenant_id', 'vehicle_category', 'main_api', 'id', 'created_by']);
+  const filter = pick(req.query, [
+    'name',
+    'visibility',
+    'state',
+    'tenant_id',
+    'vehicle_category',
+    'main_api',
+    'id',
+    'created_by',
+  ]);
   const options = pick(req.query, ['sortBy', 'limit', 'page', 'fields']);
   const advanced = pick(req.query, ['is_contributor']);
   const models = await modelService.queryModels(filter, options, advanced, req.user?.id);
@@ -105,7 +114,7 @@ const getModel = catchAsync(async (req, res) => {
     finalResult.contributors = contributors;
     finalResult.members = members;
   }
-
+  r;
   res.send(finalResult);
 });
 
