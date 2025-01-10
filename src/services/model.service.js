@@ -1,5 +1,5 @@
 const httpStatus = require('http-status');
-const { userService } = require('.');
+const { userService, prototypeService } = require('.');
 const permissionService = require('./permission.service');
 const { Model, Role } = require('../models');
 const ApiError = require('../utils/ApiError');
@@ -238,6 +238,7 @@ const deleteModelById = async (id, userId) => {
   }
 
   await model.remove();
+  await prototypeService.deleteMany({ model_id: id });
 };
 
 /**
