@@ -1,5 +1,6 @@
 const httpStatus = require('http-status');
-const { userService, prototypeService } = require('.');
+const { userService } = require('.');
+const prototypeService = require('./prototype.service');
 const permissionService = require('./permission.service');
 const { Model, Role } = require('../models');
 const ApiError = require('../utils/ApiError');
