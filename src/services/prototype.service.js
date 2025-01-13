@@ -224,14 +224,12 @@ const listPopularPrototypes = async () => {
     .populate('created_by', 'name image_file');
 };
 
-module.exports = {
-  createPrototype,
-  queryPrototypes,
-  getPrototypeById,
-  updatePrototypeById,
-  deletePrototypeById,
-  listRecentPrototypes,
-  executeCode,
-  listPopularPrototypes,
-  bulkCreatePrototypes,
-};
+module.exports.createPrototype = createPrototype;
+module.exports.queryPrototypes = queryPrototypes;
+module.exports.getPrototypeById = getPrototypeById;
+module.exports.updatePrototypeById = updatePrototypeById;
+module.exports.deletePrototypeById = deletePrototypeById;
+module.exports.listRecentPrototypes = listRecentPrototypes;
+module.exports.executeCode = executeCode;
+module.exports.listPopularPrototypes = listPopularPrototypes;
+module.exports.bulkCreatePrototypes = bulkCreatePrototypes;

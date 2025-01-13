@@ -370,15 +370,13 @@ const processApiDataUrl = async (apiDataUrl) => {
   }
 };
 
-module.exports = {
-  createModel,
-  getModels,
-  queryModels,
-  getModelById,
-  updateModelById,
-  deleteModelById,
-  addAuthorizedUser,
-  deleteAuthorizedUser,
-  getAccessibleModels,
-  processApiDataUrl,
-};
+module.exports.createModel = createModel;
+module.exports.getModels = getModels;
+module.exports.queryModels = queryModels;
+module.exports.getModelById = getModelById;
+module.exports.updateModelById = updateModelById;
+module.exports.deleteModelById = deleteModelById;
+module.exports.addAuthorizedUser = addAuthorizedUser;
+module.exports.deleteAuthorizedUser = deleteAuthorizedUser;
+module.exports.getAccessibleModels = getAccessibleModels;
+module.exports.processApiDataUrl = processApiDataUrl;
