@@ -120,11 +120,12 @@ const computeVSSApi = async (modelId) => {
   }
   let ret = null;
 
+  const mainApi = model.main_api || 'Vehicle';
   const apiVersion = model.api_version;
   if (!apiVersion) {
     ret = {
-      Vehicle: {
-        description: 'Vehicle',
+      [mainApi]: {
+        description: mainApi,
         type: 'branch',
         children: {},
       },
@@ -135,19 +136,19 @@ const computeVSSApi = async (modelId) => {
 
   const extendedApis = await ExtendedApi.find({
     model: modelId,
-    isWishlist: true
+    isWishlist: true,
   });
   extendedApis.forEach((extendedApi) => {
     try {
       const name = extendedApi.apiName.split('.').slice(1).join('.');
       if (!name) return;
-      ret['Vehicle'].children[name] = {
+      ret[mainApi].children[name] = {
         description: extendedApi.description,
         type: extendedApi.type || 'branch',
         id: extendedApi._id,
         datatype: extendedApi.datatype,
         name: extendedApi.apiName,
-        isWishlist: extendedApi.isWishlist
+        isWishlist: extendedApi.isWishlist,
       };
     } catch (error) {
       logger.warn(`Error while processing extended API ${extendedApi._id} with name ${extendedApi.apiName}: ${error}`);
@@ -155,7 +156,7 @@ const computeVSSApi = async (modelId) => {
   });
 
   try {
-    ret['Vehicle'].children = sortObject(ret['Vehicle'].children);
+    ret[mainApi].children = sortObject(ret[mainApi].children);
   } catch (error) {
     logger.warn(`Error while sorting object: ${error}`);
   }
