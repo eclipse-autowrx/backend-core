@@ -7,6 +7,7 @@ const { default: axios, isAxiosError } = require('axios');
 const config = require('../config/config');
 const logger = require('../config/logger');
 const modelService = require('./model.service');
+const _ = require('lodash');
 
 /**
  *
@@ -224,6 +225,17 @@ const listPopularPrototypes = async () => {
     .populate('created_by', 'name image_file');
 };
 
+/**
+ *
+ * @param {object} filter
+ */
+const deleteMany = async (filter) => {
+  if (_.isEmpty(filter)) {
+    throw new Error('Filter is required');
+  }
+  await Prototype.deleteMany(filter);
+};
+
 module.exports.createPrototype = createPrototype;
 module.exports.queryPrototypes = queryPrototypes;
 module.exports.getPrototypeById = getPrototypeById;
@@ -233,3 +245,4 @@ module.exports.listRecentPrototypes = listRecentPrototypes;
 module.exports.executeCode = executeCode;
 module.exports.listPopularPrototypes = listPopularPrototypes;
 module.exports.bulkCreatePrototypes = bulkCreatePrototypes;
+module.exports.deleteMany = deleteMany;
