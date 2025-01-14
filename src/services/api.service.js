@@ -135,20 +135,20 @@ const computeVSSApi = async (modelId) => {
 
   const extendedApis = await ExtendedApi.find({
     model: modelId,
+    isWishlist: true,
   });
   extendedApis.forEach((extendedApi) => {
     try {
       const name = extendedApi.apiName.split('.').slice(1).join('.');
       if (!name) return;
-      if (!ret[mainApi].children[name])
-        ret[mainApi].children[name] = {
-          description: extendedApi.description,
-          type: extendedApi.type || 'branch',
-          id: extendedApi._id,
-          datatype: extendedApi.datatype,
-          name: extendedApi.apiName,
-          isWishlist: extendedApi.isWishlist,
-        };
+      ret[mainApi].children[name] = {
+        description: extendedApi.description,
+        type: extendedApi.type || 'branch',
+        id: extendedApi._id,
+        datatype: extendedApi.datatype,
+        name: extendedApi.apiName,
+        isWishlist: extendedApi.isWishlist,
+      };
       if (extendedApi.unit) {
         ret[mainApi].children[name].unit = extendedApi.unit;
       }
