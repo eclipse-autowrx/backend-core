@@ -20,6 +20,10 @@ router
     prototypeController.listPrototypes
   );
 
+router
+  .route('/bulk')
+  .post(auth(), validate(prototypeValidation.bulkCreatePrototypes), prototypeController.bulkCreatePrototypes);
+
 router.route('/recent').get(auth(), prototypeController.listRecentPrototypes);
 router.route('/popular').get(
   auth({

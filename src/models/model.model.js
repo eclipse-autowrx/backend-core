@@ -4,17 +4,14 @@ const { visibilityTypes } = require('../config/enums');
 
 const tagSchema = mongoose.Schema(
   {
-    tag: {
+    title: {
       type: String,
       required: true,
+      trim: true,
     },
-    tagCategoryId: {
+    description: {
       type: String,
-      required: true,
-    },
-    tagCategoryName: {
-      type: String,
-      required: true,
+      trim: true,
     },
   },
   {
@@ -50,6 +47,12 @@ const modelSchema = mongoose.Schema(
       required: true,
       enums: Object.values(visibilityTypes),
     },
+    state: {
+      type: String,
+      default: 'draft',
+      trim: true,
+      maxLength: 255,
+    },
     vehicle_category: {
       type: String,
       required: true,
@@ -72,6 +75,11 @@ const modelSchema = mongoose.Schema(
     },
     extend: {
       type: mongoose.SchemaTypes.Mixed,
+    },
+    api_version: {
+      type: String,
+      trim: true,
+      lowercase: true,
     },
   },
   {

@@ -6,12 +6,12 @@ const validate = require('../../middlewares/validate');
 
 const router = express.Router();
 
-router.route('/').post(validate(tagValidation.createTag), tagController.createTag);
-router
-  .route('/categories')
-  .get(validate(tagValidation.listTagCategories), tagController.listTagCategories)
-  .post(validate(tagValidation.createTagCategory), tagController.createTagCategory);
-router.route('/categories/:id').put(validate(tagValidation.updateTagCategory), tagController.updateTagCategory);
+// router.route('/').post(validate(tagValidation.createTag), tagController.createTag);
+// router
+//   .route('/categories')
+//   .get(validate(tagValidation.listTagCategories), tagController.listTagCategories)
+//   .post(validate(tagValidation.createTagCategory), tagController.createTagCategory);
+// router.route('/categories/:id').put(validate(tagValidation.updateTagCategory), tagController.updateTagCategory);
 
 // router.get('/categories/:tenantId', async (req, res) => {
 //   try {

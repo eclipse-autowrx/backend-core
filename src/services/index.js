@@ -18,3 +18,4 @@ module.exports.searchService = require('./search.service');
 module.exports.certivityService = require('./certivity.service');
 module.exports.assetService = require('./asset.service');
 module.exports.fileService = require('./file.service');
+module.exports.logService = require('./log.service');

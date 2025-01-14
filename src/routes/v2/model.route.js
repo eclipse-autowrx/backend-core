@@ -42,6 +42,14 @@ router
     modelController.deleteModel
   );
 
+router.route('/:id/api').get(
+  auth({
+    optional: !config.strictAuth,
+  }),
+  validate(modelValidation.getApiByModelId),
+  modelController.getComputedVSSApi
+);
+
 router
   .route('/:id/permissions')
   .post(

@@ -18,6 +18,7 @@ services:
           - HEAD
           - CONNECT
           - TRACE
+    read_timeout: 180000
 plugins:
   - name: rate-limiting
     enabled: true
@@ -29,7 +30,7 @@ plugins:
     config:
       fault_tolerant: true
       hide_client_headers: false
-      minute: 60
+      minute: 120
       limit_by: header
       header_name: x-forwarded-for
       policy: local

@@ -14,23 +14,27 @@ router
   .get(auth(), validate(assetValidation.getAssets), assetController.getAssets);
 
 router
+  .route('/manage')
+  .get(auth(), checkPermission(PERMISSIONS.ADMIN), validate(assetValidation.getAssets), assetController.getAllAssets);
+
+router
   .route('/:id')
   .get(
     auth(),
-    checkPermission(PERMISSIONS.READ_ASSET, RESOURCES.ASSET),
     validate(assetValidation.getAsset),
+    checkPermission(PERMISSIONS.READ_ASSET, RESOURCES.ASSET),
     assetController.getAsset
   )
   .patch(
     auth(),
-    checkPermission(PERMISSIONS.WRITE_ASSET, RESOURCES.ASSET),
     validate(assetValidation.updateAsset),
+    checkPermission(PERMISSIONS.WRITE_ASSET, RESOURCES.ASSET),
     assetController.updateAsset
   )
   .delete(
     auth(),
-    checkPermission(PERMISSIONS.WRITE_ASSET, RESOURCES.ASSET),
     validate(assetValidation.deleteAsset),
+    checkPermission(PERMISSIONS.WRITE_ASSET, RESOURCES.ASSET),
     assetController.deleteAsset
   );
 
@@ -38,8 +42,8 @@ router
   .route('/:id/generate-token')
   .post(
     auth(),
-    checkPermission(PERMISSIONS.READ_ASSET, RESOURCES.ASSET),
     validate(assetValidation.generateToken),
+    checkPermission(PERMISSIONS.READ_ASSET, RESOURCES.ASSET),
     assetController.generateToken
   );
 
@@ -47,14 +51,14 @@ router
   .route('/:id/permissions')
   .post(
     auth(),
-    checkPermission(PERMISSIONS.WRITE_ASSET, RESOURCES.ASSET),
     validate(assetValidation.addAuthorizedUser),
+    checkPermission(PERMISSIONS.WRITE_ASSET, RESOURCES.ASSET),
     assetController.addAuthorizedUser
   )
   .delete(
     auth(),
-    checkPermission(PERMISSIONS.WRITE_ASSET, RESOURCES.ASSET),
     validate(assetValidation.deleteAuthorizedUser),
+    checkPermission(PERMISSIONS.WRITE_ASSET, RESOURCES.ASSET),
     assetController.deleteAuthorizedUser
   );
 

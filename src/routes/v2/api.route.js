@@ -7,6 +7,9 @@ const config = require('../../config/config');
 
 const router = express.Router();
 
+router.route('/vss').get(apiController.listVSSVersions);
+router.route('/vss/:name').get(validate(apiValidation.getVSSVersion), apiController.getVSSVersion);
+
 router.route('/').post(auth(), validate(apiValidation.createApi), apiController.createApi);
 router
   .route('/:id')

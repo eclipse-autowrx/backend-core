@@ -1,5 +1,6 @@
 const Joi = require('joi');
 const { objectId } = require('./custom.validation');
+const { populate } = require('../models/token.model');
 
 const createDiscussion = {
   body: Joi.object().keys({
@@ -20,6 +21,7 @@ const listDiscussions = {
     limit: Joi.number().integer(),
     page: Joi.number().integer(),
     fields: Joi.string(),
+    populate: Joi.any(),
   }),
 };
 

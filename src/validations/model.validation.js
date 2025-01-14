@@ -6,7 +6,10 @@ const createModel = {
   body: Joi.object().keys({
     extend: Joi.any(),
     custom_apis: Joi.string().custom(jsonString),
-    cvi: Joi.string().required().custom(jsonString),
+    api_version: Joi.string(),
+    api_data_url: Joi.string(),
+    cvi: Joi.string().custom(jsonString),
+    extended_apis: Joi.array().items(Joi.any()),
     main_api: Joi.string().required().max(255),
     model_home_image_file: Joi.string()
       .allow('')
@@ -23,11 +26,11 @@ const createModel = {
     skeleton: Joi.string().custom(jsonString),
     tags: Joi.array().items(
       Joi.object().keys({
-        tag: Joi.string().required(),
-        tagCategoryId: Joi.string().required().custom(slug),
-        tagCategoryName: Joi.string().required(),
+        title: Joi.string().required(),
+        description: Joi.string().allow(''),
       })
     ),
+    state: Joi.string().max(255).default('draft'),
   }),
 };
 
@@ -53,6 +56,7 @@ const updateModel = {
     .keys({
       extend: Joi.any(),
       custom_apis: Joi.string().custom(jsonString),
+      api_version: Joi.string(),
       cvi: Joi.string().custom(jsonString),
       main_api: Joi.string().max(255),
       model_home_image_file: Joi.string().allow(''),
@@ -64,11 +68,11 @@ const updateModel = {
       skeleton: Joi.string().custom(jsonString),
       tags: Joi.array().items(
         Joi.object().keys({
-          tag: Joi.string().required(),
-          tagCategoryId: Joi.string().required().custom(slug),
-          tagCategoryName: Joi.string().required(),
+          title: Joi.string().required(),
+          description: Joi.string().allow(''),
         })
       ),
+      state: Joi.string().max(255),
     })
     .min(1),
   params: Joi.object().keys({
@@ -108,6 +112,12 @@ const deleteAuthorizedUser = {
   }),
 };
 
+const getApiByModelId = {
+  params: Joi.object().keys({
+    id: Joi.string().custom(objectId),
+  }),
+};
+
 module.exports = {
   createModel,
   listModels,
@@ -116,4 +126,5 @@ module.exports = {
   deleteModel,
   addAuthorizedUser,
   deleteAuthorizedUser,
+  getApiByModelId,
 };

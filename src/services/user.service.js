@@ -3,6 +3,8 @@ const { User } = require('../models');
 const ApiError = require('../utils/ApiError');
 const image = require('../utils/image');
 const fileService = require('./file.service');
+const logger = require('../config/logger');
+const { isValidObjectId } = require('mongoose');
 
 /**
  * Create a user
@@ -26,9 +28,23 @@ const createUser = async (userBody) => {
  * @param {Object} advanced - Advanced search options
  * @param {string} [advanced.search] - Full text search
  * @param {string} [advanced.includeFullDetails] - Whether to include full user details or not
+ * @param {string} [advanced.id] - Whether to filter users by id
  * @returns {Promise<QueryResult>}
  */
 const queryUsers = async (filter, options, advanced) => {
+  if (advanced.id) {
+    const ids = advanced.id.split(',');
+    for (const id of ids) {
+      if (!isValidObjectId(id)) {
+        throw new ApiError(httpStatus.BAD_REQUEST, `Invalid id ${id}`);
+      }
+    }
+    filter = {
+      ...filter,
+      _id: { $in: ids },
+    };
+  }
+
   if (advanced.search) {
     filter = {
       $and: [
@@ -140,13 +156,18 @@ const updateSSOUser = async (user, graphData) => {
     updateBody.name = graphData.displayName;
   }
 
-  if (userPhoto) {
-    const photoBuffer = await userPhoto.arrayBuffer();
-    const diff = await image.diff(user?.image_file, photoBuffer);
-    if (diff > 0.1 || diff === -1) {
-      const { url } = await fileService.upload(userPhoto);
-      updateBody.image_file = url;
+  try {
+    if (userPhoto) {
+      const photoBuffer = await userPhoto.arrayBuffer();
+      const diff = await image.diff(user?.image_file, photoBuffer);
+      if (diff > 0.1 || diff === -1) {
+        const { url } = await fileService.upload(userPhoto);
+        updateBody.image_file = url;
+      }
     }
+  } catch (error) {
+    logger.error('Error updating user photo');
+    logger.error(error);
   }
 
   if (Object.keys(updateBody).length === 0) {
@@ -170,9 +191,14 @@ const createSSOUser = async (graphData) => {
     provider_user_id: graphData.id,
   };
 
-  if (userPhoto) {
-    const { url } = await fileService.upload(userPhoto);
-    userBody.image_file = url;
+  try {
+    if (userPhoto) {
+      const { url } = await fileService.upload(userPhoto);
+      userBody.image_file = url;
+    }
+  } catch (error) {
+    logger.error('Error creating user photo');
+    logger.error(error);
   }
 
   return createUser(userBody);

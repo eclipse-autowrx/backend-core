@@ -7,24 +7,23 @@ const createExtendedApi = {
     model: Joi.string().custom(objectId).required(),
     skeleton: Joi.string().optional(),
     type: Joi.string(),
-    data_type: Joi.string(),
-    description: Joi.string(),
-    tags: Joi.array()
-      .items(
-        Joi.object({
-          tagCategoryId: Joi.string(),
-          tagCategoryName: Joi.string(),
-          tag: Joi.string(),
-        })
-      )
-      .optional(),
+    datatype: Joi.string(),
+    description: Joi.string().allow('').default(''),
+    tags: Joi.array().items(
+      Joi.object().keys({
+        title: Joi.string().required(),
+        description: Joi.string().allow(''),
+      })
+    ),
+    isWishlist: Joi.boolean().default(false),
+    unit: Joi.string(),
   }),
 };
 
 const getExtendedApis = {
   query: Joi.object().keys({
     apiName: Joi.string(),
-    model: Joi.string().custom(objectId),
+    model: Joi.string().custom(objectId).required(),
     sortBy: Joi.string(),
     limit: Joi.number().integer(),
     page: Joi.number().integer(),
@@ -46,20 +45,17 @@ const updateExtendedApi = {
       apiName: Joi.string()
         .regex(/^Vehicle\./)
         .message('apiName must start with Vehicle.'),
-      model: Joi.string().custom(objectId),
       skeleton: Joi.string().optional(),
       type: Joi.string(),
-      data_type: Joi.string(),
-      description: Joi.string(),
-      tags: Joi.array()
-        .items(
-          Joi.object({
-            tagCategoryId: Joi.string(),
-            tagCategoryName: Joi.string(),
-            tag: Joi.string(),
-          })
-        )
-        .optional(),
+      datatype: Joi.string(),
+      description: Joi.string().allow(''),
+      tags: Joi.array().items(
+        Joi.object().keys({
+          title: Joi.string().required(),
+          description: Joi.string().allow(''),
+        })
+      ),
+      isWishlist: Joi.boolean(),
     })
     .min(1),
 };

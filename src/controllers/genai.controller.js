@@ -10,6 +10,7 @@ const config = require('../config/config');
 const axios = require('axios');
 const etasAuthorizationData = require('../states/etasAuthorization');
 const moment = require('moment');
+const { setupClient } = require('../utils/setupEtasStream');
 
 dotenv.config();
 
@@ -169,6 +170,8 @@ async function BedrockGenCode({ endpointURL, publicKey, secretKey, inputPrompt, 
       }
     }
   } catch (error) {
+    console.log('Error in BedrockGenCode');
+    console.log(error);
     try {
       const bedrockResponse = await bedrock.send(new InvokeModelCommand(input));
       const response = JSON.parse(new TextDecoder().decode(bedrockResponse.body));
@@ -176,7 +179,7 @@ async function BedrockGenCode({ endpointURL, publicKey, secretKey, inputPrompt, 
         generation = response.completions[0].data.text;
       }
     } catch (err) {
-      throw new Error('Failed to generate response from Bedrock, please check your endpoint URL, region, keys');
+      throw err;
     }
   }
   return generation;
@@ -251,8 +254,20 @@ const getAccessToken = async () => {
   }
 };
 
+const getInstance = (environment = 'prod') => {
+  switch (environment) {
+    case 'prod':
+      return config.etas.instanceEndpoint;
+    case 'dev':
+      return config.etas.developmentEndpoint;
+    default:
+      return config.etas.instanceEndpoint;
+  }
+};
+
 const generateAIContent = async (req, res) => {
   try {
+    const { environment } = req.params;
     const { prompt } = req.body;
     const authorizationData = etasAuthorizationData.getAuthorizationData();
     let token = authorizationData.accessToken;
@@ -265,9 +280,9 @@ const generateAIContent = async (req, res) => {
       });
     }
 
-    const instance = config.etas.instanceEndpoint;
+    const instance = getInstance(environment);
 
-    // console.log('ETAS_INSTANCE_ENDPOINT', instance);
+    setupClient(token);
 
     const response = await axios.post(
       `https://${instance}/r2mm/GENERATE_AI`,

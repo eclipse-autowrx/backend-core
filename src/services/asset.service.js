@@ -4,6 +4,8 @@ const { Role } = require('../models');
 const Asset = require('../models/asset.model');
 const ApiError = require('../utils/ApiError');
 const httpStatus = require('http-status');
+const logger = require('../config/logger');
+const { isValidObjectId } = require('mongoose');
 
 /**
  *
@@ -21,14 +23,45 @@ const createAsset = (data) => {
  * @param {string} options.sortBy
  * @param {number} options.limit
  * @param {number} options.page
+ * @param {string} [options.userId]
  */
-const queryAssets = (filter, options) => {
+const queryAssets = async (filter, options, userId) => {
   if (filter.name) {
     filter.name = new RegExp(filter.name, 'i');
   }
   if (filter.type) {
     filter.type = new RegExp(filter.type, 'i');
   }
+  if (userId) {
+    let accessibleIds = [];
+    try {
+      const roles = permissionService.getMappedRoles(await permissionService.getUserRoles(userId));
+      roles?.forEach?.((value, key) => {
+        if (!Array.isArray(value)) {
+          logger.error(`Unexpected role value for ${key}: ${value}`);
+        } else if (
+          (value.includes(PERMISSIONS.READ_ASSET) || value.includes(PERMISSIONS.WRITE_ASSET)) &&
+          isValidObjectId(key)
+        ) {
+          accessibleIds.push(key);
+        }
+      });
+    } catch (error) {
+      logger.error(`Error while find accessible assetIds for user ${userId}: ${error}`);
+    }
+
+    filter.$or = [
+      {
+        _id: {
+          $in: accessibleIds,
+        },
+      },
+      {
+        created_by: userId,
+      },
+    ];
+  }
+
   return Asset.paginate(filter, options);
 };
 

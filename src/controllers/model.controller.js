@@ -1,27 +1,91 @@
 const httpStatus = require('http-status');
-const { modelService, apiService, permissionService } = require('../services');
+const { modelService, apiService, permissionService, extendedApiService } = require('../services');
 const catchAsync = require('../utils/catchAsync');
 const pick = require('../utils/pick');
 const ApiError = require('../utils/ApiError');
 const { PERMISSIONS } = require('../config/roles');
+const logger = require('../config/logger');
 
 const createModel = catchAsync(async (req, res) => {
-  const { cvi, custom_apis, ...reqBody } = req.body;
+  let { cvi, custom_apis, extended_apis, api_data_url, ...reqBody } = req.body;
+
+  if (api_data_url) {
+    const result = await modelService.processApiDataUrl(api_data_url);
+    if (result) {
+      extended_apis = result.extended_apis || extended_apis;
+      reqBody.api_version = result.api_version || reqBody.api_version;
+    }
+  }
+
   const model = await modelService.createModel(req.user.id, {
     ...reqBody,
-    ...(reqBody.custom_apis && { custom_apis: JSON.parse(reqBody.custom_apis) }),
   });
-  await apiService.createApi({
-    model: model._id,
-    cvi: JSON.parse(cvi),
-    created_by: req.user.id,
-  });
+
+  try {
+    if (extended_apis) {
+      await Promise.all(
+        extended_apis.map((api) =>
+          extendedApiService.createExtendedApi({
+            model: model._id,
+            apiName: api.apiName,
+            description: api.description,
+            skeleton: api.skeleton,
+            tags: api.tags,
+            type: api.type,
+            datatype: api.datatype,
+            isWishlist: api.isWishlist || false,
+          })
+        )
+      );
+    }
+  } catch (error) {
+    logger.warn(`Error in creating model (creating extended_apis): ${error}`);
+  }
+
+  try {
+    if (custom_apis) {
+      let apis = custom_apis;
+      try {
+        apis = JSON.parse(custom_apis);
+      } catch (error) {
+        // Do nothing
+      }
+
+      if (Array.isArray(apis)) {
+        await Promise.all(
+          apis.map((api) =>
+            extendedApiService.createExtendedApi({
+              model: model._id,
+              apiName: api.name || api.apiName || 'Vehicle',
+              description: api.description || '',
+              skeleton: api.skeleton || '{}',
+              tags: api.tags || [],
+              type: api.type || 'branch',
+              datatype: api.datatype || (api.type !== 'branch' ? 'string' : null),
+              isWishlist: api.isWishlist || false,
+            })
+          )
+        );
+      }
+    }
+  } catch (error) {
+    logger.warn(`Error in creating model (creating extended_apis): ${error}`);
+  }
 
   res.status(httpStatus.CREATED).send(model);
 });
 
 const listModels = catchAsync(async (req, res) => {
-  const filter = pick(req.query, ['name', 'visibility', 'tenant_id', 'vehicle_category', 'main_api', 'id', 'created_by']);
+  const filter = pick(req.query, [
+    'name',
+    'visibility',
+    'state',
+    'tenant_id',
+    'vehicle_category',
+    'main_api',
+    'id',
+    'created_by',
+  ]);
   const options = pick(req.query, ['sortBy', 'limit', 'page', 'fields']);
   const advanced = pick(req.query, ['is_contributor']);
   const models = await modelService.queryModels(filter, options, advanced, req.user?.id);
@@ -50,7 +114,6 @@ const getModel = catchAsync(async (req, res) => {
     finalResult.contributors = contributors;
     finalResult.members = members;
   }
-
   res.send(finalResult);
 });
 
@@ -94,6 +157,14 @@ const deleteAuthorizedUser = catchAsync(async (req, res) => {
   res.status(httpStatus.NO_CONTENT).send();
 });
 
+const getComputedVSSApi = catchAsync(async (req, res) => {
+  if (!(await permissionService.canAccessModel(req.user?.id, req.params.id))) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
+  }
+  const data = await apiService.computeVSSApi(req.params.id);
+  res.send(data);
+});
+
 module.exports = {
   createModel,
   listModels,
@@ -102,4 +173,5 @@ module.exports = {
   deleteModel,
   addAuthorizedUser,
   deleteAuthorizedUser,
+  getComputedVSSApi,
 };

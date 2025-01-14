@@ -18,6 +18,8 @@ const envVarsSchema = Joi.object()
     JWT_VERIFY_EMAIL_EXPIRATION_MINUTES: Joi.number()
       .default(10)
       .description('minutes after which verify email token expires'),
+    JWT_COOKIE_NAME: Joi.string().required().description('JWT cookie name'),
+    JWT_COOKIE_DOMAIN: Joi.string().required().description('JWT cookie domain'),
     SMTP_HOST: Joi.string().description('server that will send the emails'),
     SMTP_PORT: Joi.number().description('port to connect to the email server'),
     SMTP_USERNAME: Joi.string().description('username for email server'),
@@ -45,6 +47,7 @@ const envVarsSchema = Joi.object()
     ETAS_CLIENT_SECRET: Joi.string().description('ETAS client secret'),
     ETAS_SCOPE: Joi.string().description('ETAS scope'),
     ETAS_INSTANCE_ENDPOINT: Joi.string().description('ETAS instance endpoint'),
+    ETAS_DEV_INSTANCE_ENDPOINT: Joi.string().description('ETAS dev instance endpoint'),
     // Certivity
     CERTIVITY_CLIENT_ID: Joi.string().required().description('Certivity client id'),
     CERTIVITY_CLIENT_SECRET: Joi.string().required().description('Certivity client secret'),
@@ -62,6 +65,16 @@ const config = {
   env: envVars.NODE_ENV,
   port: envVars.PORT,
   strictAuth: envVars.STRICT_AUTH,
+  cors: {
+    regex: [
+      /localhost:\d+/,
+      /\.digitalauto\.tech$/,
+      /\.digitalauto\.asia$/,
+      /\.digital\.auto$/,
+      'https://digitalauto.netlify.app',
+      /127\.0\.0\.1:\d+/,
+    ],
+  },
   mongoose: {
     url: envVars.MONGODB_URL + (envVars.NODE_ENV === 'test' ? '-test' : ''),
     options: {
@@ -77,10 +90,14 @@ const config = {
     refreshExpirationDays: envVars.JWT_REFRESH_EXPIRATION_DAYS,
     resetPasswordExpirationMinutes: envVars.JWT_RESET_PASSWORD_EXPIRATION_MINUTES,
     verifyEmailExpirationMinutes: envVars.JWT_VERIFY_EMAIL_EXPIRATION_MINUTES,
-    cookieRefreshOptions: {
-      secure: true,
-      httpOnly: true,
-      sameSite: 'None',
+    cookie: {
+      name: envVars.JWT_COOKIE_NAME,
+      options: {
+        secure: true,
+        httpOnly: true,
+        sameSite: 'None',
+        ...(envVars.NODE_ENV === 'production' && { domain: envVars.JWT_COOKIE_DOMAIN }),
+      },
     },
   },
   email: {
@@ -140,6 +157,7 @@ const config = {
     clientSecret: envVars.ETAS_CLIENT_SECRET,
     scope: envVars.ETAS_SCOPE,
     instanceEndpoint: envVars.ETAS_INSTANCE_ENDPOINT,
+    developmentEndpoint: envVars.ETAS_DEV_INSTANCE_ENDPOINT,
   },
   githubIssueSubmitUrl: 'https://api.github.com/repos/digital-auto/vehicle_signal_specification/issues',
   certivity: {

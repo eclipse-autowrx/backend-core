@@ -121,12 +121,12 @@ const getMappedRoles = (roles) => {
       if (!Array.isArray(existingRolePermissions)) {
         existingRolePermissions = [];
       } else {
-        const newArray = existingRolePermissions.concat(role.role.permissions);
+        const newArray = existingRolePermissions.concat(role?.role?.permissions || []);
         existingRolePermissions = Array.from(new Set(newArray));
       }
       map.set(roleRef, existingRolePermissions);
     } else {
-      map.set(roleRef, role.role.permissions);
+      map.set(roleRef, role?.role?.permissions || []);
     }
   });
   return map;
@@ -135,7 +135,9 @@ const getMappedRoles = (roles) => {
 // Check if the role map contains the permission
 const containsPermission = (roleMap, permission, id) => {
   const stringId = String(id);
+  // In case user is admin, have access to all type of resources
   const firstCondition = roleMap.has('*') && roleMap.get('*').includes(permission);
+  // In case user has access to specific resource
   const secondCondition = roleMap.has(stringId) && roleMap.get(stringId).includes(permission);
   return firstCondition || secondCondition;
 };
@@ -154,7 +156,7 @@ const checkModelPermission = (model, userId, permission) => {
 };
 
 const checkPrototypePermission = (prototype, userId, permission) => {
-  if (String(prototype.created_by) === String(userId)) {
+  if (String(prototype.created_by) === String(userId) || String(prototype.model_id?.created_by) === String(userId)) {
     return true;
   }
 
@@ -256,6 +258,21 @@ const listReadableModelIds = async (userId) => {
   return Array.from(results);
 };
 
+/**
+ *
+ * @param {string} userId
+ * @param {string} modelId
+ * @returns {Promise<boolean>}
+ */
+const canAccessModel = async (userId, modelId) => {
+  const model = await Model.findById(modelId);
+  if (!model) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Model not found');
+  }
+  if (model.visibility === 'public') return true;
+  return hasPermission(userId, PERMISSIONS.READ_MODEL, modelId);
+};
+
 module.exports = {
   listAuthorizedUser,
   assignRoleToUser,
@@ -268,4 +285,5 @@ module.exports = {
   getRoles,
   getPermissions,
   listReadableModelIds,
+  canAccessModel,
 };

@@ -1,15 +1,23 @@
 const httpStatus = require('http-status');
 const catchAsync = require('../utils/catchAsync');
-const { extendedApiService } = require('../services');
+const { extendedApiService, permissionService } = require('../services');
 const pick = require('../utils/pick');
 const ApiError = require('../utils/ApiError');
+const { PERMISSIONS } = require('../config/roles');
 
 const createExtendedApi = catchAsync(async (req, res) => {
+  if (!(await permissionService.hasPermission(req.user?.id, PERMISSIONS.WRITE_MODEL, req.body.model))) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden. You do not have permission to update extended API for this model');
+  }
   const extendedApi = await extendedApiService.createExtendedApi(req.body);
   res.status(httpStatus.CREATED).send(extendedApi);
 });
 
 const getExtendedApis = catchAsync(async (req, res) => {
+  const { model } = req.query;
+  if (!(await permissionService.canAccessModel(req.user?.id, model))) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
+  }
   const filter = pick(req.query, ['apiName', 'model', 'skeleton']);
   const options = pick(req.query, ['sortBy', 'limit', 'page']);
   const result = await extendedApiService.queryExtendedApis(filter, options);
@@ -18,6 +26,10 @@ const getExtendedApis = catchAsync(async (req, res) => {
 
 const getExtendedApi = catchAsync(async (req, res) => {
   const extendedApi = await extendedApiService.getExtendedApiById(req.params.id);
+  const { model } = extendedApi;
+  if (!(await permissionService.canAccessModel(req.user?.id, model))) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
+  }
   if (!extendedApi) {
     throw new ApiError(httpStatus.NOT_FOUND, 'ExtendedApi not found');
   }
@@ -26,6 +38,9 @@ const getExtendedApi = catchAsync(async (req, res) => {
 
 const getExtendedApiByApiNameAndModel = catchAsync(async (req, res) => {
   const { apiName, model } = req.query;
+  if (!(await permissionService.canAccessModel(req.user?.id, model))) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
+  }
   const extendedApi = await extendedApiService.getExtendedApiByApiNameAndModel(apiName, model);
   if (!extendedApi) {
     throw new ApiError(httpStatus.NOT_FOUND, 'ExtendedApi not found');
@@ -34,12 +49,12 @@ const getExtendedApiByApiNameAndModel = catchAsync(async (req, res) => {
 });
 
 const updateExtendedApi = catchAsync(async (req, res) => {
-  const extendedApi = await extendedApiService.updateExtendedApiById(req.params.id, req.body);
+  const extendedApi = await extendedApiService.updateExtendedApiById(req.params.id, req.body, req.user.id);
   res.send(extendedApi);
 });
 
 const deleteExtendedApi = catchAsync(async (req, res) => {
-  await extendedApiService.deleteExtendedApiById(req.params.id);
+  await extendedApiService.deleteExtendedApiById(req.params.id, req.user.id);
   res.status(httpStatus.NO_CONTENT).send();
 });
 

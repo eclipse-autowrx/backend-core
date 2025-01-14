@@ -31,10 +31,22 @@ const deleteApi = catchAsync(async (req, res) => {
   res.status(httpStatus.NO_CONTENT).send();
 });
 
+const listVSSVersions = catchAsync(async (req, res) => {
+  const versions = await apiService.listVSSVersions();
+  res.send(versions);
+});
+
+const getVSSVersion = catchAsync(async (req, res) => {
+  const version = await apiService.getVSSVersion(req.params.name);
+  res.send(version);
+});
+
 module.exports = {
   createApi,
   getApiByModelId,
   getApi,
   updateApi,
   deleteApi,
+  listVSSVersions,
+  getVSSVersion,
 };

@@ -1,10 +1,9 @@
 const httpStatus = require('http-status');
 const catchAsync = require('../utils/catchAsync');
-const { authService, userService, tokenService, emailService, fileService } = require('../services');
+const { authService, userService, tokenService, emailService, logService } = require('../services');
 const config = require('../config/config');
 const ApiError = require('../utils/ApiError');
 const logger = require('../config/logger');
-const image = require('../utils/image');
 
 const register = catchAsync(async (req, res) => {
   const user = await userService.createUser({
@@ -12,10 +11,11 @@ const register = catchAsync(async (req, res) => {
     provider: req.body?.provider || 'Email',
   });
   const tokens = await tokenService.generateAuthTokens(user);
-  res.cookie('token', tokens.refresh.token, {
+  res.cookie(config.jwt.cookie.name, tokens.refresh.token, {
     expires: tokens.refresh.expires,
-    ...config.jwt.cookieRefreshOptions,
+    ...config.jwt.cookie.options,
   });
+
   delete tokens.refresh;
   res.status(httpStatus.CREATED).send({ user, tokens });
 });
@@ -24,25 +24,28 @@ const login = catchAsync(async (req, res) => {
   const { email, password } = req.body;
   const user = await authService.loginUserWithEmailAndPassword(email, password);
   const tokens = await tokenService.generateAuthTokens(user);
-  res.cookie('token', tokens.refresh.token, {
+  res.cookie(config.jwt.cookie.name, tokens.refresh.token, {
     expires: tokens.refresh.expires,
-    ...config.jwt.cookieRefreshOptions,
+    ...config.jwt.cookie.options,
   });
   delete tokens.refresh;
   res.send({ user, tokens });
 });
 
 const logout = catchAsync(async (req, res) => {
-  await authService.logout(req.cookies.token);
-  res.clearCookie('token');
+  await authService.logout(req.cookies[config.jwt.cookie.name]);
+  res.clearCookie(config.jwt.cookie.name);
+  res.clearCookie(config.jwt.cookie.name, {
+    ...config.jwt.cookie.options,
+  });
   res.status(httpStatus.NO_CONTENT).send();
 });
 
 const refreshTokens = catchAsync(async (req, res) => {
-  const tokens = await authService.refreshAuth(req.cookies.token);
-  res.cookie('token', tokens.refresh.token, {
+  const tokens = await authService.refreshAuth(req.cookies[config.jwt.cookie.name]);
+  res.cookie(config.jwt.cookie.name, tokens.refresh.token, {
     expires: tokens.refresh.expires,
-    ...config.jwt.cookieRefreshOptions,
+    ...config.jwt.cookie.options,
   });
   delete tokens.refresh;
 
@@ -50,14 +53,75 @@ const refreshTokens = catchAsync(async (req, res) => {
 });
 
 const forgotPassword = catchAsync(async (req, res) => {
+  const returnRawToken = req.query.return_raw_token;
+
   const resetPasswordToken = await tokenService.generateResetPasswordToken(req.body.email);
-  await emailService.sendResetPasswordEmail(req.body.email, resetPasswordToken);
-  res.status(httpStatus.NO_CONTENT).send();
+
+  let domain = undefined;
+  try {
+    const hostname = new URL(req.get('referer')).hostname;
+    if (hostname === 'auth.digital.auto') {
+      domain = hostname;
+    }
+  } catch (error) {}
+
+  if (returnRawToken) {
+    res.status(httpStatus.OK).send({ resetPasswordToken });
+  } else {
+    await emailService.sendResetPasswordEmail(req.body.email, resetPasswordToken, domain);
+    res.status(httpStatus.NO_CONTENT).send();
+  }
+
+  try {
+    await logService.createLog(
+      {
+        name: 'Forgot password',
+        type: 'forgot_password',
+        created_by: req.body.email,
+        description: `User with email ${req.body.email} has triggered forgot password flow`,
+      },
+      {
+        headers: {
+          origin: req.get('origin'),
+          referer: req.get('referer'),
+        },
+      }
+    );
+  } catch (error) {
+    logger.warn(`Failed to create log - forgot password log: ${error}`);
+  }
 });
 
 const resetPassword = catchAsync(async (req, res) => {
-  await authService.resetPassword(req.query.token, req.body.password);
-  res.status(httpStatus.NO_CONTENT).send();
+  let user;
+  try {
+    user = await authService.resetPassword(req.query.token, req.body.password);
+  } catch (error) {
+    logger.info(`Failed to reset password: ${error}`);
+  } finally {
+    res.status(httpStatus.NO_CONTENT).send();
+  }
+
+  try {
+    await logService.createLog(
+      {
+        name: 'Password reset',
+        type: 'password_reset',
+        created_by: user.email || user.id || user._id,
+        description: `User with email ${user.email}, id ${user.id || user._id} has reset their password`,
+        ref_type: 'user',
+        ref_id: user.id || user._id,
+      },
+      {
+        headers: {
+          origin: req.get('origin'),
+          referer: req.get('referer'),
+        },
+      }
+    );
+  } catch (error) {
+    logger.warn(`Failed to create log: ${error}`);
+  }
 });
 
 const sendVerificationEmail = catchAsync(async (req, res) => {
@@ -77,6 +141,7 @@ const githubCallback = catchAsync(async (req, res) => {
     await authService.githubCallback(code, userId);
     res.redirect(`${origin || 'http://127.0.0.1:3000'}/auth/github/success`);
   } catch (error) {
+    logger.error(error);
     res.status(httpStatus.UNAUTHORIZED).send('Unauthorized. Please try again.');
   }
 });
@@ -100,9 +165,9 @@ const sso = catchAsync(async (req, res) => {
   }
 
   const tokens = await tokenService.generateAuthTokens(user);
-  res.cookie('token', tokens.refresh.token, {
+  res.cookie(config.jwt.cookie.name, tokens.refresh.token, {
     expires: tokens.refresh.expires,
-    ...config.jwt.cookieRefreshOptions,
+    ...config.jwt.cookie.options,
   });
   delete tokens.refresh;
 

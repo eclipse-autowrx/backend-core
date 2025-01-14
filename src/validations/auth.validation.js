@@ -25,6 +25,9 @@ const refreshTokens = {
 };
 
 const forgotPassword = {
+  query: Joi.object().keys({
+    return_raw_token: Joi.boolean().default(false),
+  }),
   body: Joi.object().keys({
     email: Joi.string().email().required(),
   }),

@@ -18,11 +18,13 @@ const getAssets = catchAsync(async (req, res) => {
   const filter = pick(req.query, ['name', 'type']);
   const options = pick(req.query, ['sortBy', 'limit', 'page']);
 
-  const isAdmin = await permissionService.hasPermission(userId, PERMISSIONS.ADMIN);
-  if (!isAdmin) {
-    filter.created_by = userId;
-  }
+  const result = await assetService.queryAssets(filter, options, userId);
+  res.send(result);
+});
 
+const getAllAssets = catchAsync(async (req, res) => {
+  const filter = pick(req.query, ['name', 'type']);
+  const options = pick(req.query, ['sortBy', 'limit', 'page']);
   const result = await assetService.queryAssets(filter, options);
   res.send(result);
 });
@@ -104,4 +106,5 @@ module.exports = {
   generateToken,
   addAuthorizedUser,
   deleteAuthorizedUser,
+  getAllAssets,
 };

@@ -3,9 +3,15 @@ const { toJSON, paginate } = require('./plugins');
 
 const tagSchema = mongoose.Schema(
   {
-    tagCategoryId: String,
-    tagCategoryName: String,
-    tag: String,
+    title: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    description: {
+      type: String,
+      trim: true,
+    },
   },
   {
     _id: false,
@@ -26,14 +32,21 @@ const extendedApiSchema = mongoose.Schema(
     skeleton: {
       type: String,
     },
+    unit: {
+      type: String,
+    },
     type: {
       type: String,
     },
-    data_type: {
+    datatype: {
       type: String,
     },
     description: String,
     tags: [tagSchema],
+    isWishlist: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

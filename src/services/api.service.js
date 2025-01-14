@@ -1,7 +1,11 @@
 const httpStatus = require('http-status');
 const { userService } = require('.');
-const { Api } = require('../models');
+const { Api, Model, ExtendedApi } = require('../models');
 const ApiError = require('../utils/ApiError');
+const fs = require('fs');
+const path = require('path');
+const logger = require('../config/logger');
+const { sortObject } = require('../utils/sort');
 
 /**
  *
@@ -78,10 +82,110 @@ const deleteApi = async (apiId, userId) => {
   await api.remove();
 };
 
+const listVSSVersions = async () => {
+  let versions;
+  try {
+    const rawData = fs.readFileSync(path.join(__dirname, '../../data/vss.json'));
+    versions = rawData ? JSON.parse(rawData, 'utf8') : [];
+  } catch (error) {
+    logger.error(error);
+    versions = [];
+  }
+  return versions;
+};
+
+/**
+ *
+ * @param {string} name
+ * @returns {Promise<object>}
+ */
+const getVSSVersion = async (name) => {
+  const filePath = path.join(__dirname, `../../data/${name}.json`);
+  if (!fs.existsSync(filePath)) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'VSS version not found');
+  }
+  const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  return data;
+};
+
+/**
+ *
+ * @param {string} modelId
+ */
+const computeVSSApi = async (modelId) => {
+  const model = await Model.findById(modelId);
+  if (!model) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Model not found');
+  }
+  let ret = null;
+
+  const mainApi = model.main_api || 'Vehicle';
+  const apiVersion = model.api_version;
+  if (!apiVersion) {
+    ret = {
+      [mainApi]: {
+        description: mainApi,
+        type: 'branch',
+        children: {},
+      },
+    };
+  } else {
+    ret = await getVSSVersion(apiVersion);
+  }
+
+  const extendedApis = await ExtendedApi.find({
+    model: modelId,
+    isWishlist: true,
+  });
+  extendedApis.forEach((extendedApi) => {
+    try {
+      const name = extendedApi.apiName.split('.').slice(1).join('.');
+      if (!name) return;
+      ret[mainApi].children[name] = {
+        description: extendedApi.description,
+        type: extendedApi.type || 'branch',
+        id: extendedApi._id,
+        datatype: extendedApi.datatype,
+        name: extendedApi.apiName,
+        isWishlist: extendedApi.isWishlist,
+      };
+      if (extendedApi.unit) {
+        ret[mainApi].children[name].unit = extendedApi.unit;
+      }
+    } catch (error) {
+      logger.warn(`Error while processing extended API ${extendedApi._id} with name ${extendedApi.apiName}: ${error}`);
+    }
+  });
+
+  try {
+    ret[mainApi].children = sortObject(ret[mainApi].children);
+  } catch (error) {
+    logger.warn(`Error while sorting object: ${error}`);
+  }
+
+  // Nest parent/children apis
+  const len = Object.keys(ret[mainApi].children).length;
+  for (let i = len - 1; i >= 0; i--) {
+    const key = Object.keys(ret[mainApi].children)[i];
+    const parent = key.split('.').slice(0, -1).join('.');
+    if (parent && ret[mainApi].children[parent]) {
+      ret[mainApi].children[parent].children = ret[mainApi].children[parent].children || {};
+      const childKey = key.replace(`${parent}.`, '');
+      ret[mainApi].children[parent].children[childKey] = ret[mainApi].children[key];
+      delete ret[mainApi].children[key];
+    }
+  }
+
+  return ret;
+};
+
 module.exports = {
   createApi,
   getApi,
   getApiByModelId,
   updateApi,
   deleteApi,
+  listVSSVersions,
+  getVSSVersion,
+  computeVSSApi,
 };

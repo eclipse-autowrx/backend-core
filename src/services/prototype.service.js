@@ -7,6 +7,7 @@ const { default: axios, isAxiosError } = require('axios');
 const config = require('../config/config');
 const logger = require('../config/logger');
 const modelService = require('./model.service');
+const _ = require('lodash');
 
 /**
  *
@@ -27,6 +28,31 @@ const createPrototype = async (userId, prototypeBody) => {
     created_by: userId,
   });
   return prototype;
+};
+
+/**
+ *
+ * @param {string} userId
+ * @param {Object[]} prototypes
+ * @returns {Promise<string>}create
+ */
+const bulkCreatePrototypes = async (userId, prototypes) => {
+  for (const prototype of prototypes) {
+    if (await Prototype.existsPrototypeInModel(prototype.model_id, prototype.name)) {
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        `Duplicate prototype name '${prototype.name}' in model ${prototype.model_id}`
+      );
+    }
+  }
+
+  const data = await Prototype.insertMany(
+    prototypes.map((prototype) => ({
+      ...prototype,
+      created_by: userId,
+    }))
+  );
+  return data.map((item) => item._id);
 };
 
 /**
@@ -149,7 +175,8 @@ const listRecentPrototypes = async (userId) => {
 
   const prototypes = await Prototype.find({ _id: { $in: Array.from(prototypeMap.keys()) } })
     .select('name model_id description image_file executed_turns')
-    .populate('model', 'name visibility');
+    .populate('model', 'name visibility')
+    .populate('created_by', 'name image_file');
 
   const results = [];
   recentData.forEach((data) => {
@@ -189,20 +216,33 @@ const listPopularPrototypes = async () => {
   ).map((model) => String(model._id));
   return Prototype.find({
     model_id: { $in: publicModelIds },
+    state: 'Released',
   })
     .sort({ executed_turns: -1 })
     .limit(8)
     .select('name model_id description image_file executed_turns')
-    .populate('model', 'name visibility');
+    .populate('model', 'name visibility')
+    .populate('created_by', 'name image_file');
 };
 
-module.exports = {
-  createPrototype,
-  queryPrototypes,
-  getPrototypeById,
-  updatePrototypeById,
-  deletePrototypeById,
-  listRecentPrototypes,
-  executeCode,
-  listPopularPrototypes,
+/**
+ *
+ * @param {object} filter
+ */
+const deleteMany = async (filter) => {
+  if (_.isEmpty(filter)) {
+    throw new Error('Filter is required');
+  }
+  await Prototype.deleteMany(filter);
 };
+
+module.exports.createPrototype = createPrototype;
+module.exports.queryPrototypes = queryPrototypes;
+module.exports.getPrototypeById = getPrototypeById;
+module.exports.updatePrototypeById = updatePrototypeById;
+module.exports.deletePrototypeById = deletePrototypeById;
+module.exports.listRecentPrototypes = listRecentPrototypes;
+module.exports.executeCode = executeCode;
+module.exports.listPopularPrototypes = listPopularPrototypes;
+module.exports.bulkCreatePrototypes = bulkCreatePrototypes;
+module.exports.deleteMany = deleteMany;
