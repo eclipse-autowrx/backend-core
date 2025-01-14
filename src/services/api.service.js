@@ -5,7 +5,6 @@ const ApiError = require('../utils/ApiError');
 const fs = require('fs');
 const path = require('path');
 const logger = require('../config/logger');
-const { isArray } = require('lodash');
 const { sortObject } = require('../utils/sort');
 
 /**
@@ -150,6 +149,9 @@ const computeVSSApi = async (modelId) => {
         name: extendedApi.apiName,
         isWishlist: extendedApi.isWishlist,
       };
+      if (extendedApi.unit) {
+        ret[mainApi].children[name].unit = extendedApi.unit;
+      }
     } catch (error) {
       logger.warn(`Error while processing extended API ${extendedApi._id} with name ${extendedApi.apiName}: ${error}`);
     }
@@ -160,6 +162,20 @@ const computeVSSApi = async (modelId) => {
   } catch (error) {
     logger.warn(`Error while sorting object: ${error}`);
   }
+
+  // Nest parent/children apis
+  const len = Object.keys(ret[mainApi].children).length;
+  for (let i = len - 1; i >= 0; i--) {
+    const key = Object.keys(ret[mainApi].children)[i];
+    const parent = key.split('.').slice(0, -1).join('.');
+    if (parent && ret[mainApi].children[parent]) {
+      ret[mainApi].children[parent].children = ret[mainApi].children[parent].children || {};
+      const childKey = key.replace(`${parent}.`, '');
+      ret[mainApi].children[parent].children[childKey] = ret[mainApi].children[key];
+      delete ret[mainApi].children[key];
+    }
+  }
+
   return ret;
 };
 
