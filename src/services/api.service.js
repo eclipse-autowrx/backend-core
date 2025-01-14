@@ -135,7 +135,6 @@ const computeVSSApi = async (modelId) => {
 
   const extendedApis = await ExtendedApi.find({
     model: modelId,
-    isWishlist: true,
   });
   extendedApis.forEach((extendedApi) => {
     try {

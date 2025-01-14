@@ -329,9 +329,18 @@ const getAccessibleModels = async (userId) => {
 const convertToExtendedApiFormat = (api) => {
   const { name, ...rest } = api;
   return {
-    apiName: name,
     ...rest,
+    apiName: name,
   };
+};
+
+const traverse = (api, callback, prefix = '') => {
+  if (api.children) {
+    for (const [key, child] of Object.entries(api.children)) {
+      traverse(child, callback, `${prefix}.${key}`);
+    }
+  }
+  callback(api, prefix);
 };
 
 /**
@@ -343,22 +352,29 @@ const processApiDataUrl = async (apiDataUrl) => {
   try {
     const response = await fetch(apiDataUrl);
     const data = await response.json();
-    const wishlist = [];
+    const extendedApis = [];
 
     const mainApi = Object.keys(data).at(0) || 'Vehicle';
 
-    Object.entries(data[mainApi].children).forEach(([key, value]) => {
-      if (value.isWishlist) {
-        wishlist.push(convertToExtendedApiFormat(data[mainApi].children[key]));
-        delete data[mainApi].children[key];
-      }
-    });
+    // Detached wishlist APIs
+    traverse(
+      data[mainApi],
+      (api, prefix) => {
+        for (const [key, value] of Object.entries(api.children || {})) {
+          if (value.isWishlist) {
+            extendedApis.push(convertToExtendedApiFormat(value));
+            delete api.children[key];
+          }
+        }
+      },
+      mainApi
+    );
 
-    const result = {};
-    if (wishlist.length > 0) {
-      result.extended_apis = wishlist;
-    }
+    const result = {
+      main_api: mainApi,
+    };
 
+    // Check if this is COVESA VSS version
     const versionList = require('../../data/vss.json');
     for (const version of versionList) {
       const file = require(`../../data/${version.name}.json`);
@@ -367,6 +383,24 @@ const processApiDataUrl = async (apiDataUrl) => {
         result.api_version = version.name;
         break;
       }
+    }
+
+    // If not COVESA VSS version, then add the rest APIs
+    if (!result.api_version) {
+      traverse(
+        data[mainApi],
+        (api, prefix) => {
+          for (const [key, value] of Object.entries(api.children || {})) {
+            extendedApis.push(convertToExtendedApiFormat(value));
+            delete api.children[key];
+          }
+        },
+        mainApi
+      );
+    }
+
+    if (extendedApis.length > 0) {
+      result.extended_apis = extendedApis;
     }
 
     return result;

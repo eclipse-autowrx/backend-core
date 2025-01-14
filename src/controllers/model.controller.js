@@ -12,8 +12,9 @@ const createModel = catchAsync(async (req, res) => {
   if (api_data_url) {
     const result = await modelService.processApiDataUrl(api_data_url);
     if (result) {
-      extended_apis = result.extended_apis || extended_apis;
-      reqBody.api_version = result.api_version || reqBody.api_version;
+      extended_apis = result.extended_apis;
+      reqBody.api_version = result.api_version;
+      reqBody.main_api = result.main_api;
     }
   }
 
