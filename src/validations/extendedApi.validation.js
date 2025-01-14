@@ -16,6 +16,7 @@ const createExtendedApi = {
       })
     ),
     isWishlist: Joi.boolean().default(false),
+    unit: Joi.string(),
   }),
 };
 

@@ -5,7 +5,6 @@ const ApiError = require('../utils/ApiError');
 const fs = require('fs');
 const path = require('path');
 const logger = require('../config/logger');
-const { isArray } = require('lodash');
 const { sortObject } = require('../utils/sort');
 
 /**
@@ -120,11 +119,12 @@ const computeVSSApi = async (modelId) => {
   }
   let ret = null;
 
+  const mainApi = model.main_api || 'Vehicle';
   const apiVersion = model.api_version;
   if (!apiVersion) {
     ret = {
-      Vehicle: {
-        description: 'Vehicle',
+      [mainApi]: {
+        description: mainApi,
         type: 'branch',
         children: {},
       },
@@ -135,30 +135,47 @@ const computeVSSApi = async (modelId) => {
 
   const extendedApis = await ExtendedApi.find({
     model: modelId,
-    isWishlist: true
+    isWishlist: true,
   });
   extendedApis.forEach((extendedApi) => {
     try {
       const name = extendedApi.apiName.split('.').slice(1).join('.');
       if (!name) return;
-      ret['Vehicle'].children[name] = {
+      ret[mainApi].children[name] = {
         description: extendedApi.description,
         type: extendedApi.type || 'branch',
         id: extendedApi._id,
         datatype: extendedApi.datatype,
         name: extendedApi.apiName,
-        isWishlist: extendedApi.isWishlist
+        isWishlist: extendedApi.isWishlist,
       };
+      if (extendedApi.unit) {
+        ret[mainApi].children[name].unit = extendedApi.unit;
+      }
     } catch (error) {
       logger.warn(`Error while processing extended API ${extendedApi._id} with name ${extendedApi.apiName}: ${error}`);
     }
   });
 
   try {
-    ret['Vehicle'].children = sortObject(ret['Vehicle'].children);
+    ret[mainApi].children = sortObject(ret[mainApi].children);
   } catch (error) {
     logger.warn(`Error while sorting object: ${error}`);
   }
+
+  // Nest parent/children apis
+  const len = Object.keys(ret[mainApi].children).length;
+  for (let i = len - 1; i >= 0; i--) {
+    const key = Object.keys(ret[mainApi].children)[i];
+    const parent = key.split('.').slice(0, -1).join('.');
+    if (parent && ret[mainApi].children[parent]) {
+      ret[mainApi].children[parent].children = ret[mainApi].children[parent].children || {};
+      const childKey = key.replace(`${parent}.`, '');
+      ret[mainApi].children[parent].children[childKey] = ret[mainApi].children[key];
+      delete ret[mainApi].children[key];
+    }
+  }
+
   return ret;
 };
 

@@ -344,10 +344,13 @@ const processApiDataUrl = async (apiDataUrl) => {
     const response = await fetch(apiDataUrl);
     const data = await response.json();
     const wishlist = [];
-    Object.entries(data.Vehicle.children).forEach(([key, value]) => {
+
+    const mainApi = Object.keys(data).at(0) || 'Vehicle';
+
+    Object.entries(data[mainApi].children).forEach(([key, value]) => {
       if (value.isWishlist) {
-        wishlist.push(convertToExtendedApiFormat(data.Vehicle.children[key]));
-        delete data.Vehicle.children[key];
+        wishlist.push(convertToExtendedApiFormat(data[mainApi].children[key]));
+        delete data[mainApi].children[key];
       }
     });
 

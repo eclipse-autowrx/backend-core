@@ -32,6 +32,9 @@ const extendedApiSchema = mongoose.Schema(
     skeleton: {
       type: String,
     },
+    unit: {
+      type: String,
+    },
     type: {
       type: String,
     },
@@ -42,8 +45,8 @@ const extendedApiSchema = mongoose.Schema(
     tags: [tagSchema],
     isWishlist: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   {
     timestamps: true,
