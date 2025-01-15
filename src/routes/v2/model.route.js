@@ -6,6 +6,7 @@ const auth = require('../../middlewares/auth');
 const { checkPermission } = require('../../middlewares/permission');
 const { PERMISSIONS } = require('../../config/roles');
 const config = require('../../config/config');
+const { model } = require('mongoose');
 
 const router = express.Router();
 
@@ -19,6 +20,13 @@ router
     validate(modelValidation.listModels),
     modelController.listModels
   );
+
+router.route('/all').get(
+  auth({
+    optional: !config.strictAuth,
+  }),
+  modelController.listAllModels
+);
 
 router
   .route('/:id')

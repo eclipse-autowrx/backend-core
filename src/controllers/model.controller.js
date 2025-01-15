@@ -93,6 +93,48 @@ const listModels = catchAsync(async (req, res) => {
   res.json(models);
 });
 
+const listAllModels = catchAsync(async (req, res) => {
+  const ownedModels = await modelService.queryModels(
+    {
+      created_by: req.user?.id,
+    },
+    {
+      limit: 1000,
+    },
+    {},
+    req.user?.id
+  );
+
+  const contributedModels = await modelService.queryModels(
+    {
+      is_contributor: req.user?.id,
+    },
+    {
+      limit: 1000,
+    },
+    {},
+    req.user?.id
+  );
+
+  const publicReleasedModels = await modelService.queryModels(
+    {
+      visibility: 'public',
+      state: 'released',
+    },
+    {
+      limit: 1000,
+    },
+    {},
+    req.user?.id
+  );
+
+  res.status(200).send({
+    ownedModels: ownedModels.results,
+    contributedModels: contributedModels.results,
+    publicReleasedModels: publicReleasedModels.results,
+  });
+});
+
 const getModel = catchAsync(async (req, res) => {
   const hasWritePermission = await permissionService.hasPermission(req.user?.id, PERMISSIONS.WRITE_MODEL, req.params.id);
 
@@ -175,4 +217,5 @@ module.exports = {
   addAuthorizedUser,
   deleteAuthorizedUser,
   getComputedVSSApi,
+  listAllModels,
 };
