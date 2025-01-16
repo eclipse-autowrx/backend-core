@@ -128,10 +128,43 @@ const listAllModels = catchAsync(async (req, res) => {
     req.user?.id
   );
 
+  const cacheResult = new Map();
+
+  const processStats = async (model) => {
+    if (!model) {
+      throw new Error("Error in processStats: model can't be null");
+    }
+    const modelId = model._id || model.id;
+    if (cacheResult.has(modelId)) {
+      model.stats = cacheResult.get(modelId);
+      return;
+    }
+    const stats = await modelService.getModelStats(model);
+    model.stats = stats;
+    cacheResult.set(modelId, stats);
+  };
+
+  // Add stats to each model
+  for (const model of ownedModels.results) {
+    await processStats(model);
+  }
+  for (const model of contributedModels.results) {
+    await processStats(model);
+  }
+  for (const model of publicReleasedModels.results) {
+    await processStats(model);
+  }
+
   res.status(200).send({
-    ownedModels: ownedModels.results,
-    contributedModels: contributedModels.results,
-    publicReleasedModels: publicReleasedModels.results,
+    ownedModels: {
+      results: ownedModels.results,
+    },
+    contributedModels: {
+      results: contributedModels.results,
+    },
+    publicReleasedModels: {
+      results: publicReleasedModels.results,
+    },
   });
 });
 

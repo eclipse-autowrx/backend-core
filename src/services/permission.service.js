@@ -273,17 +273,15 @@ const canAccessModel = async (userId, modelId) => {
   return hasPermission(userId, PERMISSIONS.READ_MODEL, modelId);
 };
 
-module.exports = {
-  listAuthorizedUser,
-  assignRoleToUser,
-  getUserRoles,
-  getRoleUsers,
-  hasPermission,
-  removeRoleFromUser,
-  getMappedRoles,
-  containsPermission,
-  getRoles,
-  getPermissions,
-  listReadableModelIds,
-  canAccessModel,
-};
+module.exports.listAuthorizedUser = listAuthorizedUser;
+module.exports.assignRoleToUser = assignRoleToUser;
+module.exports.getUserRoles = getUserRoles;
+module.exports.getRoleUsers = getRoleUsers;
+module.exports.hasPermission = hasPermission;
+module.exports.removeRoleFromUser = removeRoleFromUser;
+module.exports.getMappedRoles = getMappedRoles;
+module.exports.containsPermission = containsPermission;
+module.exports.getRoles = getRoles;
+module.exports.getPermissions = getPermissions;
+module.exports.listReadableModelIds = listReadableModelIds;
+module.exports.canAccessModel = canAccessModel;

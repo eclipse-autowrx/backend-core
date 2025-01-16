@@ -110,6 +110,82 @@ const getVSSVersion = async (name) => {
 
 /**
  *
+ * @param {Object} cvi
+ * @returns {Array}
+ */
+const parseCvi = (cvi) => {
+  const traverse = (node, prefix = 'Vehicle') => {
+    let ret = [];
+
+    ret.push({ ...node, name: prefix });
+
+    if (node.children) {
+      for (const [key, child] of Object.entries(node.children)) {
+        const newPrefix = `${prefix}.${key}`;
+        node.children[key].name = newPrefix;
+        ret = ret.concat(traverse(child, newPrefix));
+      }
+    }
+
+    return ret;
+  };
+
+  const mainApi = Object.keys(cvi).at(0) || 'Vehicle';
+
+  const ret = traverse(cvi[mainApi], mainApi);
+
+  ret.forEach((item) => {
+    if (item.type == 'branch') return;
+    let arName = item.name.split('.');
+    if (arName.length > 1) {
+      item.shortName = '.' + arName.slice(1).join('.');
+    } else {
+      item.shortName = item.name; // Ensure root elements have their name as shortName
+    }
+  });
+
+  ret.sort((a, b) => {
+    const aParts = a.name.split('.');
+    const bParts = b.name.split('.');
+
+    for (let i = 0; i < Math.max(aParts.length, bParts.length); i++) {
+      if (aParts[i] !== bParts[i]) {
+        return (aParts[i] || '').localeCompare(bParts[i] || '');
+      }
+    }
+
+    return 0;
+  });
+
+  return ret;
+};
+
+/**
+ *
+ * @param {string} code
+ * @param {Array<any>} apiList
+ * @returns {Array<any>}
+ */
+const getUsedApis = (code, apiList) => {
+  try {
+    let apis = [];
+    apiList.forEach((item) => {
+      if (item.shortName) {
+        if (code.includes(item.shortName)) {
+          apis.push(item.name);
+        }
+      }
+    });
+
+    return apis;
+  } catch (error) {
+    logger.error(`Error while parsing/counting APIs number: ${error}`);
+    return [];
+  }
+};
+
+/**
+ *
  * @param {string} modelId
  */
 const computeVSSApi = async (modelId) => {
@@ -179,13 +255,13 @@ const computeVSSApi = async (modelId) => {
   return ret;
 };
 
-module.exports = {
-  createApi,
-  getApi,
-  getApiByModelId,
-  updateApi,
-  deleteApi,
-  listVSSVersions,
-  getVSSVersion,
-  computeVSSApi,
-};
+module.exports.createApi = createApi;
+module.exports.getApi = getApi;
+module.exports.getApiByModelId = getApiByModelId;
+module.exports.updateApi = updateApi;
+module.exports.deleteApi = deleteApi;
+module.exports.listVSSVersions = listVSSVersions;
+module.exports.getVSSVersion = getVSSVersion;
+module.exports.computeVSSApi = computeVSSApi;
+module.exports.parseCvi = parseCvi;
+module.exports.getUsedApis = getUsedApis;
