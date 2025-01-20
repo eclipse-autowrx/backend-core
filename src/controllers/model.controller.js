@@ -107,7 +107,7 @@ const listAllModels = catchAsync(async (req, res) => {
 
   const contributedModels = await modelService.queryModels(
     {
-      is_contributor: req.user?.id,
+      is_contributor: req.user?.id || false,
     },
     {
       limit: 1000,
