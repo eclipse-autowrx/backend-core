@@ -93,6 +93,81 @@ const listModels = catchAsync(async (req, res) => {
   res.json(models);
 });
 
+const listAllModels = catchAsync(async (req, res) => {
+  const ownedModels = await modelService.queryModels(
+    {
+      created_by: req.user?.id,
+    },
+    {
+      limit: 1000,
+    },
+    {},
+    req.user?.id
+  );
+
+  const contributedModels = await modelService.queryModels(
+    {
+      is_contributor: req.user?.id,
+    },
+    {
+      limit: 1000,
+    },
+    {},
+    req.user?.id
+  );
+
+  const publicReleasedModels = await modelService.queryModels(
+    {
+      visibility: 'public',
+      state: 'released',
+    },
+    {
+      limit: 1000,
+    },
+    {},
+    req.user?.id
+  );
+
+  const cacheResult = new Map();
+
+  const processStats = async (model) => {
+    if (!model) {
+      throw new Error("Error in processStats: model can't be null");
+    }
+    const modelId = model._id || model.id;
+    if (cacheResult.has(modelId)) {
+      model.stats = cacheResult.get(modelId);
+      return;
+    }
+    const stats = await modelService.getModelStats(model);
+    model.stats = stats;
+    cacheResult.set(modelId, stats);
+  };
+
+  // Add stats to each model
+  for (const model of ownedModels.results) {
+    await processStats(model);
+  }
+  for (const model of contributedModels.results) {
+    await processStats(model);
+  }
+  for (const model of publicReleasedModels.results) {
+    await processStats(model);
+  }
+
+  res.status(200).send({
+    ownedModels: {
+      results: ownedModels.results,
+    },
+    contributedModels: {
+      results: contributedModels.results,
+    },
+    publicReleasedModels: {
+      results: publicReleasedModels.results,
+    },
+  });
+});
+
 const getModel = catchAsync(async (req, res) => {
   const hasWritePermission = await permissionService.hasPermission(req.user?.id, PERMISSIONS.WRITE_MODEL, req.params.id);
 
@@ -175,4 +250,5 @@ module.exports = {
   addAuthorizedUser,
   deleteAuthorizedUser,
   getComputedVSSApi,
+  listAllModels,
 };
