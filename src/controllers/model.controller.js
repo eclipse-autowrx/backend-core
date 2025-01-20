@@ -105,16 +105,18 @@ const listAllModels = catchAsync(async (req, res) => {
     req.user?.id
   );
 
-  const contributedModels = await modelService.queryModels(
-    {},
-    {
-      limit: 1000,
-    },
-    {
-      is_contributor: req.user?.id || false,
-    },
-    req.user?.id
-  );
+  const contributedModels = req.user?.id
+    ? await modelService.queryModels(
+        {},
+        {
+          limit: 1000,
+        },
+        {
+          is_contributor: req.user?.id,
+        },
+        req.user?.id
+      )
+    : { results: [] };
 
   const publicReleasedModels = await modelService.queryModels(
     {
