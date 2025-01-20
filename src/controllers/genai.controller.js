@@ -268,7 +268,6 @@ const getInstance = (environment = 'prod') => {
 const generateAIContent = async (req, res) => {
   try {
     const { environment } = req.params;
-    const { prompt } = req.body;
     const authorizationData = etasAuthorizationData.getAuthorizationData();
     let token = authorizationData.accessToken;
     if (!token || moment().diff(authorizationData.createdAt, 'seconds') >= authorizationData.expiresIn) {
@@ -281,17 +280,14 @@ const generateAIContent = async (req, res) => {
     }
     const instance = getInstance(environment);
     setupClient(token);
-    const response = await axios.post(
-      `https://${instance}/r2mm/GENERATE_AI`,
-      { prompt },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          Accept: 'application/json, text/plain, */*',
-        },
-      }
-    );
+    const response = await axios.post(`https://${instance}/generation`, req.body, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        Accept: 'application/json, text/plain, */*',
+        maxBodyLength: Infinity,
+      },
+    });
     return res.status(200).json(response.data);
   } catch (error) {
     console.error('Error generating AI content:', error?.response || error);
