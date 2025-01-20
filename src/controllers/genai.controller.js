@@ -279,11 +279,8 @@ const generateAIContent = async (req, res) => {
         createdAt: new Date(),
       });
     }
-
     const instance = getInstance(environment);
-
     setupClient(token);
-
     const response = await axios.post(
       `https://${instance}/r2mm/GENERATE_AI`,
       { prompt },
@@ -295,7 +292,6 @@ const generateAIContent = async (req, res) => {
         },
       }
     );
-
     return res.status(200).json(response.data);
   } catch (error) {
     console.error('Error generating AI content:', error?.response || error);
