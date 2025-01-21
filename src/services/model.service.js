@@ -1,6 +1,7 @@
 const httpStatus = require('http-status');
 const { userService } = require('.');
 const prototypeService = require('./prototype.service');
+const apiService = require('./api.service');
 const permissionService = require('./permission.service');
 const { Model, Role } = require('../models');
 const ApiError = require('../utils/ApiError');
@@ -32,6 +33,105 @@ const createModel = async (userId, modelBody) => {
     created_by: userId,
   });
   return model._id;
+};
+
+/**
+ *
+ * @param {Object}model
+ */
+const getModelStats = async (model) => {
+  // Number of used APIS / total apis
+  const stats = {
+    apis: {},
+    prototypes: {},
+    architecture: {},
+    collaboration: {},
+  };
+
+  if (!model) return stats;
+
+  let prototypes = null;
+  const modelId = model._id || model.id;
+
+  // Query prototypes
+  try {
+    prototypes = await prototypeService.queryPrototypes({ model_id: modelId }, { limit: 1000 });
+    stats.prototypes.count = prototypes.results.length || 0;
+  } catch (error) {
+    logger.warn(`Error in querying prototypes ${error}`);
+  }
+
+  // Query APIs
+  try {
+    const cvi = await apiService.computeVSSApi(modelId);
+    const apiList = apiService.parseCvi(cvi);
+    stats.apis.total = { count: apiList?.length || 0 };
+
+    const mergedCode = prototypes.results.map((prototype) => prototype.code).join('\n');
+    const usedApis = apiService.getUsedApis(mergedCode, apiList);
+    stats.apis.used = {
+      count: usedApis.length,
+    };
+  } catch (error) {
+    logger.warn(`Error in computing VSS API ${error}`);
+  }
+
+  // Query architecture of prototypes
+  try {
+    const prototypeArchitectureCount =
+      prototypes?.results?.reduce((acc, prototype) => {
+        const architecture = JSON.parse(prototype.skeleton || '{}');
+        return acc + (architecture?.nodes?.length || 0);
+      }, 0) || 0;
+    stats.architecture.prototypes = {
+      count: prototypeArchitectureCount,
+    };
+  } catch (error) {
+    logger.warn(`Error in parsing prototype architecture ${error}`);
+  }
+
+  // Query architecture of model
+  try {
+    const architecture = JSON.parse(model.skeleton || '{}');
+    stats.architecture.model = {
+      count: architecture?.nodes?.length || 0,
+    };
+  } catch (error) {
+    logger.warn(`Error in parsing architecture of ${error}`);
+  }
+
+  // Calculate total architectures in model
+  stats.architecture.total = {
+    count: (stats.architecture.prototypes?.count || 0) + (stats.architecture.model?.count || 0),
+  };
+
+  // Query contributors collaboration
+  try {
+    const contributors = await permissionService.listAuthorizedUser({
+      role: 'model_contributor',
+      ref: modelId,
+    });
+    stats.collaboration.contributors = {
+      count: contributors?.length || 0,
+    };
+  } catch (error) {
+    logger.warn(`Error in querying collaborators ${error}`);
+  }
+
+  // Query members collaboration
+  try {
+    const members = await permissionService.listAuthorizedUser({
+      role: 'model_member',
+      ref: modelId,
+    });
+    stats.collaboration.members = {
+      count: members?.length || 0,
+    };
+  } catch (error) {
+    logger.warn(`Error in querying members ${error}`);
+  }
+
+  return stats;
 };
 
 /**
@@ -329,9 +429,18 @@ const getAccessibleModels = async (userId) => {
 const convertToExtendedApiFormat = (api) => {
   const { name, ...rest } = api;
   return {
-    apiName: name,
     ...rest,
+    apiName: name,
   };
+};
+
+const traverse = (api, callback, prefix = '') => {
+  if (api.children) {
+    for (const [key, child] of Object.entries(api.children)) {
+      traverse(child, callback, `${prefix}.${key}`);
+    }
+  }
+  callback(api, prefix);
 };
 
 /**
@@ -343,22 +452,29 @@ const processApiDataUrl = async (apiDataUrl) => {
   try {
     const response = await fetch(apiDataUrl);
     const data = await response.json();
-    const wishlist = [];
+    const extendedApis = [];
 
     const mainApi = Object.keys(data).at(0) || 'Vehicle';
 
-    Object.entries(data[mainApi].children).forEach(([key, value]) => {
-      if (value.isWishlist) {
-        wishlist.push(convertToExtendedApiFormat(data[mainApi].children[key]));
-        delete data[mainApi].children[key];
-      }
-    });
+    // Detached wishlist APIs
+    traverse(
+      data[mainApi],
+      (api, prefix) => {
+        for (const [key, value] of Object.entries(api.children || {})) {
+          if (value.isWishlist) {
+            extendedApis.push(convertToExtendedApiFormat(value));
+            delete api.children[key];
+          }
+        }
+      },
+      mainApi
+    );
 
-    const result = {};
-    if (wishlist.length > 0) {
-      result.extended_apis = wishlist;
-    }
+    const result = {
+      main_api: mainApi,
+    };
 
+    // Check if this is COVESA VSS version
     const versionList = require('../../data/vss.json');
     for (const version of versionList) {
       const file = require(`../../data/${version.name}.json`);
@@ -367,6 +483,24 @@ const processApiDataUrl = async (apiDataUrl) => {
         result.api_version = version.name;
         break;
       }
+    }
+
+    // If not COVESA VSS version, then add the rest APIs
+    if (!result.api_version) {
+      traverse(
+        data[mainApi],
+        (api, prefix) => {
+          for (const [key, value] of Object.entries(api.children || {})) {
+            extendedApis.push(convertToExtendedApiFormat(value));
+            delete api.children[key];
+          }
+        },
+        mainApi
+      );
+    }
+
+    if (extendedApis.length > 0) {
+      result.extended_apis = extendedApis;
     }
 
     return result;
@@ -385,3 +519,4 @@ module.exports.addAuthorizedUser = addAuthorizedUser;
 module.exports.deleteAuthorizedUser = deleteAuthorizedUser;
 module.exports.getAccessibleModels = getAccessibleModels;
 module.exports.processApiDataUrl = processApiDataUrl;
+module.exports.getModelStats = getModelStats;
