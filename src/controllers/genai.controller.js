@@ -267,6 +267,14 @@ const getInstance = (environment = 'prod') => {
 
 const generateAIContent = async (req, res) => {
   try {
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      Connection: 'keep-alive',
+    });
+    res.write('');
+    res.flush();
+
     const { environment } = req.params;
     const authorizationData = etasAuthorizationData.getAuthorizationData();
     let token = authorizationData.accessToken;
@@ -279,22 +287,29 @@ const generateAIContent = async (req, res) => {
       });
     }
     const instance = getInstance(environment);
-    setupClient(token);
     const response = await axios.post(`https://${instance}/generation`, req.body, {
       headers: {
         Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        Accept: 'application/json, text/plain, */*',
-        maxBodyLength: Infinity,
       },
+      responseType: 'stream',
     });
-    return res.status(200).json(response.data);
+    const stream = response.data;
+    stream.on('data', (data) => {
+      res.write(data);
+      res.flush();
+    });
+    stream.on('end', () => {
+      res.end();
+    });
   } catch (error) {
     console.error('Error generating AI content:', error?.response || error);
-    if (axios.isAxiosError(error)) {
-      return res.status(error.response.status || 502).json(error.response.data);
-    }
-    return res.status(500).json({ message: 'Failed to generate AI content' });
+    res.write(
+      `data: ${JSON.stringify({
+        code: 500,
+        message: 'Error generating AI content',
+      })}\n\n`
+    );
+    res.end();
   }
 };
 
