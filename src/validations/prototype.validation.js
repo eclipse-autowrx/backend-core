@@ -43,6 +43,7 @@ const bodyValidation = Joi.object().keys({
   partner_logo: Joi.string().allow(''),
   language: Joi.string().default('python'),
   requirements: Joi.string().allow(''),
+  editors_choice: Joi.boolean(),
 });
 
 const createPrototype = {
@@ -116,6 +117,7 @@ const updatePrototype = {
     partner_logo: Joi.string().allow(''),
     requirements: Joi.string().allow(''),
     language: Joi.string(),
+    editors_choice: Joi.boolean(),
     // rated_by: Joi.object().pattern(
     //   /^[0-9a-fA-F]{24}$/,
     //   Joi.object()

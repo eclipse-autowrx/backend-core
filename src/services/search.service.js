@@ -21,7 +21,13 @@ const search = async (query, options, userId) => {
         },
       ],
     },
-    options
+    {
+      ...options,
+      // Default sort by editors_choice and createdAt
+      sortBy: options?.sortBy
+        ? ['editors_choice:desc,createdAt:asc', options.sortBy].join(',')
+        : 'editors_choice:desc,createdAt:asc',
+    }
   );
 
   return {
@@ -45,7 +51,10 @@ const searchUserByEmail = async (email) => {
  * @param {string} signal
  */
 const searchPrototypesBySignal = async (signal) => {
-  const prototypes = await Prototype.find().select('model_id code name image_file').populate('model_id');
+  const prototypes = await Prototype.find()
+    .select('model_id code name image_file')
+    .sort('-editors_choice createdAt')
+    .populate('model_id');
   return prototypes.filter((prototype) => prototype.code?.includes(signal));
 };
 

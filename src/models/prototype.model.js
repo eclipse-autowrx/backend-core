@@ -201,6 +201,10 @@ const prototypeSchema = mongoose.Schema(
     flow: {
       type: mongoose.SchemaTypes.Mixed,
     },
+    editors_choice: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
