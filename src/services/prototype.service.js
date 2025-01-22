@@ -66,7 +66,13 @@ const bulkCreatePrototypes = async (userId, prototypes) => {
  * @returns {Promise<QueryResult>}
  */
 const queryPrototypes = async (filter, options) => {
-  const prototypes = await Prototype.paginate(filter, options);
+  const prototypes = await Prototype.paginate(filter, {
+    ...options,
+    // Default sort by editors_choice and createdAt
+    sortBy: options?.sortBy
+      ? ['editors_choice:desc,createdAt:asc', options.sortBy].join(',')
+      : 'editors_choice:desc,createdAt:asc',
+  });
   return prototypes;
 };
 
