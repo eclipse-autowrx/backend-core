@@ -58,6 +58,8 @@ router.route('/:id/api').get(
   modelController.getComputedVSSApi
 );
 
+router.route('/:id/api/:apiName').get(auth({ optional: !config.strictAuth }), modelController.getApiDetail);
+
 router
   .route('/:id/permissions')
   .post(

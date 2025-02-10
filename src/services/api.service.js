@@ -289,6 +289,34 @@ const computeVSSApi = async (modelId) => {
   return ret;
 };
 
+const traverse = (api, callback, prefix = '') => {
+  if (api.children) {
+    for (const [key, child] of Object.entries(api.children)) {
+      traverse(child, callback, `${prefix}.${key}`);
+    }
+  }
+  callback(api, prefix);
+};
+
+const getApiDetail = async (modelId, apiName) => {
+  const tree = await computeVSSApi(modelId);
+
+  const mainApi = Object.keys(tree)[0] || 'Vehicle';
+  let ret = null;
+
+  traverse(
+    tree[mainApi],
+    (api, prefix) => {
+      if (prefix === apiName || api?.name === apiName || api?.apiName == apiName) {
+        ret = api;
+      }
+    },
+    mainApi
+  );
+
+  return ret;
+};
+
 module.exports.createApi = createApi;
 module.exports.getApi = getApi;
 module.exports.getApiByModelId = getApiByModelId;
@@ -299,3 +327,5 @@ module.exports.getVSSVersion = getVSSVersion;
 module.exports.computeVSSApi = computeVSSApi;
 module.exports.parseCvi = parseCvi;
 module.exports.getUsedApis = getUsedApis;
+module.exports.getApiDetail = getApiDetail;
+module.exports.traverse = traverse;

@@ -243,6 +243,17 @@ const getComputedVSSApi = catchAsync(async (req, res) => {
   res.send(data);
 });
 
+const getApiDetail = catchAsync(async (req, res) => {
+  if (!(await permissionService.canAccessModel(req.user?.id, req.params.id))) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
+  }
+  const api = await apiService.getApiDetail(req.params.id, req.params.apiName);
+  if (!api) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Api not found');
+  }
+  res.send(api);
+});
+
 module.exports = {
   createModel,
   listModels,
@@ -253,4 +264,5 @@ module.exports = {
   deleteAuthorizedUser,
   getComputedVSSApi,
   listAllModels,
+  getApiDetail,
 };
