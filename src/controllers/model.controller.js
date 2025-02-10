@@ -35,6 +35,7 @@ const createModel = catchAsync(async (req, res) => {
             type: api.type,
             datatype: api.datatype,
             isWishlist: api.isWishlist || false,
+            unit: api.unit,
           })
         )
       );
@@ -64,6 +65,7 @@ const createModel = catchAsync(async (req, res) => {
               type: api.type || 'branch',
               datatype: api.datatype || (api.type !== 'branch' ? 'string' : null),
               isWishlist: api.isWishlist || false,
+              unit: api.unit,
             })
           )
         );
