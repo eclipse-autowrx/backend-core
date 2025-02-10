@@ -6,6 +6,7 @@ const fs = require('fs');
 const path = require('path');
 const logger = require('../config/logger');
 const { sortObject } = require('../utils/sort');
+const _ = require('lodash');
 
 /**
  *
@@ -203,6 +204,15 @@ const ensureParentApiHierarchy = (root, api) => {
   return parentNode;
 };
 
+const traverse = (api, callback, prefix = '') => {
+  if (api.children) {
+    for (const [key, child] of Object.entries(api.children)) {
+      traverse(child, callback, `${prefix}.${key}`);
+    }
+  }
+  callback(api, prefix);
+};
+
 /**
  *
  * @param {string} modelId
@@ -286,16 +296,14 @@ const computeVSSApi = async (modelId) => {
     delete ret[mainApi].children[key];
   }
 
-  return ret;
-};
-
-const traverse = (api, callback, prefix = '') => {
-  if (api.children) {
-    for (const [key, child] of Object.entries(api.children)) {
-      traverse(child, callback, `${prefix}.${key}`);
+  // Remove empty children
+  traverse(ret[mainApi], (node, prefix) => {
+    if (_.isEmpty(node.children)) {
+      delete node.children;
     }
-  }
-  callback(api, prefix);
+  });
+
+  return ret;
 };
 
 const getApiDetail = async (modelId, apiName) => {
