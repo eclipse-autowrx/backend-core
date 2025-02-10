@@ -184,6 +184,25 @@ const getUsedApis = (code, apiList) => {
   }
 };
 
+const ensureParentApiHierarchy = (root, api) => {
+  if (!api) return root;
+
+  let parentNode = root;
+
+  for (const currentApi of api.split('.')) {
+    parentNode.children ??= {};
+
+    parentNode = parentNode.children[currentApi] ??= {
+      type: 'branch',
+      children: {},
+    };
+  }
+
+  parentNode.children ??= {};
+
+  return parentNode;
+};
+
 /**
  *
  * @param {string} modelId
@@ -249,16 +268,22 @@ const computeVSSApi = async (modelId) => {
   }
 
   // Nest parent/children apis
-  const len = Object.keys(ret[mainApi].children).length;
-  for (let i = len - 1; i >= 0; i--) {
-    const key = Object.keys(ret[mainApi].children)[i];
-    const parent = key.split('.').slice(0, -1).join('.');
-    if (parent && ret[mainApi].children[parent]) {
-      ret[mainApi].children[parent].children = ret[mainApi].children[parent].children || {};
-      const childKey = key.replace(`${parent}.`, '');
-      ret[mainApi].children[parent].children[childKey] = ret[mainApi].children[key];
-      delete ret[mainApi].children[key];
-    }
+
+  const keys = Object.keys(ret[mainApi].children).filter((key) => key.includes('.'));
+
+  for (const key of keys) {
+    const parts = key.split('.');
+    const parent = parts.slice(0, -1).join('.');
+    const childKey = parts[parts.length - 1];
+
+    const parentNode = ensureParentApiHierarchy(ret[mainApi], parent);
+
+    parentNode.children[childKey] = {
+      ...ret[mainApi].children[key],
+      children: ret[mainApi].children[key].children || {},
+    };
+
+    delete ret[mainApi].children[key];
   }
 
   return ret;
