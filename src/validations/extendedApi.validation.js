@@ -16,7 +16,7 @@ const createExtendedApi = {
       })
     ),
     isWishlist: Joi.boolean().default(false),
-    unit: Joi.string(),
+    unit: Joi.string().allow(''),
   }),
 };
 
@@ -56,6 +56,7 @@ const updateExtendedApi = {
         })
       ),
       isWishlist: Joi.boolean(),
+      unit: Joi.string().allow(''),
     })
     .min(1),
 };
