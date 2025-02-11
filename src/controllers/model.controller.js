@@ -256,6 +256,45 @@ const getApiDetail = catchAsync(async (req, res) => {
   res.send(api);
 });
 
+const replaceApi = catchAsync(async (req, res) => {
+  const modelId = req.params.id;
+  const { extended_apis, api_version, main_api } = await modelService.processApiDataUrl(req.body.api_data_url);
+
+  console.log('main api', main_api);
+
+  const updateBody = {
+    custom_apis: [], // Remove all custom_apis
+    main_api,
+    api_version: null,
+  };
+  if (api_version) {
+    updateBody.api_version = api_version;
+  }
+
+  await modelService.updateModelById(modelId, updateBody, req.user?.id);
+
+  await extendedApiService.deleteExtendedApisByModelId(modelId);
+  if (Array.isArray(extended_apis)) {
+    await Promise.all(
+      extended_apis.map((api) =>
+        extendedApiService.createExtendedApi({
+          model: modelId,
+          apiName: api.apiName,
+          description: api.description,
+          skeleton: api.skeleton,
+          tags: api.tags,
+          type: api.type,
+          datatype: api.datatype,
+          isWishlist: api.isWishlist || false,
+          unit: api.unit,
+        })
+      )
+    );
+  }
+
+  res.status(httpStatus.OK).send();
+});
+
 module.exports = {
   createModel,
   listModels,
@@ -267,4 +306,5 @@ module.exports = {
   getComputedVSSApi,
   listAllModels,
   getApiDetail,
+  replaceApi,
 };

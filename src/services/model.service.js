@@ -446,7 +446,7 @@ const traverse = (api, callback, prefix = '') => {
 /**
  *
  * @param {string} apiDataUrl
- * @returns {Promise<{api_version: string; extended_apis: any[]} | undefined>}
+ * @returns {Promise<{main_api: string; api_version: string; extended_apis: any[]} | undefined>}
  */
 const processApiDataUrl = async (apiDataUrl) => {
   try {

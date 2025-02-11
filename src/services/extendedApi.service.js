@@ -82,6 +82,10 @@ const getExtendedApiByApiNameAndModel = async (apiName, model) => {
   return ExtendedApi.findOne({ apiName, model });
 };
 
+const deleteExtendedApisByModelId = async (modelId) => {
+  await ExtendedApi.deleteMany({ model: modelId });
+};
+
 module.exports = {
   createExtendedApi,
   queryExtendedApis,
@@ -89,4 +93,5 @@ module.exports = {
   updateExtendedApiById,
   deleteExtendedApiById,
   getExtendedApiByApiNameAndModel,
+  deleteExtendedApisByModelId,
 };

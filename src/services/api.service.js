@@ -205,6 +205,7 @@ const ensureParentApiHierarchy = (root, api) => {
 };
 
 const traverse = (api, callback, prefix = '') => {
+  if (!api) return;
   if (api.children) {
     for (const [key, child] of Object.entries(api.children)) {
       traverse(child, callback, `${prefix}.${key}`);
@@ -279,7 +280,7 @@ const computeVSSApi = async (modelId) => {
 
   // Nest parent/children apis
 
-  const keys = Object.keys(ret[mainApi].children).filter((key) => key.includes('.'));
+  const keys = Object.keys(ret[mainApi]?.children || {}).filter((key) => key.includes('.'));
 
   for (const key of keys) {
     const parts = key.split('.');

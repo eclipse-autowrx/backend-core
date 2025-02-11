@@ -50,6 +50,10 @@ router
     modelController.deleteModel
   );
 
+router
+  .route('/:id/replace-api')
+  .post(auth(), checkPermission(PERMISSIONS.WRITE_MODEL), validate(modelValidation.replaceApi), modelController.replaceApi);
+
 router.route('/:id/api').get(
   auth({
     optional: !config.strictAuth,
