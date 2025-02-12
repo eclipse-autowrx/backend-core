@@ -7,6 +7,7 @@ const path = require('path');
 const logger = require('../config/logger');
 const { sortObject } = require('../utils/sort');
 const _ = require('lodash');
+const crypto = require('crypto');
 
 /**
  *
@@ -279,7 +280,6 @@ const computeVSSApi = async (modelId) => {
   }
 
   // Nest parent/children apis
-
   const keys = Object.keys(ret[mainApi]?.children || {}).filter((key) => key.includes('.'));
 
   for (const key of keys) {
@@ -297,12 +297,30 @@ const computeVSSApi = async (modelId) => {
     delete ret[mainApi].children[key];
   }
 
-  // Remove empty children
-  traverse(ret[mainApi], (node, prefix) => {
-    if (_.isEmpty(node.children)) {
-      delete node.children;
-    }
-  });
+  // Refine tree
+  traverse(
+    ret[mainApi],
+    (node, prefix) => {
+      // Delete empty children
+      if (_.isEmpty(node.children)) {
+        delete node.children;
+      }
+      // Ensure name and id
+      if (!node.name) {
+        node.name = prefix;
+      }
+      if (!node.id) {
+        node.id = crypto.randomBytes(12).toString('hex');
+      }
+      // Ensure datatype
+      if (node.type === 'branch') {
+        delete node.datatype;
+      } else if (!node.datatype) {
+        node.datatype = 'string';
+      }
+    },
+    mainApi
+  );
 
   return ret;
 };

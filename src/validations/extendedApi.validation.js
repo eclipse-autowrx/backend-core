@@ -7,7 +7,11 @@ const createExtendedApi = {
     model: Joi.string().custom(objectId).required(),
     skeleton: Joi.string().optional(),
     type: Joi.string(),
-    datatype: Joi.string().allow(null),
+    datatype: Joi.alternatives().conditional('type', {
+      is: 'branch',
+      then: Joi.string().allow(null).optional(),
+      otherwise: Joi.string().required(),
+    }),
     description: Joi.string().allow('').default(''),
     tags: Joi.array().items(
       Joi.object().keys({
@@ -47,7 +51,11 @@ const updateExtendedApi = {
         .message('apiName must start with Vehicle.'),
       skeleton: Joi.string().optional(),
       type: Joi.string(),
-      datatype: Joi.string().allow(null),
+      datatype: Joi.alternatives().conditional('type', {
+        is: 'branch',
+        then: Joi.string().allow(null).optional(),
+        otherwise: Joi.string().required(),
+      }),
       description: Joi.string().allow(''),
       tags: Joi.array().items(
         Joi.object().keys({

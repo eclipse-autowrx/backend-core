@@ -260,8 +260,6 @@ const replaceApi = catchAsync(async (req, res) => {
   const modelId = req.params.id;
   const { extended_apis, api_version, main_api } = await modelService.processApiDataUrl(req.body.api_data_url);
 
-  console.log('main api', main_api);
-
   const updateBody = {
     custom_apis: [], // Remove all custom_apis
     main_api,
@@ -271,26 +269,40 @@ const replaceApi = catchAsync(async (req, res) => {
     updateBody.api_version = api_version;
   }
 
-  await modelService.updateModelById(modelId, updateBody, req.user?.id);
-
-  await extendedApiService.deleteExtendedApisByModelId(modelId);
+  // Validate extended_apis
   if (Array.isArray(extended_apis)) {
-    await Promise.all(
-      extended_apis.map((api) =>
-        extendedApiService.createExtendedApi({
-          model: modelId,
-          apiName: api.apiName,
-          description: api.description,
-          skeleton: api.skeleton,
-          tags: api.tags,
-          type: api.type,
-          datatype: api.datatype,
-          isWishlist: api.isWishlist || false,
-          unit: api.unit,
-        })
-      )
-    );
+    for (const extended_api of extended_apis) {
+      const error = await extendedApiService.validateExtendedApi({
+        ...extended_api,
+        model: modelId,
+      });
+      if (error) {
+        throw new ApiError(
+          httpStatus.BAD_REQUEST,
+          `Error in validating extended API ${extended_api.name || extended_api.apiName} - ${error.details.join(', ')}`
+        );
+      }
+    }
   }
+
+  await modelService.updateModelById(modelId, updateBody, req.user?.id);
+  await extendedApiService.deleteExtendedApisByModelId(modelId);
+
+  await Promise.all(
+    (extended_apis || []).map((api) =>
+      extendedApiService.createExtendedApi({
+        model: modelId,
+        apiName: api.apiName,
+        description: api.description,
+        skeleton: api.skeleton,
+        tags: api.tags,
+        type: api.type,
+        datatype: api.datatype,
+        isWishlist: api.isWishlist || false,
+        unit: api.unit,
+      })
+    )
+  );
 
   res.status(httpStatus.OK).send();
 });

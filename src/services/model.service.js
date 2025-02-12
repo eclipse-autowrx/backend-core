@@ -518,7 +518,10 @@ const processApiDataUrl = async (apiDataUrl) => {
     return result;
   } catch (error) {
     logger.error(`Error in processing api data: ${error}`);
-    throw new ApiError(httpStatus.BAD_REQUEST, `Error in processing api data. Please check content of the file again.`);
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      error?.message || `Error in processing api data. Please check content of the file again.`
+    );
   }
 };
 
