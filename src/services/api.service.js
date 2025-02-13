@@ -312,6 +312,9 @@ const computeVSSApi = async (modelId) => {
       if (!node.id) {
         node.id = crypto.randomBytes(12).toString('hex');
       }
+      if (!node.description) {
+        node.description = 'nan';
+      }
       // Ensure datatype
       if (node.type === 'branch') {
         delete node.datatype;
