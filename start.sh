@@ -110,7 +110,7 @@ export RESTART_POLICY
 
 # Replace the placeholders in kong.yml.template and overwrite kong.yml
 cp -f kong.yml.template kong.yml
-sed -i "s|\${ENV}|$ENV|g; s|\${PORT}|$PORT|g" kong.yml
+sed -i.bak "s|\${ENV}|$ENV|g; s|\${PORT}|$PORT|g" kong.yml && rm kong.yml.bak
 
 # Run Docker Compose
 echo "Starting Docker Compose with command: $DOCKER_COMMAND"
