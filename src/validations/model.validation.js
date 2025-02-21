@@ -118,6 +118,15 @@ const getApiByModelId = {
   }),
 };
 
+const replaceApi = {
+  params: Joi.object().keys({
+    id: Joi.string().custom(objectId),
+  }),
+  body: Joi.object().keys({
+    api_data_url: Joi.string().required(),
+  }),
+};
+
 module.exports = {
   createModel,
   listModels,
@@ -127,4 +136,5 @@ module.exports = {
   addAuthorizedUser,
   deleteAuthorizedUser,
   getApiByModelId,
+  replaceApi,
 };

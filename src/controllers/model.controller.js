@@ -35,6 +35,7 @@ const createModel = catchAsync(async (req, res) => {
             type: api.type,
             datatype: api.datatype,
             isWishlist: api.isWishlist || false,
+            unit: api.unit,
           })
         )
       );
@@ -64,6 +65,7 @@ const createModel = catchAsync(async (req, res) => {
               type: api.type || 'branch',
               datatype: api.datatype || (api.type !== 'branch' ? 'string' : null),
               isWishlist: api.isWishlist || false,
+              unit: api.unit,
             })
           )
         );
@@ -105,16 +107,18 @@ const listAllModels = catchAsync(async (req, res) => {
     req.user?.id
   );
 
-  const contributedModels = await modelService.queryModels(
-    {
-      is_contributor: req.user?.id,
-    },
-    {
-      limit: 1000,
-    },
-    {},
-    req.user?.id
-  );
+  const contributedModels = req.user?.id
+    ? await modelService.queryModels(
+        {},
+        {
+          limit: 1000,
+        },
+        {
+          is_contributor: req.user?.id,
+        },
+        req.user?.id
+      )
+    : { results: [] };
 
   const publicReleasedModels = await modelService.queryModels(
     {
@@ -241,6 +245,68 @@ const getComputedVSSApi = catchAsync(async (req, res) => {
   res.send(data);
 });
 
+const getApiDetail = catchAsync(async (req, res) => {
+  if (!(await permissionService.canAccessModel(req.user?.id, req.params.id))) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
+  }
+  const api = await apiService.getApiDetail(req.params.id, req.params.apiName);
+  if (!api) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Api not found');
+  }
+  res.send(api);
+});
+
+const replaceApi = catchAsync(async (req, res) => {
+  const modelId = req.params.id;
+  const { extended_apis, api_version, main_api } = await modelService.processApiDataUrl(req.body.api_data_url);
+
+  const updateBody = {
+    custom_apis: [], // Remove all custom_apis
+    main_api,
+    api_version: null,
+  };
+  if (api_version) {
+    updateBody.api_version = api_version;
+  }
+
+  // Validate extended_apis
+  if (Array.isArray(extended_apis)) {
+    for (const extended_api of extended_apis) {
+      const error = await extendedApiService.validateExtendedApi({
+        ...extended_api,
+        model: modelId,
+      });
+      if (error) {
+        throw new ApiError(
+          httpStatus.BAD_REQUEST,
+          `Error in validating extended API ${extended_api.name || extended_api.apiName} - ${error.details.join(', ')}`
+        );
+      }
+    }
+  }
+
+  await modelService.updateModelById(modelId, updateBody, req.user?.id);
+  await extendedApiService.deleteExtendedApisByModelId(modelId);
+
+  await Promise.all(
+    (extended_apis || []).map((api) =>
+      extendedApiService.createExtendedApi({
+        model: modelId,
+        apiName: api.apiName,
+        description: api.description,
+        skeleton: api.skeleton,
+        tags: api.tags,
+        type: api.type,
+        datatype: api.datatype,
+        isWishlist: api.isWishlist || false,
+        unit: api.unit,
+      })
+    )
+  );
+
+  res.status(httpStatus.OK).send();
+});
+
 module.exports = {
   createModel,
   listModels,
@@ -251,4 +317,6 @@ module.exports = {
   deleteAuthorizedUser,
   getComputedVSSApi,
   listAllModels,
+  getApiDetail,
+  replaceApi,
 };

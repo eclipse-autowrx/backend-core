@@ -6,6 +6,8 @@ const fs = require('fs');
 const path = require('path');
 const logger = require('../config/logger');
 const { sortObject } = require('../utils/sort');
+const _ = require('lodash');
+const crypto = require('crypto');
 
 /**
  *
@@ -184,6 +186,35 @@ const getUsedApis = (code, apiList) => {
   }
 };
 
+const ensureParentApiHierarchy = (root, api) => {
+  if (!api) return root;
+
+  let parentNode = root;
+
+  for (const currentApi of api.split('.')) {
+    parentNode.children ??= {};
+
+    parentNode = parentNode.children[currentApi] ??= {
+      type: 'branch',
+      children: {},
+    };
+  }
+
+  parentNode.children ??= {};
+
+  return parentNode;
+};
+
+const traverse = (api, callback, prefix = '') => {
+  if (!api) return;
+  if (api.children) {
+    for (const [key, child] of Object.entries(api.children)) {
+      traverse(child, callback, `${prefix}.${key}`);
+    }
+  }
+  callback(api, prefix);
+};
+
 /**
  *
  * @param {string} modelId
@@ -211,22 +242,31 @@ const computeVSSApi = async (modelId) => {
 
   const extendedApis = await ExtendedApi.find({
     model: modelId,
-    isWishlist: true,
   });
   extendedApis.forEach((extendedApi) => {
     try {
       const name = extendedApi.apiName.split('.').slice(1).join('.');
       if (!name) return;
-      ret[mainApi].children[name] = {
-        description: extendedApi.description,
-        type: extendedApi.type || 'branch',
-        id: extendedApi._id,
-        datatype: extendedApi.datatype,
-        name: extendedApi.apiName,
-        isWishlist: extendedApi.isWishlist,
-      };
-      if (extendedApi.unit) {
-        ret[mainApi].children[name].unit = extendedApi.unit;
+
+      // Only add the extended API if it doesn't exist in the current CVI
+      const keys = name.split('.');
+      let current = ret[mainApi].children;
+      for (const key of keys) {
+        if (!current || !current[key]) {
+          ret[mainApi].children[name] = {
+            description: extendedApi.description,
+            type: extendedApi.type || 'branch',
+            id: extendedApi._id,
+            datatype: extendedApi.datatype,
+            name: extendedApi.apiName,
+            isWishlist: extendedApi.isWishlist,
+          };
+          if (extendedApi.unit) {
+            ret[mainApi].children[name].unit = extendedApi.unit;
+          }
+          break;
+        }
+        current = current[key].children;
       }
     } catch (error) {
       logger.warn(`Error while processing extended API ${extendedApi._id} with name ${extendedApi.apiName}: ${error}`);
@@ -240,17 +280,69 @@ const computeVSSApi = async (modelId) => {
   }
 
   // Nest parent/children apis
-  const len = Object.keys(ret[mainApi].children).length;
-  for (let i = len - 1; i >= 0; i--) {
-    const key = Object.keys(ret[mainApi].children)[i];
-    const parent = key.split('.').slice(0, -1).join('.');
-    if (parent && ret[mainApi].children[parent]) {
-      ret[mainApi].children[parent].children = ret[mainApi].children[parent].children || {};
-      const childKey = key.replace(`${parent}.`, '');
-      ret[mainApi].children[parent].children[childKey] = ret[mainApi].children[key];
-      delete ret[mainApi].children[key];
-    }
+  const keys = Object.keys(ret[mainApi]?.children || {}).filter((key) => key.includes('.'));
+
+  for (const key of keys) {
+    const parts = key.split('.');
+    const parent = parts.slice(0, -1).join('.');
+    const childKey = parts[parts.length - 1];
+
+    const parentNode = ensureParentApiHierarchy(ret[mainApi], parent);
+
+    parentNode.children[childKey] = {
+      ...ret[mainApi].children[key],
+      children: ret[mainApi].children[key].children || {},
+    };
+
+    delete ret[mainApi].children[key];
   }
+
+  // Refine tree
+  traverse(
+    ret[mainApi],
+    (node, prefix) => {
+      // Delete empty children
+      if (_.isEmpty(node.children)) {
+        delete node.children;
+      }
+      // Ensure name and id
+      if (!node.name) {
+        node.name = prefix;
+      }
+      if (!node.id) {
+        node.id = crypto.randomBytes(12).toString('hex');
+      }
+      if (!node.description) {
+        node.description = 'nan';
+      }
+      // Ensure datatype
+      if (node.type === 'branch') {
+        delete node.datatype;
+      } else if (!node.datatype) {
+        node.datatype = 'string';
+      }
+    },
+    mainApi
+  );
+
+  return ret;
+};
+
+const getApiDetail = async (modelId, apiName) => {
+  const tree = await computeVSSApi(modelId);
+
+  const mainApi = Object.keys(tree)[0] || 'Vehicle';
+  let ret = null;
+
+  traverse(
+    tree[mainApi],
+    (api, prefix) => {
+      if (prefix === apiName || api?.name === apiName || api?.apiName == apiName) {
+        ret = api;
+      }
+    },
+    mainApi
+  );
 
   return ret;
 };
@@ -265,3 +357,5 @@ module.exports.getVSSVersion = getVSSVersion;
 module.exports.computeVSSApi = computeVSSApi;
 module.exports.parseCvi = parseCvi;
 module.exports.getUsedApis = getUsedApis;
+module.exports.getApiDetail = getApiDetail;
+module.exports.traverse = traverse;

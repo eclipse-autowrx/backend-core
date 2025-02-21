@@ -446,7 +446,7 @@ const traverse = (api, callback, prefix = '') => {
 /**
  *
  * @param {string} apiDataUrl
- * @returns {Promise<{api_version: string; extended_apis: any[]} | undefined>}
+ * @returns {Promise<{main_api: string; api_version: string; extended_apis: any[]} | undefined>}
  */
 const processApiDataUrl = async (apiDataUrl) => {
   try {
@@ -462,7 +462,13 @@ const processApiDataUrl = async (apiDataUrl) => {
       (api, prefix) => {
         for (const [key, value] of Object.entries(api.children || {})) {
           if (value.isWishlist) {
-            extendedApis.push(convertToExtendedApiFormat(value));
+            const name = value?.name || `${prefix}.${key}`;
+            extendedApis.push(
+              convertToExtendedApiFormat({
+                ...value,
+                name,
+              })
+            );
             delete api.children[key];
           }
         }
@@ -491,7 +497,13 @@ const processApiDataUrl = async (apiDataUrl) => {
         data[mainApi],
         (api, prefix) => {
           for (const [key, value] of Object.entries(api.children || {})) {
-            extendedApis.push(convertToExtendedApiFormat(value));
+            const name = value?.name || `${prefix}.${key}`;
+            extendedApis.push(
+              convertToExtendedApiFormat({
+                ...value,
+                name,
+              })
+            );
             delete api.children[key];
           }
         },
@@ -505,7 +517,11 @@ const processApiDataUrl = async (apiDataUrl) => {
 
     return result;
   } catch (error) {
-    logger.warn(`Error in processing api data url: ${error}`);
+    logger.error(`Error in processing api data: ${error}`);
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      error?.message || `Error in processing api data. Please check content of the file again.`
+    );
   }
 };
 

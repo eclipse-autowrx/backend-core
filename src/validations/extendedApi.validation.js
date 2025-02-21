@@ -7,7 +7,11 @@ const createExtendedApi = {
     model: Joi.string().custom(objectId).required(),
     skeleton: Joi.string().optional(),
     type: Joi.string(),
-    datatype: Joi.string(),
+    datatype: Joi.alternatives().conditional('type', {
+      is: 'branch',
+      then: Joi.string().allow(null).optional(),
+      otherwise: Joi.string().required(),
+    }),
     description: Joi.string().allow('').default(''),
     tags: Joi.array().items(
       Joi.object().keys({
@@ -16,7 +20,7 @@ const createExtendedApi = {
       })
     ),
     isWishlist: Joi.boolean().default(false),
-    unit: Joi.string(),
+    unit: Joi.string().allow('', null),
   }),
 };
 
@@ -47,7 +51,11 @@ const updateExtendedApi = {
         .message('apiName must start with Vehicle.'),
       skeleton: Joi.string().optional(),
       type: Joi.string(),
-      datatype: Joi.string(),
+      datatype: Joi.alternatives().conditional('type', {
+        is: 'branch',
+        then: Joi.string().allow(null).optional(),
+        otherwise: Joi.string().required(),
+      }),
       description: Joi.string().allow(''),
       tags: Joi.array().items(
         Joi.object().keys({
@@ -56,6 +64,7 @@ const updateExtendedApi = {
         })
       ),
       isWishlist: Joi.boolean(),
+      unit: Joi.string().allow('', null),
     })
     .min(1),
 };

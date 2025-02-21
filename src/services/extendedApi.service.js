@@ -3,6 +3,8 @@ const { ExtendedApi } = require('../models');
 const ApiError = require('../utils/ApiError');
 const { permissionService } = require('.');
 const { PERMISSIONS } = require('../config/roles');
+const Joi = require('joi');
+const { extendedApiValidation } = require('../validations');
 
 /**
  * Create a new ExtendedApi
@@ -82,11 +84,34 @@ const getExtendedApiByApiNameAndModel = async (apiName, model) => {
   return ExtendedApi.findOne({ apiName, model });
 };
 
-module.exports = {
-  createExtendedApi,
-  queryExtendedApis,
-  getExtendedApiById,
-  updateExtendedApiById,
-  deleteExtendedApiById,
-  getExtendedApiByApiNameAndModel,
+const deleteExtendedApisByModelId = async (modelId) => {
+  await ExtendedApi.deleteMany({ model: modelId });
 };
+
+/**
+ *
+ * @param {import('../typedefs').ExtendedApi} extendedApi
+ * @returns {Promise<null | {details: string[]}>}
+ */
+const validateExtendedApi = async (extendedApi) => {
+  const { _, error } = Joi.compile(extendedApiValidation.createExtendedApi.body.unknown())
+    .prefs({ errors: { label: 'key' }, abortEarly: false })
+    .validate(extendedApi);
+
+  if (error) {
+    return {
+      details: error.details.map((details) => details.message),
+    };
+  }
+
+  return null;
+};
+
+module.exports.createExtendedApi = createExtendedApi;
+module.exports.queryExtendedApis = queryExtendedApis;
+module.exports.getExtendedApiById = getExtendedApiById;
+module.exports.updateExtendedApiById = updateExtendedApiById;
+module.exports.deleteExtendedApiById = deleteExtendedApiById;
+module.exports.getExtendedApiByApiNameAndModel = getExtendedApiByApiNameAndModel;
+module.exports.deleteExtendedApisByModelId = deleteExtendedApisByModelId;
+module.exports.validateExtendedApi = validateExtendedApi;
