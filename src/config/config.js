@@ -149,7 +149,7 @@ const config = {
     secretKey: envVars.AWS_SECRET_KEY,
   },
   genAI: {
-    allowedEmails: envVars.GENAI_ALLOWED_EMAILS.split(','),
+    allowedEmails: envVars.GENAI_ALLOWED_EMAILS.split(',') || [],
   },
   etas: {
     enabled: envVars.ETAS_ENABLED,
