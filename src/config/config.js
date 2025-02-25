@@ -34,13 +34,13 @@ const envVarsSchema = Joi.object()
     GITHUB_CLIENT_SECRET: Joi.string().required().description('Github client secret'),
     UPLOAD_PORT: Joi.number().required().description('Upload port'),
     // AWS,
-    AWS_PUBLIC_KEY: Joi.string().required().description('AWS public key'),
-    AWS_SECRET_KEY: Joi.string().required().description('AWS secret key'),
+    AWS_PUBLIC_KEY: Joi.string().description('AWS public key'),
+    AWS_SECRET_KEY: Joi.string().description('AWS secret key'),
     // OpenAI,
-    OPENAI_API_KEY: Joi.string().required().description('OpenAI API key'),
-    OPENAI_ENDPOINT_URL: Joi.string().required().description('OpenAI endpoint url'),
+    OPENAI_API_KEY: Joi.string().description('OpenAI API key'),
+    OPENAI_ENDPOINT_URL: Joi.string().description('OpenAI endpoint url'),
     // GenAI
-    GENAI_ALLOWED_EMAILS: Joi.string().required().description('GenAI allowed emails'),
+    GENAI_ALLOWED_EMAILS: Joi.string().description('GenAI allowed emails'),
     // ETAS
     ETAS_ENABLED: Joi.boolean().description('ETAS enabled'),
     ETAS_CLIENT_ID: Joi.string().description('ETAS client id'),
@@ -149,7 +149,7 @@ const config = {
     secretKey: envVars.AWS_SECRET_KEY,
   },
   genAI: {
-    allowedEmails: envVars.GENAI_ALLOWED_EMAILS.split(',') || [],
+    allowedEmails: envVars.GENAI_ALLOWED_EMAILS?.split(',') || [],
   },
   etas: {
     enabled: envVars.ETAS_ENABLED,
