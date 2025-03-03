@@ -52,12 +52,6 @@ if [ ! -d "$UPLOAD_PATH" ]; then
   sudo mkdir -p "$UPLOAD_PATH"
 fi
 
-# Replace env file to upload directory
-if ! cp -f .env ./upload/; then
-  echo "Failed to copy .env file to ./upload/"
-  exit 1
-fi
-
 # Set permissions for the directory
 echo "Setting permissions for $UPLOAD_PATH"
 sudo chown -R 1000:1000 "$UPLOAD_PATH"

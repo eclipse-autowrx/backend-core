@@ -26,6 +26,8 @@ services:
     container_name: ${ENV:-dev}-playground-be
     build: .
     image: boschvn/playground-be:${IMAGE_TAG:-latest}
+    env_file:
+      - .env
     depends_on:
       - playground-db
       - upload
@@ -45,7 +47,7 @@ services:
   upload:
     platform: linux/amd64
     container_name: ${ENV:-dev}-upload
-    image: boschvn/upload:latest
+    image: boschvn/upload-etas:latest
     env_file:
       - .env
     volumes:

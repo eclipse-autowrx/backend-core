@@ -6,6 +6,3 @@ services:
 
   upload:
     command: npm start
-    volumes:
-      - ./upload:/usr/src/upload
-      - /usr/src/upload/node_modules/

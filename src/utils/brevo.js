@@ -1,6 +1,7 @@
 const axios = require('axios');
+const config = require('../config/config');
 
-const BREVO_API_KEY = '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';
+const BREVO_API_KEY = config.brevo.apiKey;
 const BREVO_API_HOST = 'https://api.brevo.com/v3/smtp/email';
 
 const sendEmailByBrevo = async (to, subject, htmlContent) => {
