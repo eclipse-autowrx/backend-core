@@ -21,12 +21,6 @@ if [ -z "$KONG_PROXY_PORT" ]; then
   exit 1
 fi
 
-if [ -z "$KONG_ADMIN_PORT" ]; then
-  echo "KONG_ADMIN_PORT is not set"
-  exit 1
-fi
-
-
 if [ -z "$UPLOAD_PATH" ]; then
   echo "UPLOAD_PATH is not set"
   exit 1
@@ -39,11 +33,6 @@ fi
 
 if [ -z "$UPLOAD_DOMAIN" ]; then
   echo "UPLOAD_DOMAIN is not set"
-  exit 1
-fi
-
-if [ -z "$MONGO_EXPOSE_PORT" ]; then
-  echo "MONGO_EXPOSE_PORT is not set"
   exit 1
 fi
 
