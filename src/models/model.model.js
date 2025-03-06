@@ -33,6 +33,9 @@ const modelSchema = mongoose.Schema(
     model_home_image_file: {
       type: String,
     },
+    detail_image_file: {
+      type: String,
+    },
     model_files: {
       type: Object,
     },
