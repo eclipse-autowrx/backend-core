@@ -33,6 +33,17 @@ const changeLogSchema = new mongoose.Schema(
   }
 );
 
+/**
+ * @typedef {mongoose.Document & {
+ *  created_by: mongoose.Types.ObjectId,
+ *  description?: string,
+ *  ref_type: string,
+ *  ref: mongoose.Types.ObjectId
+ *  action: 'CREATE' | 'UPDATE' | 'DELETE',
+ *  changes?: mongoose.Schema.Types.Mixed
+ * }} CodeChangeDocument
+ */
+
 changeLogSchema.plugin(toJSON);
 changeLogSchema.plugin(paginate);
 
