@@ -9,8 +9,9 @@ const LLMServices = require('../services/llm.service');
 const config = require('../config/config');
 const axios = require('axios');
 const etasAuthorizationData = require('../states/etasAuthorization');
-const moment = require('moment');
-const { setupClient } = require('../utils/setupEtasStream');
+const httpStatus = require('http-status');
+const ApiError = require('../utils/ApiError');
+const logger = require('../config/logger');
 
 dotenv.config();
 
@@ -219,41 +220,6 @@ const invokeOpenAIController = catchAsync(async (req, res) => {
   res.send(result);
 });
 
-const getAccessToken = async () => {
-  const params = new URLSearchParams();
-  params.append('grant_type', 'client_credentials');
-  params.append('client_id', config.etas.clientId || '');
-  params.append('client_secret', config.etas.clientSecret || '');
-  params.append('scope', config.etas.scope || '');
-
-  // console.log('ETAS_CLIENT_ID', config.etas.clientId);
-  // console.log('ETAS_CLIENT_SECRET', config.etas.clientSecret);
-  // console.log('ETAS_SCOPE', config.etas.scope);
-
-  try {
-    const response = await axios.post(
-      'https://p2.authz.bosch.com/auth/realms/EU_CALPONIA/protocol/openid-connect/token',
-      params,
-      {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          Accept: 'application/json',
-        },
-      }
-    );
-
-    // console.log('Authorization response:', response.data);
-
-    return {
-      accessToken: response.data.access_token,
-      expiresIn: response.data.expires_in,
-    };
-  } catch (error) {
-    console.error('Error fetching token:', error);
-    throw new Error('Failed to fetch token');
-  }
-};
-
 const getInstance = (environment = 'prod') => {
   switch (environment) {
     case 'prod':
@@ -276,29 +242,35 @@ const generateAIContent = async (req, res) => {
     res.flush();
 
     const { environment } = req.params;
-    const authorizationData = etasAuthorizationData.getAuthorizationData();
-    let token = authorizationData.accessToken;
-    if (!token || moment().diff(authorizationData.createdAt, 'seconds') >= authorizationData.expiresIn) {
-      const authorizationData = await getAccessToken();
-      token = authorizationData.accessToken;
-      etasAuthorizationData.setAuthorizationData({
-        ...authorizationData,
-        createdAt: new Date(),
-      });
-    }
+    const authorizationData = await etasAuthorizationData.getAuthorizationData();
+    const token = authorizationData.accessToken;
+
+    const abortController = new AbortController();
+    req.on('close', () => {
+      logger.info('Stream request closed by client');
+      abortController.abort();
+    });
+
     const instance = getInstance(environment);
     const response = await axios.post(`https://${instance}/generation`, req.body, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
       responseType: 'stream',
+      abortController: abortController.signal,
     });
+
     const stream = response.data;
     stream.on('data', (data) => {
       res.write(data);
       res.flush();
     });
     stream.on('end', () => {
+      res.end();
+    });
+    stream.on('error', (streamError) => {
+      logger.error('Error while streaming content response from GenAI:', streamError);
+      res.write(`data: ${JSON.stringify({ code: 500, message: 'Error while streaming data from GenAI' })}\n\n`);
       res.end();
     });
   } catch (error) {
@@ -313,6 +285,27 @@ const generateAIContent = async (req, res) => {
   }
 };
 
+const updateProfile = catchAsync(async (req, res) => {
+  const authorizationData = await etasAuthorizationData.getAuthorizationData();
+  const token = authorizationData.accessToken;
+
+  const { environment, profileId } = req.params;
+  const instance = getInstance(environment);
+
+  try {
+    const response = await axios.put(`https://${instance}/profiles/${profileId}`, req.body, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    res.status(httpStatus.OK).send(response.data);
+  } catch (error) {
+    logger.error(`Error update profile: ${error?.response || error}`);
+    throw new ApiError(httpStatus.BAD_GATEWAY, 'Error updating profile');
+  }
+});
+
 module.exports = {
   invokeBedrockModel,
   BedrockGenCode,
@@ -320,6 +313,6 @@ module.exports = {
   extractModelId,
   generatePayload,
   invokeOpenAIController,
-  getAccessToken,
   generateAIContent,
+  updateProfile,
 };
