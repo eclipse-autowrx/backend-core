@@ -311,15 +311,16 @@ const getModelById = async (id, userId, includeCreatorFullDetails) => {
  *
  * @param {string} id
  * @param {Object} updateBody
- * @param {userId} string
+ * @param {string} actionOwner
  * @returns {Promise<string>}
  */
-const updateModelById = async (id, updateBody, userId) => {
-  const model = await getModelById(id, userId);
+const updateModelById = async (id, updateBody, actionOwner) => {
+  const model = await getModelById(id, actionOwner);
   if (!model) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Model not found');
   }
 
+  updateBody.action_owner = actionOwner;
   Object.assign(model, updateBody);
   await model.save();
   return model._id;
@@ -328,18 +329,19 @@ const updateModelById = async (id, updateBody, userId) => {
 /**
  *
  * @param {string} id
- * @param {string} userId
+ * @param {string} actionOwner
  * @returns {Promise<void>}
  */
-const deleteModelById = async (id, userId) => {
-  const model = await getModelById(id, userId);
+const deleteModelById = async (id, actionOwner) => {
+  const model = await getModelById(id, actionOwner);
 
   if (!model) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Model not found');
   }
 
+  model.action_owner = actionOwner;
   await model.remove();
-  await prototypeService.deleteMany({ model_id: id });
+  await prototypeService.deleteMany({ model_id: id }, actionOwner);
 };
 
 /**

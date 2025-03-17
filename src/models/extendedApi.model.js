@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { toJSON, paginate } = require('./plugins');
+const { toJSON, paginate, captureChange } = require('./plugins');
 
 const tagSchema = mongoose.Schema(
   {
@@ -56,6 +56,9 @@ const extendedApiSchema = mongoose.Schema(
 // add plugin that converts mongoose to json
 extendedApiSchema.plugin(toJSON);
 extendedApiSchema.plugin(paginate);
+
+extendedApiSchema.pre('save', captureChange.captureUpdates);
+extendedApiSchema.post('remove', captureChange.captureRemove);
 
 extendedApiSchema.index({ apiName: 1, model: 1 }, { unique: true });
 
