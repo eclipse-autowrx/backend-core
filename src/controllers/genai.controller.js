@@ -12,6 +12,9 @@ const etasAuthorizationData = require('../states/etasAuthorization');
 const httpStatus = require('http-status');
 const ApiError = require('../utils/ApiError');
 const logger = require('../config/logger');
+const _ = require('lodash');
+const mongoose = require('mongoose');
+const { apiService } = require('../services');
 
 dotenv.config();
 
@@ -292,8 +295,23 @@ const updateProfile = catchAsync(async (req, res) => {
   const { environment, profileId } = req.params;
   const instance = getInstance(environment);
 
+  let reqBody = req.body;
+  if (!reqBody || _.isEmpty(reqBody)) {
+    if (mongoose.isValidObjectId(profileId)) {
+      const modelApi = await apiService.computeVSSApi(profileId);
+      if (!modelApi || _.isEmpty(modelApi)) {
+        throw new ApiError(httpStatus.BAD_REQUEST, `Cannot compute VSS API from model ID ${profileId}`);
+      }
+      reqBody = {
+        vss: modelApi,
+      };
+    } else {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Missing request body');
+    }
+  }
+
   try {
-    const response = await axios.put(`https://${instance}/profiles/${profileId}`, req.body, {
+    const response = await axios.put(`https://${instance}/profiles/${profileId}`, reqBody, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -301,7 +319,7 @@ const updateProfile = catchAsync(async (req, res) => {
 
     res.status(httpStatus.OK).send(response.data);
   } catch (error) {
-    logger.error(`Error update profile: ${error?.response || error}`);
+    logger.error(`Error update profile: %o`, error?.response?.data || error);
     throw new ApiError(httpStatus.BAD_GATEWAY, 'Error updating profile');
   }
 });
