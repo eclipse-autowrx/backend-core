@@ -6,3 +6,7 @@ services:
 
   upload:
     command: npm start
+
+  playground-db:
+    ports:
+      - "27017:27017"
