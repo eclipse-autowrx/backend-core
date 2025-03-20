@@ -9,6 +9,9 @@ const envVarsSchema = Joi.object()
     NODE_ENV: Joi.string().valid('production', 'development', 'test').required(),
     PORT: Joi.number().default(3000),
     MONGODB_URL: Joi.string().required().description('Mongo DB url'),
+    // CORS Settings
+    CORS_ORIGIN: Joi.string().description('CORS regex'),
+    // JWT
     JWT_SECRET: Joi.string().required().description('JWT secret key'),
     JWT_ACCESS_EXPIRATION_MINUTES: Joi.number().default(30).description('minutes after which access tokens expire'),
     JWT_REFRESH_EXPIRATION_DAYS: Joi.number().default(30).description('days after which refresh tokens expire'),
@@ -66,14 +69,11 @@ const config = {
   port: envVars.PORT,
   strictAuth: envVars.STRICT_AUTH,
   cors: {
-    regex: [
-      /localhost:\d+/,
-      /\.digitalauto\.tech$/,
-      /\.digitalauto\.asia$/,
-      /\.digital\.auto$/,
-      'https://digitalauto.netlify.app',
-      /127\.0\.0\.1:\d+/,
-    ],
+    regex: (envVars.CORS_ORIGIN || '')
+      .split(',')
+      .map((i) => i.trim())
+      .filter(Boolean)
+      .map((i) => new RegExp(i)),
   },
   mongoose: {
     url: envVars.MONGODB_URL + (envVars.NODE_ENV === 'test' ? '-test' : ''),
