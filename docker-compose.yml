@@ -1,4 +1,5 @@
 services:
+
   kong:
     platform: linux/amd64
     image: kong:3.7.1-ubuntu
@@ -13,7 +14,7 @@ services:
     ports:
       - "${KONG_PROXY_PORT}:8000"
 
-    restart: ${RESTART_POLICY:-always}
+    restart: always
     networks:
       - node-network
     volumes:
@@ -33,7 +34,8 @@ services:
       - upload
     networks:
       - node-network
-    restart: ${RESTART_POLICY:-always}
+    restart: always
+    command: yarn start
 
   playground-db:
     container_name: ${DB_CONTAINER_NAME:-playground-db}
@@ -42,19 +44,20 @@ services:
       - dbdata:/data/db
     networks:
       - node-network
-    restart: ${RESTART_POLICY:-always}
+    restart: always
 
   upload:
     platform: linux/amd64
     container_name: ${ENV:-dev}-upload
-    image: boschvn/upload:latest
+    image: boschvn/upload:dcdc95a
     env_file:
       - .env
     volumes:
       - '${UPLOAD_PATH}:/usr/src/upload/data'
     networks:
       - node-network
-    restart: ${RESTART_POLICY:-always}
+    restart: always
+    command: npm run prod
 
 volumes:
   dbdata:

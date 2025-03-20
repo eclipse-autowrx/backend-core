@@ -5,11 +5,12 @@ const logger = require('./config/logger');
 const initializeRoles = require('./utils/initializeRoles');
 const { init } = require('./config/socket');
 const setupScheduledCheck = require('./scripts/checkVSSUpdate');
+const assignAdmins = require('./scripts/assignAdmins');
 
 let server;
 mongoose.connect(config.mongoose.url, config.mongoose.options).then(() => {
   logger.info('Connected to MongoDB ');
-  initializeRoles();
+  initializeRoles().then(() => assignAdmins());
   server = app.listen(config.port, () => {
     logger.info(`Listening to port ${config.port}`);
   });

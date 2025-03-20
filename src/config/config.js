@@ -36,6 +36,7 @@ const envVarsSchema = Joi.object()
     GITHUB_CLIENT_ID: Joi.string().description('Github client id'),
     GITHUB_CLIENT_SECRET: Joi.string().description('Github client secret'),
     UPLOAD_PORT: Joi.number().required().description('Upload port'),
+    UPLOAD_DOMAIN: Joi.string().required().description('Upload domain'),
     // AWS,
     AWS_PUBLIC_KEY: Joi.string().description('AWS public key'),
     AWS_SECRET_KEY: Joi.string().description('AWS secret key'),
@@ -55,6 +56,9 @@ const envVarsSchema = Joi.object()
     CERTIVITY_CLIENT_ID: Joi.string().description('Certivity client id'),
     CERTIVITY_CLIENT_SECRET: Joi.string().description('Certivity client secret'),
     STRICT_AUTH: Joi.boolean().description('Strict auth'),
+    // Admin emails
+    ADMIN_EMAILS: Joi.string().description('Admin emails'),
+    ADMIN_PASSWORD: Joi.string().description('Admin password'),
   })
   .unknown();
 
@@ -132,6 +136,7 @@ const config = {
   services: {
     upload: {
       port: envVars.UPLOAD_PORT,
+      domain: envVars.UPLOAD_DOMAIN,
     },
     log: {
       port: envVars.LOG_PORT || 9600,
@@ -171,6 +176,8 @@ const config = {
   sso: {
     msGraphMeEndpoint: 'https://graph.microsoft.com/v1.0/me',
   },
+  adminEmails: envVars.ADMIN_EMAILS?.split(',') || [],
+  adminPassword: envVars.ADMIN_PASSWORD,
 };
 
 if (config.env === 'development') {

@@ -3,6 +3,7 @@ const { userService } = require('.');
 const prototypeService = require('./prototype.service');
 const apiService = require('./api.service');
 const permissionService = require('./permission.service');
+const fileService = require('./file.service');
 const { Model, Role } = require('../models');
 const ApiError = require('../utils/ApiError');
 const { PERMISSIONS } = require('../config/roles');
@@ -452,7 +453,8 @@ const traverse = (api, callback, prefix = '') => {
  */
 const processApiDataUrl = async (apiDataUrl) => {
   try {
-    const response = await fetch(apiDataUrl);
+    // resolve the correct url incase the apiDataUrl is relative. Eg. /api/v2/data/vehicle.json
+    const response = await fetch(fileService.resolveUrl(apiDataUrl));
     const data = await response.json();
     const extendedApis = [];
 

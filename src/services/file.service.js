@@ -22,6 +22,32 @@ const upload = async (file) => {
 };
 
 /**
+ *
+ * @param {string} url
+ * @returns {string}
+ */
+const resolveUrl = (url) => {
+  if (!url.startsWith('/')) {
+    return url;
+  }
+
+  /** @type {string} */
+  let uploadPath = config.services.upload.domain;
+  if (!uploadPath.endsWith('/')) {
+    uploadPath += '/';
+  }
+
+  let relativePath;
+  if (url.startsWith(uploadPath)) {
+    relativePath = url.slice(uploadPath.length);
+  } else {
+    relativePath = url.slice(1);
+  }
+
+  return `http://upload:${config.services.upload.port}/${relativePath}`;
+};
+
+/**
  * @param {string} url
  * @param {'File' | 'Buffer' | 'Uint8Array'} [encoding]
  * @returns {Promise<File>}
@@ -65,8 +91,7 @@ const downloadFile = async (url, path) => {
  */
 const compareImages = async (file1, file2) => {};
 
-module.exports = {
-  upload,
-  getFileFromURL,
-  downloadFile,
-};
+module.exports.upload = upload;
+module.exports.resolveUrl = resolveUrl;
+module.exports.getFileFromURL = getFileFromURL;
+module.exports.downloadFile = downloadFile;
