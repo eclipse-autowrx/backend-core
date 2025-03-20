@@ -21,8 +21,8 @@ const envVarsSchema = Joi.object()
     JWT_VERIFY_EMAIL_EXPIRATION_MINUTES: Joi.number()
       .default(10)
       .description('minutes after which verify email token expires'),
-    JWT_COOKIE_NAME: Joi.string().required().description('JWT cookie name'),
-    JWT_COOKIE_DOMAIN: Joi.string().required().description('JWT cookie domain'),
+    JWT_COOKIE_NAME: Joi.string().default('token').description('JWT cookie name'),
+    JWT_COOKIE_DOMAIN: Joi.string().default('').description('JWT cookie domain'),
     SMTP_HOST: Joi.string().description('server that will send the emails'),
     SMTP_PORT: Joi.number().description('port to connect to the email server'),
     SMTP_USERNAME: Joi.string().description('username for email server'),
@@ -73,7 +73,7 @@ const config = {
   port: envVars.PORT,
   strictAuth: envVars.STRICT_AUTH,
   cors: {
-    regex: (envVars.CORS_ORIGIN || '')
+    regex: (envVars.CORS_ORIGIN || 'localhost:\\d+,127\\.0\\.0\\.1:\\d+')
       .split(',')
       .map((i) => i.trim())
       .filter(Boolean)
