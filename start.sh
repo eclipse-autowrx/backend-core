@@ -21,12 +21,6 @@ if [ -z "$KONG_PROXY_PORT" ]; then
   exit 1
 fi
 
-if [ -z "$KONG_ADMIN_PORT" ]; then
-  echo "KONG_ADMIN_PORT is not set"
-  exit 1
-fi
-
-
 if [ -z "$UPLOAD_PATH" ]; then
   echo "UPLOAD_PATH is not set"
   exit 1
@@ -42,20 +36,9 @@ if [ -z "$UPLOAD_DOMAIN" ]; then
   exit 1
 fi
 
-if [ -z "$MONGO_EXPOSE_PORT" ]; then
-  echo "MONGO_EXPOSE_PORT is not set"
-  exit 1
-fi
-
 if [ ! -d "$UPLOAD_PATH" ]; then
   echo "Creating directory $UPLOAD_PATH"
   sudo mkdir -p "$UPLOAD_PATH"
-fi
-
-# Replace env file to upload directory
-if ! cp -f .env ./upload/; then
-  echo "Failed to copy .env file to ./upload/"
-  exit 1
 fi
 
 # Set permissions for the directory
@@ -110,7 +93,7 @@ export RESTART_POLICY
 
 # Replace the placeholders in kong.yml.template and overwrite kong.yml
 cp -f kong.yml.template kong.yml
-sed -i "s|\${ENV}|$ENV|g; s|\${PORT}|$PORT|g" kong.yml
+sed -i.bak "s|\${ENV}|$ENV|g; s|\${PORT}|$PORT|g" kong.yml && rm kong.yml.bak
 
 # Run Docker Compose
 echo "Starting Docker Compose with command: $DOCKER_COMMAND"
