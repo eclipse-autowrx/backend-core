@@ -1,67 +1,12 @@
-// const axios = require('axios');
-const express = require('express');
-const auth = require('../../middlewares/auth');
-const { invokeBedrockModel } = require('../../controllers/genai.controller');
-const { genaiController } = require('../../controllers');
-const genaiPermission = require('../../middlewares/genaiPermission');
+const { createProxyMiddleware } = require('http-proxy-middleware');
 const config = require('../../config/config');
+const { proxyHandler } = require('../../config/proxyHandler');
 
-const router = express.Router();
+const proxyMiddleware = config.services.genAI.url
+  ? createProxyMiddleware({
+      target: config.services.genAI.url,
+      changeOrigin: true,
+    })
+  : null;
 
-router.post(
-  '/',
-  // validate(genaiValidation.invokeBedrock),
-  auth({
-    optional: !config.strictAuth,
-  }),
-  genaiPermission,
-  invokeBedrockModel
-);
-
-router.post(
-  '/openai',
-  // validate(genaiValidation.invokeOpenAI),
-  auth({
-    optional: !config.strictAuth,
-  }),
-  genaiPermission,
-  genaiController.invokeOpenAIController
-);
-
-router.post(
-  '/etas',
-  auth({
-    optional: !config.strictAuth,
-  }),
-  genaiPermission,
-  genaiController.generateAIContent
-);
-
-router.put(
-  '/etas/profiles/:profileId',
-  auth({
-    optional: !config.strictAuth,
-  }),
-  genaiPermission,
-  genaiController.updateProfile
-);
-
-router.post(
-  '/etas/:environment',
-  auth({
-    optional: !config.strictAuth,
-  }),
-  genaiPermission,
-  genaiController.generateAIContent
-);
-
-router.put(
-  '/etas/:environment/profiles/:profileId',
-  auth({
-    optional: !config.strictAuth,
-  }),
-  genaiPermission,
-  genaiController.updateProfile
-);
-
-module.exports = router;
+module.exports = proxyHandler('GenAI service', proxyMiddleware);

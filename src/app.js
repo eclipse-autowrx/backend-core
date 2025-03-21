@@ -14,7 +14,7 @@ const routes = require('./routes/v1');
 const routesV2 = require('./routes/v2');
 const { errorConverter, errorHandler } = require('./middlewares/error');
 const ApiError = require('./utils/ApiError');
-const setupProxy = require('./config/proxyHandler');
+const { setupProxy } = require('./config/proxyHandler');
 const { init: initSocketIO } = require('./config/socket');
 
 const app = express();

@@ -35,8 +35,13 @@ const envVarsSchema = Joi.object()
     BREVO_BASE_URL: Joi.string().description('Brevo base url'),
     GITHUB_CLIENT_ID: Joi.string().description('Github client id'),
     GITHUB_CLIENT_SECRET: Joi.string().description('Github client secret'),
+    // Upload service
     UPLOAD_PORT: Joi.number().required().description('Upload port'),
     UPLOAD_DOMAIN: Joi.string().required().description('Upload domain'),
+    // Auth service
+    AUTH_URL: Joi.string().description('Auth service url'),
+    // GenAI service
+    GENAI_URL: Joi.string().description('GenAI service url'),
     // AWS,
     AWS_PUBLIC_KEY: Joi.string().description('AWS public key'),
     AWS_SECRET_KEY: Joi.string().description('AWS secret key'),
@@ -143,6 +148,12 @@ const config = {
     },
     cache: {
       baseUrl: 'https://cache.digitalauto.tech',
+    },
+    auth: {
+      url: envVars.AUTH_URL,
+    },
+    genAI: {
+      url: envVars.GENAI_URL,
     },
   },
   openai: {
