@@ -1,23 +1,6 @@
 const mongoose = require('mongoose');
 const { toJSON, paginate, captureChange } = require('./plugins');
 
-const tagSchema = mongoose.Schema(
-  {
-    title: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    description: {
-      type: String,
-      trim: true,
-    },
-  },
-  {
-    _id: false,
-  }
-);
-
 const extendedApiSchema = mongoose.Schema(
   {
     apiName: {
@@ -42,14 +25,33 @@ const extendedApiSchema = mongoose.Schema(
       type: String,
     },
     description: String,
-    tags: [tagSchema],
     isWishlist: {
       type: Boolean,
       default: false,
     },
+    min: {
+      type: Number,
+    },
+    max: {
+      type: Number,
+    },
+    allowed: {
+      type: [mongoose.Schema.Types.Mixed],
+      default: undefined,
+    },
+    comment: {
+      type: String,
+    },
+    default: {
+      type: mongoose.Schema.Types.Mixed,
+    },
+    deprecation: {
+      type: String,
+    },
   },
   {
     timestamps: true,
+    strict: false,
   }
 );
 

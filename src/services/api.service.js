@@ -253,17 +253,13 @@ const computeVSSApi = async (modelId) => {
       let current = ret[mainApi].children;
       for (const key of keys) {
         if (!current || !current[key]) {
-          ret[mainApi].children[name] = {
-            description: extendedApi.description,
-            type: extendedApi.type || 'branch',
-            id: extendedApi._id,
-            datatype: extendedApi.datatype,
-            name: extendedApi.apiName,
-            isWishlist: extendedApi.isWishlist,
-          };
-          if (extendedApi.unit) {
-            ret[mainApi].children[name].unit = extendedApi.unit;
-          }
+          const jsonExtendedApi = extendedApi.toJSON();
+          delete jsonExtendedApi._id;
+          delete jsonExtendedApi.tags;
+          delete jsonExtendedApi.skeleton;
+          delete jsonExtendedApi.model;
+          delete jsonExtendedApi.created_at;
+          ret[mainApi].children[name] = jsonExtendedApi;
           break;
         }
         current = current[key].children;
