@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { toJSON, paginate } = require('./plugins');
+const { toJSON, paginate, captureChange } = require('./plugins');
 const { visibilityTypes } = require('../config/enums');
 
 const tagSchema = mongoose.Schema(
@@ -19,7 +19,7 @@ const tagSchema = mongoose.Schema(
   }
 );
 
-const modelSchema = mongoose.Schema(
+const modelSchema = new mongoose.Schema(
   {
     custom_apis: {
       type: Object,
@@ -31,6 +31,9 @@ const modelSchema = mongoose.Schema(
       maxLength: 255,
     },
     model_home_image_file: {
+      type: String,
+    },
+    detail_image_file: {
       type: String,
     },
     model_files: {
@@ -90,6 +93,10 @@ const modelSchema = mongoose.Schema(
 // add plugin that converts mongoose to json
 modelSchema.plugin(toJSON);
 modelSchema.plugin(paginate);
+
+modelSchema.pre('save', captureChange.captureUpdates);
+modelSchema.post('save', captureChange.captureCreate);
+modelSchema.post('remove', captureChange.captureRemove);
 
 /**
  * @typedef Model

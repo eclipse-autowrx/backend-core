@@ -138,7 +138,7 @@ module.exports = router;
  *               refreshToken:
  *                 type: string
  *             example:
- *               refreshToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1ZWJhYzUzNDk1NGI1NDEzOTgwNmMxMTIiLCJpYXQiOjE1ODkyOTg0ODQsImV4cCI6MTU4OTMwMDI4NH0.m1U63blB0MLej_WfB7yC2FTMnCziif9X8yzwDEfJXAg
+ *               refreshToken: <refresh-token>
  *     responses:
  *       "204":
  *         description: No content
@@ -164,7 +164,7 @@ module.exports = router;
  *               refreshToken:
  *                 type: string
  *             example:
- *               refreshToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1ZWJhYzUzNDk1NGI1NDEzOTgwNmMxMTIiLCJpYXQiOjE1ODkyOTg0ODQsImV4cCI6MTU4OTMwMDI4NH0.m1U63blB0MLej_WfB7yC2FTMnCziif9X8yzwDEfJXAg
+ *               refreshToken: <sample_token>
  *     responses:
  *       "200":
  *         description: OK

@@ -37,6 +37,15 @@ router.post(
   genaiController.generateAIContent
 );
 
+router.put(
+  '/etas/profiles/:profileId',
+  auth({
+    optional: !config.strictAuth,
+  }),
+  genaiPermission,
+  genaiController.updateProfile
+);
+
 router.post(
   '/etas/:environment',
   auth({
@@ -44,6 +53,15 @@ router.post(
   }),
   genaiPermission,
   genaiController.generateAIContent
+);
+
+router.put(
+  '/etas/:environment/profiles/:profileId',
+  auth({
+    optional: !config.strictAuth,
+  }),
+  genaiPermission,
+  genaiController.updateProfile
 );
 
 module.exports = router;

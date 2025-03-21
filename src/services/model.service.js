@@ -3,6 +3,7 @@ const { userService } = require('.');
 const prototypeService = require('./prototype.service');
 const apiService = require('./api.service');
 const permissionService = require('./permission.service');
+const fileService = require('./file.service');
 const { Model, Role } = require('../models');
 const ApiError = require('../utils/ApiError');
 const { PERMISSIONS } = require('../config/roles');
@@ -311,15 +312,16 @@ const getModelById = async (id, userId, includeCreatorFullDetails) => {
  *
  * @param {string} id
  * @param {Object} updateBody
- * @param {userId} string
+ * @param {string} actionOwner
  * @returns {Promise<string>}
  */
-const updateModelById = async (id, updateBody, userId) => {
-  const model = await getModelById(id, userId);
+const updateModelById = async (id, updateBody, actionOwner) => {
+  const model = await getModelById(id, actionOwner);
   if (!model) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Model not found');
   }
 
+  updateBody.action_owner = actionOwner;
   Object.assign(model, updateBody);
   await model.save();
   return model._id;
@@ -328,18 +330,19 @@ const updateModelById = async (id, updateBody, userId) => {
 /**
  *
  * @param {string} id
- * @param {string} userId
+ * @param {string} actionOwner
  * @returns {Promise<void>}
  */
-const deleteModelById = async (id, userId) => {
-  const model = await getModelById(id, userId);
+const deleteModelById = async (id, actionOwner) => {
+  const model = await getModelById(id, actionOwner);
 
   if (!model) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Model not found');
   }
 
+  model.action_owner = actionOwner;
   await model.remove();
-  await prototypeService.deleteMany({ model_id: id });
+  await prototypeService.deleteMany({ model_id: id }, actionOwner);
 };
 
 /**
@@ -450,7 +453,8 @@ const traverse = (api, callback, prefix = '') => {
  */
 const processApiDataUrl = async (apiDataUrl) => {
   try {
-    const response = await fetch(apiDataUrl);
+    // resolve the correct url incase the apiDataUrl is relative. Eg. /api/v2/data/vehicle.json
+    const response = await fetch(fileService.resolveUrl(apiDataUrl));
     const data = await response.json();
     const extendedApis = [];
 

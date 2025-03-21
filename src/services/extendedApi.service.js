@@ -46,17 +46,19 @@ const getExtendedApiById = async (id) => {
  * Update ExtendedApi by id
  * @param {ObjectId} extendedApiId
  * @param {Object} updateBody
- * @param {string} userId
+ * @param {string} actionOwner
  * @returns {Promise<ExtendedApi>}
  */
-const updateExtendedApiById = async (extendedApiId, updateBody, userId) => {
+const updateExtendedApiById = async (extendedApiId, updateBody, actionOwner) => {
   const extendedApi = await getExtendedApiById(extendedApiId);
   if (!extendedApi) {
     throw new ApiError(httpStatus.NOT_FOUND, 'ExtendedApi not found');
   }
-  if (!(await permissionService.hasPermission(userId, PERMISSIONS.WRITE_MODEL, extendedApi.model))) {
+  if (!(await permissionService.hasPermission(actionOwner, PERMISSIONS.WRITE_MODEL, extendedApi.model))) {
     throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden. You do not have permission to update extended API for this model');
   }
+
+  updateBody.action_owner = actionOwner;
   Object.assign(extendedApi, updateBody);
   await extendedApi.save();
   return extendedApi;
@@ -65,17 +67,19 @@ const updateExtendedApiById = async (extendedApiId, updateBody, userId) => {
 /**
  * Delete ExtendedApi by id
  * @param {ObjectId} extendedApiId
- * @param {string} userId
+ * @param {string} actionOwner
  * @returns {Promise<ExtendedApi>}
  */
-const deleteExtendedApiById = async (extendedApiId, userId) => {
+const deleteExtendedApiById = async (extendedApiId, actionOwner) => {
   const extendedApi = await getExtendedApiById(extendedApiId);
   if (!extendedApi) {
     throw new ApiError(httpStatus.NOT_FOUND, 'ExtendedApi not found');
   }
-  if (!(await permissionService.hasPermission(userId, PERMISSIONS.WRITE_MODEL, extendedApi.model))) {
+  if (!(await permissionService.hasPermission(actionOwner, PERMISSIONS.WRITE_MODEL, extendedApi.model))) {
     throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden. You do not have permission to update extended API for this model');
   }
+
+  extendedApi.action_owner = actionOwner;
   await extendedApi.remove();
   return extendedApi;
 };

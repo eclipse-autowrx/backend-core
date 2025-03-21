@@ -109,9 +109,10 @@ const getPrototypeById = async (id, userId) => {
  *
  * @param {string} id
  * @param {Object} updateBody
+ * @param {string} actionOwner
  * @returns {Promise<import("../models/prototype.model").Prototype>}
  */
-const updatePrototypeById = async (id, updateBody) => {
+const updatePrototypeById = async (id, updateBody, actionOwner) => {
   const prototype = await Prototype.findById(id);
   if (!prototype) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Prototype not found');
@@ -124,6 +125,7 @@ const updatePrototypeById = async (id, updateBody) => {
     );
   }
 
+  updateBody.action_owner = actionOwner;
   Object.assign(prototype, updateBody);
   await prototype.save();
 
@@ -133,14 +135,16 @@ const updatePrototypeById = async (id, updateBody) => {
 /**
  *
  * @param {string} id
- * @param {string} userId
+ * @param {string} actionOwner
  * @returns {Promise<void>}
  */
-const deletePrototypeById = async (id) => {
+const deletePrototypeById = async (id, actionOwner) => {
   const prototype = await Prototype.findById(id);
   if (!prototype) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Prototype not found');
   }
+
+  prototype.action_owner = actionOwner;
 
   await prototype.remove();
 };
@@ -234,12 +238,19 @@ const listPopularPrototypes = async () => {
 /**
  *
  * @param {object} filter
+ * @param {string} actionOwner
  */
-const deleteMany = async (filter) => {
+const deleteMany = async (filter, actionOwner) => {
   if (_.isEmpty(filter)) {
     throw new Error('Filter is required');
   }
-  await Prototype.deleteMany(filter);
+  const prototypes = (await Prototype.find(filter)).filter((prototype) => prototype);
+  await Promise.all(
+    prototypes.map(async (prototype) => {
+      prototype.action_owner = actionOwner;
+      await prototype.remove();
+    })
+  );
 };
 
 module.exports.createPrototype = createPrototype;

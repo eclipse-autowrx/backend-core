@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { toJSON, paginate } = require('./plugins');
+const { toJSON, paginate, captureChange } = require('./plugins');
 const { stateTypes } = require('../config/enums');
 
 const apiSchema = mongoose.Schema(
@@ -81,7 +81,7 @@ const ratingSchema = mongoose.Schema({
   },
 });
 
-const prototypeSchema = mongoose.Schema(
+const prototypeSchema = new mongoose.Schema(
   {
     apis: {
       type: apiSchema,
@@ -229,6 +229,10 @@ prototypeSchema.statics.existsPrototypeInModel = async function (model_id, name,
   const prototype = await this.findOne({ name, model_id, _id: { $ne: excludeId } });
   return !!prototype;
 };
+
+prototypeSchema.pre('save', captureChange.captureUpdates);
+prototypeSchema.post('save', captureChange.captureCreate);
+prototypeSchema.post('remove', captureChange.captureRemove);
 
 /**
  * @typedef Prototype

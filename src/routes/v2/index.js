@@ -14,6 +14,7 @@ const issueRoute = require('./issue.route');
 const searchRoute = require('./search.route');
 const certivityRoute = require('./certivity.route');
 const assetRoute = require('./asset.route');
+const changeLogRoute = require('./changeLog.route');
 
 const router = express.Router();
 
@@ -77,6 +78,10 @@ const defaultRoutes = [
   {
     path: '/assets',
     route: assetRoute,
+  },
+  {
+    path: '/change-logs',
+    route: changeLogRoute,
   },
 ];
 

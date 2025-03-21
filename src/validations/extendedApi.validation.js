@@ -54,7 +54,7 @@ const updateExtendedApi = {
       datatype: Joi.alternatives().conditional('type', {
         is: 'branch',
         then: Joi.string().allow(null).optional(),
-        otherwise: Joi.string().required(),
+        otherwise: Joi.string(),
       }),
       description: Joi.string().allow(''),
       tags: Joi.array().items(

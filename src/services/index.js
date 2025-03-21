@@ -19,3 +19,4 @@ module.exports.certivityService = require('./certivity.service');
 module.exports.assetService = require('./asset.service');
 module.exports.fileService = require('./file.service');
 module.exports.logService = require('./log.service');
+module.exports.changeLogService = require('./changeLog.service');

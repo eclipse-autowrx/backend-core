@@ -1,7 +1,5 @@
 services:
   playground-be:
     command: yarn start
-    volumes:
-      - .:/usr/src/playground-be
   upload:
     command: npm run prod

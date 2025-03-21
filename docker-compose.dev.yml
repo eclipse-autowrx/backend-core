@@ -3,9 +3,16 @@ services:
     command: yarn dev -L
     volumes:
       - .:/usr/src/playground-be
+    restart: no
 
   upload:
     command: npm start
-    volumes:
-      - ./upload:/usr/src/upload
-      - /usr/src/upload/node_modules/
+    restart: no
+
+  playground-db:
+    ports:
+      - "27017:27017"
+    restart: no
+
+  kong:
+    restart: no
