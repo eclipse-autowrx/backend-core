@@ -59,6 +59,8 @@ const envVarsSchema = Joi.object()
     // Admin emails
     ADMIN_EMAILS: Joi.string().description('Admin emails'),
     ADMIN_PASSWORD: Joi.string().description('Admin password'),
+    // Change Logs max size
+    LOGS_MAX_SIZE: Joi.number().default(100).description('Max size of change logs in megabytes'),
   })
   .unknown();
 
@@ -178,6 +180,7 @@ const config = {
   },
   adminEmails: envVars.ADMIN_EMAILS?.split(',') || [],
   adminPassword: envVars.ADMIN_PASSWORD,
+  logsMaxSize: envVars.LOGS_MAX_SIZE,
 };
 
 if (config.env === 'development') {
