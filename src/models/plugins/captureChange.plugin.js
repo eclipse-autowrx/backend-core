@@ -12,11 +12,33 @@ class ThrottleLogger {
     this.data = null;
     this.timer = null;
     this.lastLoggedTime = 0;
+    this.lastTouched = Date.now();
   }
 
-  async updateData(data) {
-    this.data = _.merge({}, this.data, data);
-    const timeSyncLastLog = Date.now() - this.lastLoggedTime;
+  async updateData(incoming) {
+    if (!this.data) {
+      this.data = _.cloneDeep(incoming);
+    } else {
+      this.created_by = incoming.created_by;
+      Object.entries(incoming.changes).forEach(([key, value]) => {
+        if (this.data.changes[key]) {
+          if (_.isEqual(this.data.changes[key].old, value.new)) {
+            delete this.data.changes[key];
+          } else {
+            this.data.changes[key].new = value.new;
+          }
+        } else {
+          this.data.changes[key] = value;
+        }
+      });
+    }
+
+    const now = Date.now();
+    this.lastTouched = now;
+    if (!this.lastLoggedTime) {
+      this.lastLoggedTime = now;
+    }
+    const timeSyncLastLog = now - this.lastLoggedTime;
 
     if (timeSyncLastLog >= this.throttleInterval) {
       await this._logDataUpdate();
@@ -52,7 +74,33 @@ class ThrottleLogger {
   }
 }
 
-const throttleLogger = new ThrottleLogger();
+/**
+ * @type {Map<string, ThrottleLogger>}
+ */
+const throttleLoggers = new Map();
+const STALE_THRESHOLD = 5 * 60 * 1000; // 5 minutes
+
+/**
+ *
+ * @param {string} ref_type
+ * @param {string} ref
+ */
+function getThrottleLogger(ref_type, ref) {
+  const key = `${ref_type}-${ref}`;
+  if (!throttleLoggers.has(key)) {
+    const instance = new ThrottleLogger();
+
+    const originalLog = instance._logDataUpdate.bind(instance);
+    instance._logDataUpdate = async function () {
+      await originalLog();
+      throttleLoggers.delete(key);
+    };
+
+    throttleLoggers.set(key, instance);
+  }
+
+  return throttleLoggers.get(key);
+}
 
 /**
  * @typedef {import('mongoose').Model} MongooseModel
@@ -97,7 +145,7 @@ async function captureUpdates(next) {
             action: 'UPDATE',
             changes,
           };
-          await throttleLogger.updateData(data);
+          await getThrottleLogger(data.ref_type, data.ref).updateData(data);
         }
       }
     } catch (error) {
@@ -152,6 +200,24 @@ async function captureRemove(doc) {
     logger.error(error);
   }
 }
+
+// Clean up stale throttle loggers
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, logger] of throttleLoggers.entries()) {
+    const timeSyncLastTouched = now - logger.lastTouched;
+    if (!logger.timer && timeSyncLastTouched >= STALE_THRESHOLD) {
+      logger
+        ._logDataUpdate()
+        .catch((error) => {
+          logger.error(`Error logging stale data for ${key}: %o`, error?.message || error);
+        })
+        .finally(() => {
+          throttleLoggers.delete(key);
+        });
+    }
+  }
+}, STALE_THRESHOLD);
 
 module.exports.captureUpdates = captureUpdates;
 module.exports.captureCreate = captureCreate;
