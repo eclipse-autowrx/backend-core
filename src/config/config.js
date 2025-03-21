@@ -9,6 +9,9 @@ const envVarsSchema = Joi.object()
     NODE_ENV: Joi.string().valid('production', 'development', 'test').required(),
     PORT: Joi.number().default(3000),
     MONGODB_URL: Joi.string().required().description('Mongo DB url'),
+    // CORS Settings
+    CORS_ORIGIN: Joi.string().description('CORS regex'),
+    // JWT
     JWT_SECRET: Joi.string().required().description('JWT secret key'),
     JWT_ACCESS_EXPIRATION_MINUTES: Joi.number().default(30).description('minutes after which access tokens expire'),
     JWT_REFRESH_EXPIRATION_DAYS: Joi.number().default(30).description('days after which refresh tokens expire'),
@@ -18,29 +21,30 @@ const envVarsSchema = Joi.object()
     JWT_VERIFY_EMAIL_EXPIRATION_MINUTES: Joi.number()
       .default(10)
       .description('minutes after which verify email token expires'),
-    JWT_COOKIE_NAME: Joi.string().required().description('JWT cookie name'),
-    JWT_COOKIE_DOMAIN: Joi.string().required().description('JWT cookie domain'),
+    JWT_COOKIE_NAME: Joi.string().default('token').description('JWT cookie name'),
+    JWT_COOKIE_DOMAIN: Joi.string().default('').description('JWT cookie domain'),
     SMTP_HOST: Joi.string().description('server that will send the emails'),
     SMTP_PORT: Joi.number().description('port to connect to the email server'),
     SMTP_USERNAME: Joi.string().description('username for email server'),
     SMTP_PASSWORD: Joi.string().description('password for email server'),
     EMAIL_FROM: Joi.string().description('the from field in the emails sent by the app'),
-    CACHE_BASE_URL: Joi.string().required().description('Cache base url'),
-    LOG_BASE_URL: Joi.string().required().description('Log base url'),
+    CACHE_BASE_URL: Joi.string().description('Cache base url'),
+    LOG_BASE_URL: Joi.string().description('Log base url'),
     CLIENT_BASE_URL: Joi.string().description('Client base url').default('http://localhost:3000'),
-    BREVO_API_KEY: Joi.string().required().description('Brevo API key'),
-    BREVO_BASE_URL: Joi.string().required().description('Brevo base url'),
-    GITHUB_CLIENT_ID: Joi.string().required().description('Github client id'),
-    GITHUB_CLIENT_SECRET: Joi.string().required().description('Github client secret'),
+    BREVO_API_KEY: Joi.string().description('Brevo API key'),
+    BREVO_BASE_URL: Joi.string().description('Brevo base url'),
+    GITHUB_CLIENT_ID: Joi.string().description('Github client id'),
+    GITHUB_CLIENT_SECRET: Joi.string().description('Github client secret'),
     UPLOAD_PORT: Joi.number().required().description('Upload port'),
+    UPLOAD_DOMAIN: Joi.string().required().description('Upload domain'),
     // AWS,
-    AWS_PUBLIC_KEY: Joi.string().required().description('AWS public key'),
-    AWS_SECRET_KEY: Joi.string().required().description('AWS secret key'),
+    AWS_PUBLIC_KEY: Joi.string().description('AWS public key'),
+    AWS_SECRET_KEY: Joi.string().description('AWS secret key'),
     // OpenAI,
-    OPENAI_API_KEY: Joi.string().required().description('OpenAI API key'),
-    OPENAI_ENDPOINT_URL: Joi.string().required().description('OpenAI endpoint url'),
+    OPENAI_API_KEY: Joi.string().description('OpenAI API key'),
+    OPENAI_ENDPOINT_URL: Joi.string().description('OpenAI endpoint url'),
     // GenAI
-    GENAI_ALLOWED_EMAILS: Joi.string().required().description('GenAI allowed emails'),
+    GENAI_ALLOWED_EMAILS: Joi.string().description('GenAI allowed emails'),
     // ETAS
     ETAS_ENABLED: Joi.boolean().description('ETAS enabled'),
     ETAS_CLIENT_ID: Joi.string().description('ETAS client id'),
@@ -49,9 +53,14 @@ const envVarsSchema = Joi.object()
     ETAS_INSTANCE_ENDPOINT: Joi.string().description('ETAS instance endpoint'),
     ETAS_DEV_INSTANCE_ENDPOINT: Joi.string().description('ETAS dev instance endpoint'),
     // Certivity
-    CERTIVITY_CLIENT_ID: Joi.string().required().description('Certivity client id'),
-    CERTIVITY_CLIENT_SECRET: Joi.string().required().description('Certivity client secret'),
+    CERTIVITY_CLIENT_ID: Joi.string().description('Certivity client id'),
+    CERTIVITY_CLIENT_SECRET: Joi.string().description('Certivity client secret'),
     STRICT_AUTH: Joi.boolean().description('Strict auth'),
+    // Admin emails
+    ADMIN_EMAILS: Joi.string().description('Admin emails'),
+    ADMIN_PASSWORD: Joi.string().description('Admin password'),
+    // Change Logs max size
+    LOGS_MAX_SIZE: Joi.number().default(100).description('Max size of change logs in megabytes'),
   })
   .unknown();
 
@@ -66,14 +75,11 @@ const config = {
   port: envVars.PORT,
   strictAuth: envVars.STRICT_AUTH,
   cors: {
-    regex: [
-      /localhost:\d+/,
-      /\.digitalauto\.tech$/,
-      /\.digitalauto\.asia$/,
-      /\.digital\.auto$/,
-      'https://digitalauto.netlify.app',
-      /127\.0\.0\.1:\d+/,
-    ],
+    regex: (envVars.CORS_ORIGIN || 'localhost:\\d+,127\\.0\\.0\\.1:\\d+')
+      .split(',')
+      .map((i) => i.trim())
+      .filter(Boolean)
+      .map((i) => new RegExp(i)),
   },
   mongoose: {
     url: envVars.MONGODB_URL + (envVars.NODE_ENV === 'test' ? '-test' : ''),
@@ -132,6 +138,7 @@ const config = {
   services: {
     upload: {
       port: envVars.UPLOAD_PORT,
+      domain: envVars.UPLOAD_DOMAIN,
     },
     log: {
       port: envVars.LOG_PORT || 9600,
@@ -149,7 +156,7 @@ const config = {
     secretKey: envVars.AWS_SECRET_KEY,
   },
   genAI: {
-    allowedEmails: envVars.GENAI_ALLOWED_EMAILS.split(','),
+    allowedEmails: envVars.GENAI_ALLOWED_EMAILS?.split(',') || [],
   },
   etas: {
     enabled: envVars.ETAS_ENABLED,
@@ -171,6 +178,9 @@ const config = {
   sso: {
     msGraphMeEndpoint: 'https://graph.microsoft.com/v1.0/me',
   },
+  adminEmails: envVars.ADMIN_EMAILS?.split(',') || [],
+  adminPassword: envVars.ADMIN_PASSWORD,
+  logsMaxSize: envVars.LOGS_MAX_SIZE,
 };
 
 if (config.env === 'development') {
