@@ -46,6 +46,7 @@ const changeLogSchema = new mongoose.Schema(
 
 changeLogSchema.plugin(toJSON);
 changeLogSchema.plugin(paginate);
+changeLogSchema.index({ ref: 1 });
 
 const ChangeLog = mongoose.model('ChangeLog', changeLogSchema);
 
