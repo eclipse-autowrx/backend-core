@@ -59,7 +59,7 @@ const updateExtendedApiById = async (extendedApiId, updateBody, actionOwner) => 
   }
 
   updateBody.action_owner = actionOwner;
-  Object.assign(extendedApi, updateBody);
+  extendedApi.set(updateBody);
   await extendedApi.save();
   return extendedApi;
 };

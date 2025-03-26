@@ -27,15 +27,9 @@ const createModel = catchAsync(async (req, res) => {
       await Promise.all(
         extended_apis.map((api) =>
           extendedApiService.createExtendedApi({
+            ...api,
             model: model._id,
-            apiName: api.apiName,
-            description: api.description,
-            skeleton: api.skeleton,
-            tags: api.tags,
-            type: api.type,
-            datatype: api.datatype,
             isWishlist: api.isWishlist || false,
-            unit: api.unit,
           })
         )
       );
@@ -291,15 +285,9 @@ const replaceApi = catchAsync(async (req, res) => {
   await Promise.all(
     (extended_apis || []).map((api) =>
       extendedApiService.createExtendedApi({
+        ...api,
         model: modelId,
-        apiName: api.apiName,
-        description: api.description,
-        skeleton: api.skeleton,
-        tags: api.tags,
-        type: api.type,
-        datatype: api.datatype,
         isWishlist: api.isWishlist || false,
-        unit: api.unit,
       })
     )
   );
