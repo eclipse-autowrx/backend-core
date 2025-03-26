@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const app = require('./app');
 const config = require('./config/config');
 const logger = require('./config/logger');
-const initializeRoles = require('./utils/initializeRoles');
+const initializeRoles = require('./scripts/initializeRoles');
 const { init } = require('./config/socket');
 const { setupScheduledCheck, assignAdmins, convertLogsCap } = require('./scripts');
 
