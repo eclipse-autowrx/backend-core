@@ -31,8 +31,6 @@ const envVarsSchema = Joi.object()
     CACHE_BASE_URL: Joi.string().description('Cache base url'),
     LOG_BASE_URL: Joi.string().description('Log base url'),
     CLIENT_BASE_URL: Joi.string().description('Client base url').default('http://localhost:3000'),
-    BREVO_API_KEY: Joi.string().description('Brevo API key'),
-    BREVO_BASE_URL: Joi.string().description('Brevo base url'),
     GITHUB_CLIENT_ID: Joi.string().description('Github client id'),
     GITHUB_CLIENT_SECRET: Joi.string().description('Github client secret'),
     // Upload service
@@ -42,6 +40,10 @@ const envVarsSchema = Joi.object()
     AUTH_URL: Joi.string().description('Auth service url'),
     // GenAI service
     GENAI_URL: Joi.string().description('GenAI service url'),
+    // Email URL
+    EMAIL_URL: Joi.string().description('URL to your custom email service'),
+    EMAIL_API_KEY: Joi.string().description('API key for default email service (Brevo)'),
+    EMAIL_ENDPOINT_URL: Joi.string().description('Endpoint url for default email service (Brevo)'),
     // AWS,
     AWS_PUBLIC_KEY: Joi.string().description('AWS public key'),
     AWS_SECRET_KEY: Joi.string().description('AWS secret key'),
@@ -127,10 +129,6 @@ const config = {
   client: {
     baseUrl: envVars.CLIENT_BASE_URL,
   },
-  brevo: {
-    apiKey: envVars.BREVO_API_KEY,
-    baseUrl: envVars.BREVO_BASE_URL,
-  },
   constraints: {
     model: {
       maximumAuthorizedUsers: 1000,
@@ -149,13 +147,18 @@ const config = {
       port: envVars.LOG_PORT || 9600,
     },
     cache: {
-      baseUrl: 'https://cache.digitalauto.tech',
+      url: 'https://cache.digitalauto.tech',
     },
     auth: {
       url: envVars.AUTH_URL,
     },
     genAI: {
       url: envVars.GENAI_URL,
+    },
+    email: {
+      url: envVars.EMAIL_URL, // This is the URL for your custom email service
+      apiKey: envVars.EMAIL_API_KEY,
+      endpointUrl: envVars.EMAIL_ENDPOINT_URL, // This is the endpoint URL for the default email service: Brevo
     },
   },
   openai: {

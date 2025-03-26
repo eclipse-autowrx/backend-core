@@ -10,28 +10,43 @@ const { resetPasswordTemplate } = require('../utils/emailTemplates');
  * @returns {Promise}
  */
 const sendEmail = async (to, subject, html) => {
-  await axios.post(
-    `${config.brevo.baseUrl}/smtp/email`,
-    {
-      sender: {
-        name: 'digital.auto',
-        email: 'playground@digital.auto',
-      },
-      to: [
-        {
-          name: 'user',
-          email: to,
+  if (!config.services.email.url)
+    return axios.post(
+      `${config.services.email.endpointUrl}`,
+      {
+        sender: {
+          name: 'digital.auto',
+          email: 'playground@digital.auto',
         },
-      ],
-      subject,
-      htmlContent: html,
-    },
-    {
-      headers: {
-        'api-key': config.brevo.apiKey,
+        to: [
+          {
+            name: 'user',
+            email: to,
+          },
+        ],
+        subject,
+        htmlContent: html,
       },
-    }
-  );
+      {
+        headers: {
+          'api-key': config.services.email.apiKey,
+        },
+      }
+    );
+  else
+    return axios.post(
+      `${config.services.email.url}`,
+      {
+        to,
+        subject,
+        html,
+      },
+      {
+        headers: {
+          'api-key': config.services.email.apiKey,
+        },
+      }
+    );
 };
 
 /**
