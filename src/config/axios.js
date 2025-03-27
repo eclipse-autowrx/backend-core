@@ -1,12 +1,8 @@
 const { default: axios } = require('axios');
 const config = require('./config');
 
-const cacheAxios = axios.create({
-  baseURL: config.cacheBaseUrl,
-});
-
 const logAxios = axios.create({
-  baseURL: config.logBaseUrl,
+  baseURL: config.services.log.url,
 });
 
-module.exports = { cacheAxios, logAxios };
+module.exports = { logAxios };

@@ -3,11 +3,16 @@ services:
     command: yarn dev -L
     volumes:
       - .:/usr/src/playground-be
+      - /usr/src/playground-be/node_modules
     restart: no
+    env_file:
+      - .env
 
   upload:
     command: npm start
     restart: no
+    env_file:
+      - .env
 
   playground-db:
     ports:
@@ -15,4 +20,22 @@ services:
     restart: no
 
   kong:
+    restart: no
+
+  genai:
+    platform: linux/amd64
+    container_name: ${ENV:-dev}-genai
+    image: boschvn/genai:0.0.2
+    networks:
+      - node-network
+    env_file:
+      - .env
+    restart: no
+
+  cache:
+    platform: linux/amd64
+    container_name: ${ENV:-dev}-cache
+    image: boschvn/cache:0.0.1
+    networks:
+      - node-network
     restart: no

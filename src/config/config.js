@@ -28,13 +28,14 @@ const envVarsSchema = Joi.object()
     SMTP_USERNAME: Joi.string().description('username for email server'),
     SMTP_PASSWORD: Joi.string().description('password for email server'),
     EMAIL_FROM: Joi.string().description('the from field in the emails sent by the app'),
-    LOG_BASE_URL: Joi.string().description('Log base url'),
     CLIENT_BASE_URL: Joi.string().description('Client base url').default('http://localhost:3000'),
     GITHUB_CLIENT_ID: Joi.string().description('Github client id'),
     GITHUB_CLIENT_SECRET: Joi.string().description('Github client secret'),
     // Upload service
     UPLOAD_PORT: Joi.number().required().description('Upload port'),
     UPLOAD_DOMAIN: Joi.string().required().description('Upload domain'),
+    // Log service URL
+    LOG_URL: Joi.string().description('Log base url'),
     // Cache service URL
     CACHE_URL: Joi.string().description('Cache base url'),
     // Auth service
@@ -125,7 +126,6 @@ const config = {
     },
     from: envVars.EMAIL_FROM,
   },
-  logBaseUrl: envVars.LOG_BASE_URL,
   client: {
     baseUrl: envVars.CLIENT_BASE_URL,
   },
@@ -159,6 +159,9 @@ const config = {
       url: envVars.EMAIL_URL, // This is the URL for your custom email service
       apiKey: envVars.EMAIL_API_KEY,
       endpointUrl: envVars.EMAIL_ENDPOINT_URL, // This is the endpoint URL for the default email service: Brevo
+    },
+    log: {
+      url: envVars.LOG_URL,
     },
   },
   openai: {
