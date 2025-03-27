@@ -28,7 +28,6 @@ const envVarsSchema = Joi.object()
     SMTP_USERNAME: Joi.string().description('username for email server'),
     SMTP_PASSWORD: Joi.string().description('password for email server'),
     EMAIL_FROM: Joi.string().description('the from field in the emails sent by the app'),
-    CACHE_BASE_URL: Joi.string().description('Cache base url'),
     LOG_BASE_URL: Joi.string().description('Log base url'),
     CLIENT_BASE_URL: Joi.string().description('Client base url').default('http://localhost:3000'),
     GITHUB_CLIENT_ID: Joi.string().description('Github client id'),
@@ -36,6 +35,8 @@ const envVarsSchema = Joi.object()
     // Upload service
     UPLOAD_PORT: Joi.number().required().description('Upload port'),
     UPLOAD_DOMAIN: Joi.string().required().description('Upload domain'),
+    // Cache service URL
+    CACHE_URL: Joi.string().description('Cache base url'),
     // Auth service
     AUTH_URL: Joi.string().description('Auth service url'),
     // GenAI service
@@ -124,7 +125,6 @@ const config = {
     },
     from: envVars.EMAIL_FROM,
   },
-  cacheBaseUrl: envVars.CACHE_BASE_URL,
   logBaseUrl: envVars.LOG_BASE_URL,
   client: {
     baseUrl: envVars.CLIENT_BASE_URL,
@@ -147,7 +147,7 @@ const config = {
       port: envVars.LOG_PORT || 9600,
     },
     cache: {
-      url: 'https://cache.digitalauto.tech',
+      url: envVars.CACHE_URL,
     },
     auth: {
       url: envVars.AUTH_URL,

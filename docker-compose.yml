@@ -59,6 +59,26 @@ services:
     restart: always
     command: npm run prod
 
+  genai:
+    platform: linux/amd64
+    container_name: ${ENV:-dev}-genai
+    image: boschvn/genai:0.0.2
+    env_file:
+      - .env
+    networks:
+      - node-network
+    restart: always
+
+  cache:
+    platform: linux/amd64
+    container_name: ${ENV:-dev}-cache
+    image: boschvn/cache:0.0.1
+    ports:
+      - "8080:8080"
+    networks:
+      - node-network
+    restart: always
+
 volumes:
   dbdata:
 
