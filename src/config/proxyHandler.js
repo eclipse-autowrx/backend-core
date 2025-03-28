@@ -30,7 +30,7 @@ const proxyHandler =
       return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: `${name} is not implemented` });
     }
 
-    proxy(req, res, (err) => {
+    return proxy(req, res, (err) => {
       if (err) {
         logger.error(`Proxy error for ${name}: %o`, err?.message || err);
       }

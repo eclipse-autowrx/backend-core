@@ -25,7 +25,7 @@ services:
   genai:
     platform: linux/amd64
     container_name: ${ENV:-dev}-genai
-    image: boschvn/genai:0.0.2
+    image: boschvn/genai:latest
     networks:
       - node-network
     env_file:
@@ -35,7 +35,7 @@ services:
   cache:
     platform: linux/amd64
     container_name: ${ENV:-dev}-cache
-    image: boschvn/cache:0.0.1
+    image: boschvn/cache:latest
     networks:
       - node-network
     restart: no
