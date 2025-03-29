@@ -61,12 +61,6 @@ const deleteUser = catchAsync(async (req, res) => {
   res.status(httpStatus.NO_CONTENT).send();
 });
 
-const selfPromote = catchAsync(async (req, res) => {
-  const adminRole = await Role.findOne({ ref: 'admin' });
-  await permissionService.assignRoleToUser(req.user.id, adminRole._id);
-  res.status(httpStatus.OK).send('Promoted successfully');
-});
-
 module.exports = {
   createUser,
   getUsers,
@@ -75,5 +69,4 @@ module.exports = {
   deleteUser,
   getSelf,
   updateSelf,
-  selfPromote,
 };
