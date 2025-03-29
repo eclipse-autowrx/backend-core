@@ -38,6 +38,4 @@ router
   .patch(auth(), checkPermission(PERMISSIONS.ADMIN), validate(userValidation.updateUser), userController.updateUser)
   .delete(auth(), checkPermission(PERMISSIONS.ADMIN), validate(userValidation.deleteUser), userController.deleteUser);
 
-router.route('/self/promote').post(auth(), userController.selfPromote);
-
 module.exports = router;
