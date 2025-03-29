@@ -3,7 +3,6 @@ services:
     command: yarn dev -L
     volumes:
       - .:/usr/src/playground-be
-      - /usr/src/playground-be/node_modules
     restart: no
     env_file:
       - .env
