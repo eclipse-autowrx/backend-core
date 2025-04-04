@@ -4,7 +4,6 @@ const userRoute = require('./user.route');
 const modelRoute = require('./model.route');
 const prototypeRoute = require('./prototype.route');
 const apiRoute = require('./api.route');
-const emailRoute = require('./email.route');
 const discussionRoute = require('./discussion.route');
 const genaiRoute = require('./genai.route');
 const feedbackRoute = require('./feedback.route');
@@ -12,7 +11,7 @@ const permissionRoute = require('./permission.route');
 const extendedApiRoute = require('./extendedApi.route');
 const issueRoute = require('./issue.route');
 const searchRoute = require('./search.route');
-const certivityRoute = require('./certivity.route');
+const homologationRoute = require('./homologation.route');
 const assetRoute = require('./asset.route');
 const changeLogRoute = require('./changeLog.route');
 
@@ -38,10 +37,6 @@ const defaultRoutes = [
   {
     path: '/apis',
     route: apiRoute,
-  },
-  {
-    path: '/emails',
-    route: emailRoute,
   },
   {
     path: '/discussions',
@@ -72,8 +67,8 @@ const defaultRoutes = [
     route: searchRoute,
   },
   {
-    path: '/certivity',
-    route: certivityRoute,
+    path: '/homologation',
+    route: homologationRoute,
   },
   {
     path: '/assets',

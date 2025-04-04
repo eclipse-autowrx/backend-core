@@ -1,67 +1,20 @@
-// const axios = require('axios');
-const express = require('express');
-const auth = require('../../middlewares/auth');
-const { invokeBedrockModel } = require('../../controllers/genai.controller');
-const { genaiController } = require('../../controllers');
-const genaiPermission = require('../../middlewares/genaiPermission');
+const { createProxyMiddleware } = require('http-proxy-middleware');
 const config = require('../../config/config');
+const { proxyHandler } = require('../../config/proxyHandler');
+const { checkPermission } = require('../../middlewares/permission');
+const { PERMISSIONS } = require('../../config/roles');
+const auth = require('../../middlewares/auth');
+const router = require('express').Router();
 
-const router = express.Router();
+router.use(auth(), checkPermission(PERMISSIONS.GENERATIVE_AI));
 
-router.post(
-  '/',
-  // validate(genaiValidation.invokeBedrock),
-  auth({
-    optional: !config.strictAuth,
-  }),
-  genaiPermission,
-  invokeBedrockModel
-);
+const proxyMiddleware = config.services.genAI.url
+  ? createProxyMiddleware({
+      target: config.services.genAI.url,
+      changeOrigin: true,
+    })
+  : null;
 
-router.post(
-  '/openai',
-  // validate(genaiValidation.invokeOpenAI),
-  auth({
-    optional: !config.strictAuth,
-  }),
-  genaiPermission,
-  genaiController.invokeOpenAIController
-);
-
-router.post(
-  '/etas',
-  auth({
-    optional: !config.strictAuth,
-  }),
-  genaiPermission,
-  genaiController.generateAIContent
-);
-
-router.put(
-  '/etas/profiles/:profileId',
-  auth({
-    optional: !config.strictAuth,
-  }),
-  genaiPermission,
-  genaiController.updateProfile
-);
-
-router.post(
-  '/etas/:environment',
-  auth({
-    optional: !config.strictAuth,
-  }),
-  genaiPermission,
-  genaiController.generateAIContent
-);
-
-router.put(
-  '/etas/:environment/profiles/:profileId',
-  auth({
-    optional: !config.strictAuth,
-  }),
-  genaiPermission,
-  genaiController.updateProfile
-);
+router.use(proxyHandler('GenAI service', proxyMiddleware));
 
 module.exports = router;

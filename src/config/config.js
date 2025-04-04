@@ -28,33 +28,32 @@ const envVarsSchema = Joi.object()
     SMTP_USERNAME: Joi.string().description('username for email server'),
     SMTP_PASSWORD: Joi.string().description('password for email server'),
     EMAIL_FROM: Joi.string().description('the from field in the emails sent by the app'),
-    CACHE_BASE_URL: Joi.string().description('Cache base url'),
-    LOG_BASE_URL: Joi.string().description('Log base url'),
     CLIENT_BASE_URL: Joi.string().description('Client base url').default('http://localhost:3000'),
-    BREVO_API_KEY: Joi.string().description('Brevo API key'),
-    BREVO_BASE_URL: Joi.string().description('Brevo base url'),
     GITHUB_CLIENT_ID: Joi.string().description('Github client id'),
     GITHUB_CLIENT_SECRET: Joi.string().description('Github client secret'),
+    // Upload service
     UPLOAD_PORT: Joi.number().required().description('Upload port'),
     UPLOAD_DOMAIN: Joi.string().required().description('Upload domain'),
+    // Log service URL
+    LOG_URL: Joi.string().description('Log base url'),
+    // Cache service URL
+    CACHE_URL: Joi.string().description('Cache base url'),
+    // Auth service
+    AUTH_URL: Joi.string().description('Auth service url'),
+    // GenAI service
+    GENAI_URL: Joi.string().description('GenAI service url'),
+    // Email URL
+    EMAIL_URL: Joi.string().description('URL to your custom email service'),
+    EMAIL_API_KEY: Joi.string().description('API key for default email service (Brevo)'),
+    EMAIL_ENDPOINT_URL: Joi.string().description('Endpoint url for default email service (Brevo)'),
     // AWS,
     AWS_PUBLIC_KEY: Joi.string().description('AWS public key'),
     AWS_SECRET_KEY: Joi.string().description('AWS secret key'),
     // OpenAI,
     OPENAI_API_KEY: Joi.string().description('OpenAI API key'),
     OPENAI_ENDPOINT_URL: Joi.string().description('OpenAI endpoint url'),
-    // GenAI
-    GENAI_ALLOWED_EMAILS: Joi.string().description('GenAI allowed emails'),
-    // ETAS
-    ETAS_ENABLED: Joi.boolean().description('ETAS enabled'),
-    ETAS_CLIENT_ID: Joi.string().description('ETAS client id'),
-    ETAS_CLIENT_SECRET: Joi.string().description('ETAS client secret'),
-    ETAS_SCOPE: Joi.string().description('ETAS scope'),
-    ETAS_INSTANCE_ENDPOINT: Joi.string().description('ETAS instance endpoint'),
-    ETAS_DEV_INSTANCE_ENDPOINT: Joi.string().description('ETAS dev instance endpoint'),
-    // Certivity
-    CERTIVITY_CLIENT_ID: Joi.string().description('Certivity client id'),
-    CERTIVITY_CLIENT_SECRET: Joi.string().description('Certivity client secret'),
+    // Homologation
+    HOMOLOGATION_URL: Joi.string().description('Homologation service url'),
     STRICT_AUTH: Joi.boolean().description('Strict auth'),
     // Admin emails
     ADMIN_EMAILS: Joi.string().description('Admin emails'),
@@ -117,14 +116,8 @@ const config = {
     },
     from: envVars.EMAIL_FROM,
   },
-  cacheBaseUrl: envVars.CACHE_BASE_URL,
-  logBaseUrl: envVars.LOG_BASE_URL,
   client: {
     baseUrl: envVars.CLIENT_BASE_URL,
-  },
-  brevo: {
-    apiKey: envVars.BREVO_API_KEY,
-    baseUrl: envVars.BREVO_BASE_URL,
   },
   constraints: {
     model: {
@@ -144,7 +137,24 @@ const config = {
       port: envVars.LOG_PORT || 9600,
     },
     cache: {
-      baseUrl: 'https://cache.digitalauto.tech',
+      url: envVars.CACHE_URL,
+    },
+    auth: {
+      url: envVars.AUTH_URL,
+    },
+    genAI: {
+      url: envVars.GENAI_URL,
+    },
+    email: {
+      url: envVars.EMAIL_URL, // This is the URL for your custom email service
+      apiKey: envVars.EMAIL_API_KEY,
+      endpointUrl: envVars.EMAIL_ENDPOINT_URL, // This is the endpoint URL for the default email service: Brevo
+    },
+    log: {
+      url: envVars.LOG_URL,
+    },
+    homologation: {
+      url: envVars.HOMOLOGATION_URL,
     },
   },
   openai: {
@@ -155,26 +165,7 @@ const config = {
     publicKey: envVars.AWS_PUBLIC_KEY,
     secretKey: envVars.AWS_SECRET_KEY,
   },
-  genAI: {
-    allowedEmails: envVars.GENAI_ALLOWED_EMAILS?.split(',') || [],
-  },
-  etas: {
-    enabled: envVars.ETAS_ENABLED,
-    clientId: envVars.ETAS_CLIENT_ID,
-    clientSecret: envVars.ETAS_CLIENT_SECRET,
-    scope: envVars.ETAS_SCOPE,
-    instanceEndpoint: envVars.ETAS_INSTANCE_ENDPOINT,
-    developmentEndpoint: envVars.ETAS_DEV_INSTANCE_ENDPOINT,
-  },
   githubIssueSubmitUrl: 'https://api.github.com/repos/digital-auto/vehicle_signal_specification/issues',
-  certivity: {
-    authBaseUrl: 'https://certivity-dev.eu.auth0.com/oauth/token',
-    authAudience: 'https://service-api-dev.certivity.io',
-    authGrantType: 'client_credentials',
-    clientId: envVars.CERTIVITY_CLIENT_ID,
-    clientSecret: envVars.CERTIVITY_CLIENT_SECRET,
-    regulationBaseUrl: 'https://ctvt-service-api.azurewebsites.net/api/v1/protected/regulation',
-  },
   sso: {
     msGraphMeEndpoint: 'https://graph.microsoft.com/v1.0/me',
   },

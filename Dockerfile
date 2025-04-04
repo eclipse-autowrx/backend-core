@@ -4,13 +4,13 @@ RUN mkdir -p /usr/src/playground-be && chown -R node:node /usr/src/playground-be
 
 WORKDIR /usr/src/playground-be
 
-COPY package.json ./
+COPY package.json yarn.lock ./
+
+RUN yarn install
 
 USER node
 
 COPY --chown=node:node . .
-
-RUN yarn install
 
 EXPOSE 8080
 

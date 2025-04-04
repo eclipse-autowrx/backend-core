@@ -13,7 +13,7 @@ const { jwtStrategy } = require('./config/passport');
 const routesV2 = require('./routes/v2');
 const { errorConverter, errorHandler } = require('./middlewares/error');
 const ApiError = require('./utils/ApiError');
-const setupProxy = require('./config/proxyHandler');
+const { setupProxy, shouldParseBody } = require('./config/proxyHandler');
 const { init: initSocketIO } = require('./config/socket');
 
 const app = express();
@@ -30,7 +30,8 @@ app.use(cookies());
 app.use(helmet());
 
 // parse json request body
-app.use(express.json({ limit: '50mb', strict: false }));
+const bodyParser = express.json({ limit: '50mb', strict: false });
+app.use((req, res, next) => (shouldParseBody(req) ? bodyParser(req, res, next) : next()));
 
 // parse urlencoded request body
 app.use(express.urlencoded({ extended: true, limit: '50mb', parameterLimit: 10000 }));

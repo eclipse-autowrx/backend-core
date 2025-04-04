@@ -159,7 +159,7 @@ const getRecentCachedPrototypes = async (userId) => {
    */
   let recentData = [];
   try {
-    recentData = (await axios.get(`${config.services.cache.baseUrl}/get-recent-activities/${userId}`)).data;
+    recentData = (await axios.get(`${config.services.cache.url}/get-recent-activities/${userId}`)).data;
   } catch (error) {
     if (isAxiosError(error)) {
       logger.error('Error while getting recent prototypes from cache', error.response?.data?.message || error.message);
