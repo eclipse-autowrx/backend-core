@@ -69,7 +69,7 @@ const checkUpdateVSS = async () => {
 
     await updateVSS(filtered);
   } catch (error) {
-    logger.error(error);
+    logger.warn(error);
   }
 };
 
