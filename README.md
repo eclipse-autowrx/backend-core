@@ -30,7 +30,7 @@ This project serves as the backend for the playground, offering endpoints for:
 
 - Copy `.env.example` to `.env`
 - The `.env` file includes the minimal configurations required to run the application.
-- For detailed information on configuration options, refer to the Environment Variables Documentation.
+- For detailed information on configuration options, refer to the [Environment Variables Documentation.](#user-content-environment-variables-documentation)
 
 ### Running the Application
 
