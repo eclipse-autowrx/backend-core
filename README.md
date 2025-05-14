@@ -1,440 +1,154 @@
-# RESTful API Node Server Boilerplate - te
+# Playground Backend
 
-[![Build Status](https://travis-ci.org/hagopj13/node-express-boilerplate.svg?branch=master)](https://travis-ci.org/hagopj13/node-express-boilerplate)
-[![Coverage Status](https://coveralls.io/repos/github/hagopj13/node-express-boilerplate/badge.svg?branch=master)](https://coveralls.io/github/hagopj13/node-express-boilerplate?branch=master)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+A Node.js backend application built with Express and MongoDB, designed to provide a RESTful API for various services.
 
-A boilerplate/starter project for quickly building RESTful APIs using Node.js, Express, and Mongoose.
+## Overview
 
-By running a single command, you will get a production-ready Node.js app installed and fully configured on your machine. The app comes with many built-in features, such as authentication using JWT, request validation, unit and integration tests, continuous integration, docker support, API documentation, pagination, etc. For more details, check the features list below.
+This project serves as the backend for the playground, offering endpoints for:
 
-## Quick Start
+- Authentication & Authorization
+- User management
+- Models
+- Prototypes
+- APIs
+- Discussions
+- Feedback
+- Permissions
+- Extended APIs
+- Issues
+- Search
+- Assets
+- Change logs
 
-To create a project, simply run:
+## Getting Started
 
-```bash
-npx create-nodejs-express-app <project-name>
-```
+### Prerequisites
 
-Or
+- Docker & Docker Compose
 
-```bash
-npm init nodejs-express-app <project-name>
-```
+### Prepare the environment variables
 
-## Manual Installation
+- Copy `.env.example` to `.env`
+- The `.env` file includes the minimal configurations required to run the application.
+- For detailed information on configuration options, refer to the [Environment Variables Documentation.](#user-content-environment-variables-documentation)
 
-If you would still prefer to do the installation manually, follow these steps:
+### Running the Application
 
-Clone the repo:
+- **Development Mode**:
 
-```bash
-git clone --depth 1 https://github.com/hagopj13/node-express-boilerplate.git
-cd node-express-boilerplate
-npx rimraf ./.git
-```
+  ```bash
+  docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+  ```
 
-Install the dependencies:
+  Access backend at http://localhost:9800
 
-```bash
-yarn install
-```
+- **Production Mode**:
 
-Set the environment variables:
+  ```bash
+  docker compose -f docker-compose.yml -f docker-compose.prod.yml up
+  ```
 
-```bash
-cp .env.example .env
+  Access backend at http://localhost:9800
 
-# open .env and modify the environment variables (if needed)
-```
+  For more detail guideline on setting up a complete instance, please refer to: [Instance Setup Guideline](http://github.com/eclipse-autowrx/instance-setup)
 
-## Table of Contents
-
-- [Features](#features)
-- [Commands](#commands)
-- [Environment Variables](#environment-variables)
-- [Project Structure](#project-structure)
-- [API Documentation](#api-documentation)
-- [Error Handling](#error-handling)
-- [Validation](#validation)
-- [Authentication](#authentication)
-- [Authorization](#authorization)
-- [Logging](#logging)
-- [Custom Mongoose Plugins](#custom-mongoose-plugins)
-- [Linting](#linting)
-- [Contributing](#contributing)
-
-## Features
-
-- **NoSQL database**: [MongoDB](https://www.mongodb.com) object data modeling using [Mongoose](https://mongoosejs.com)
-- **Authentication and authorization**: using [passport](http://www.passportjs.org)
-- **Validation**: request data validation using [Joi](https://github.com/hapijs/joi)
-- **Logging**: using [winston](https://github.com/winstonjs/winston) and [morgan](https://github.com/expressjs/morgan)
-- **Testing**: unit and integration tests using [Jest](https://jestjs.io)
-- **Error handling**: centralized error handling mechanism
-- **API documentation**: with [swagger-jsdoc](https://github.com/Surnet/swagger-jsdoc) and [swagger-ui-express](https://github.com/scottie1984/swagger-ui-express)
-- **Process management**: advanced production process management using [PM2](https://pm2.keymetrics.io)
-- **Dependency management**: with [Yarn](https://yarnpkg.com)
-- **Environment variables**: using [dotenv](https://github.com/motdotla/dotenv) and [cross-env](https://github.com/kentcdodds/cross-env#readme)
-- **Security**: set security HTTP headers using [helmet](https://helmetjs.github.io)
-- **Santizing**: sanitize request data against xss and query injection
-- **CORS**: Cross-Origin Resource-Sharing enabled using [cors](https://github.com/expressjs/cors)
-- **Compression**: gzip compression with [compression](https://github.com/expressjs/compression)
-- **CI**: continuous integration with [Travis CI](https://travis-ci.org)
-- **Docker support**
-- **Code coverage**: using [coveralls](https://coveralls.io)
-- **Code quality**: with [Codacy](https://www.codacy.com)
-- **Git hooks**: with [husky](https://github.com/typicode/husky) and [lint-staged](https://github.com/okonet/lint-staged)
-- **Linting**: with [ESLint](https://eslint.org) and [Prettier](https://prettier.io)
-- **Editor config**: consistent editor configuration using [EditorConfig](https://editorconfig.org)
-
-## Commands
-
-Running locally:
-
-```bash
-yarn dev
-```
-
-Running in production:
-
-```bash
-yarn start
-```
-
-Testing:
-
-```bash
-# run all tests
-yarn test
-
-# run all tests in watch mode
-yarn test:watch
-
-# run test coverage
-yarn coverage
-```
-
-Docker:
-
-```bash
-# run docker container in development mode
-yarn docker:dev
-
-# run docker container in production mode
-yarn docker:prod
-
-# run all tests in a docker container
-yarn docker:test
-```
-
-Linting:
-
-```bash
-# run ESLint
-yarn lint
-
-# fix ESLint errors
-yarn lint:fix
-
-# run prettier
-yarn prettier
-
-# fix prettier errors
-yarn prettier:fix
-```
-
-## Environment Variables
-
-The environment variables can be found and modified in the `.env` file. They come with these default values:
-
-```bash
-# Port number
-PORT=3000
-
-# URL of the Mongo DB
-MONGODB_URL=mongodb://127.0.0.1:27017/node-boilerplate
-
-# JWT
-# JWT secret key
-JWT_SECRET=thisisasamplesecret
-# Number of minutes after which an access token expires
-JWT_ACCESS_EXPIRATION_MINUTES=30
-# Number of days after which a refresh token expires
-JWT_REFRESH_EXPIRATION_DAYS=30
-
-# SMTP configuration options for the email service
-# For testing, you can use a fake SMTP service like Ethereal: https://ethereal.email/create
-SMTP_HOST=email-server
-SMTP_PORT=587
-SMTP_USERNAME=email-server-username
-SMTP_PASSWORD=email-server-password
-EMAIL_FROM=support@yourapp.com
-```
+###
 
 ## Project Structure
 
-```
-src\
- |--config\         # Environment variables and configuration related things
- |--controllers\    # Route controllers (controller layer)
- |--docs\           # Swagger files
- |--middlewares\    # Custom express middlewares
- |--models\         # Mongoose models (data layer)
- |--routes\         # Routes
- |--services\       # Business logic (service layer)
- |--utils\          # Utility classes and functions
- |--validations\    # Request data validation schemas
- |--app.js          # Express app
- |--index.js        # App entry point
-```
-
-## API Documentation
-
-To view the list of available APIs and their specifications, run the server and go to `http://localhost:3000/v1/docs` in your browser. This documentation page is automatically generated using the [swagger](https://swagger.io/) definitions written as comments in the route files.
-
-### API Endpoints
-
-List of available routes:
-
-**Auth routes**:\
-`POST /v1/auth/register` - register\
-`POST /v1/auth/login` - login\
-`POST /v1/auth/refresh-tokens` - refresh auth tokens\
-`POST /v1/auth/forgot-password` - send reset password email\
-`POST /v1/auth/reset-password` - reset password\
-`POST /v1/auth/send-verification-email` - send verification email\
-`POST /v1/auth/verify-email` - verify email
-
-**User routes**:\
-`POST /v1/users` - create a user\
-`GET /v1/users` - get all users\
-`GET /v1/users/:userId` - get user\
-`PATCH /v1/users/:userId` - update user\
-`DELETE /v1/users/:userId` - delete user
-
-## Error Handling
-
-The app has a centralized error handling mechanism.
-
-Controllers should try to catch the errors and forward them to the error handling middleware (by calling `next(error)`). For convenience, you can also wrap the controller inside the catchAsync utility wrapper, which forwards the error.
-
-```javascript
-const catchAsync = require('../utils/catchAsync');
-
-const controller = catchAsync(async (req, res) => {
-  // this error will be forwarded to the error handling middleware
-  throw new Error('Something wrong happened');
-});
+```bash
+backend-core/
+├── src/
+│   ├── config/             # Configuration files (env, logger, passport, etc.)
+│   ├── controllers/        # Route controllers (business logic for each endpoint)
+│   ├── docs/               # API documentation (Swagger/OpenAPI)
+│   ├── middlewares/        # Custom Express middlewares
+│   ├── models/             # Mongoose models (database schemas)
+│   ├── routes/             # API route definitions
+│   ├── scripts/            # Initialization and utility scripts
+│   ├── services/           # Business logic and service layer
+│   ├── utils/              # Utility functions and helpers
+│   ├── validations/        # Request validation schemas
+│   ├── app.js              # Express app setup
+│   └── index.js            # Application entry point
+├── docker-compose.yml      # Docker Compose base configuration
+├── docker-compose.dev.yml  # Docker Compose configuration for dev environment
+├── docker-compose.dev.yml  # Docker Compose configuration for prod environment
+├── Dockerfile              # Docker build instructions
 ```
 
-The error handling middleware sends an error response, which has the following format:
-
-```json
-{
-  "code": 404,
-  "message": "Not found"
-}
-```
-
-When running in development mode, the error response also contains the error stack.
-
-The app has a utility ApiError class to which you can attach a response code and a message, and then throw it from anywhere (catchAsync will catch it).
-
-For example, if you are trying to get a user from the DB who is not found, and you want to send a 404 error, the code should look something like:
-
-```javascript
-const httpStatus = require('http-status');
-const ApiError = require('../utils/ApiError');
-const User = require('../models/User');
-
-const getUser = async (userId) => {
-  const user = await User.findById(userId);
-  if (!user) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
-  }
-};
-```
-
-## Validation
-
-Request data is validated using [Joi](https://joi.dev/). Check the [documentation](https://joi.dev/api/) for more details on how to write Joi validation schemas.
-
-The validation schemas are defined in the `src/validations` directory and are used in the routes by providing them as parameters to the `validate` middleware.
-
-```javascript
-const express = require('express');
-const validate = require('../../middlewares/validate');
-const userValidation = require('../../validations/user.validation');
-const userController = require('../../controllers/user.controller');
-
-const router = express.Router();
-
-router.post('/users', validate(userValidation.createUser), userController.createUser);
-```
-
-## Authentication
-
-To require authentication for certain routes, you can use the `auth` middleware.
-
-```javascript
-const express = require('express');
-const auth = require('../../middlewares/auth');
-const userController = require('../../controllers/user.controller');
-
-const router = express.Router();
-
-router.post('/users', auth(), userController.createUser);
-```
-
-These routes require a valid JWT access token in the Authorization request header using the Bearer schema. If the request does not contain a valid access token, an Unauthorized (401) error is thrown.
-
-**Generating Access Tokens**:
-
-An access token can be generated by making a successful call to the register (`POST /v1/auth/register`) or login (`POST /v1/auth/login`) endpoints. The response of these endpoints also contains refresh tokens (explained below).
-
-An access token is valid for 30 minutes. You can modify this expiration time by changing the `JWT_ACCESS_EXPIRATION_MINUTES` environment variable in the .env file.
-
-**Refreshing Access Tokens**:
-
-After the access token expires, a new access token can be generated, by making a call to the refresh token endpoint (`POST /v1/auth/refresh-tokens`) and sending along a valid refresh token in the request body. This call returns a new access token and a new refresh token.
-
-A refresh token is valid for 30 days. You can modify this expiration time by changing the `JWT_REFRESH_EXPIRATION_DAYS` environment variable in the .env file.
-
-## Authorization
-
-The `auth` middleware can also be used to require certain rights/permissions to access a route.
-
-```javascript
-const express = require('express');
-const auth = require('../../middlewares/auth');
-const userController = require('../../controllers/user.controller');
-
-const router = express.Router();
-
-router.post('/users', auth('manageUsers'), userController.createUser);
-```
-
-In the example above, an authenticated user can access this route only if that user has the `manageUsers` permission.
-
-The permissions are role-based. You can view the permissions/rights of each role in the `src/config/roles.js` file.
-
-If the user making the request does not have the required permissions to access this route, a Forbidden (403) error is thrown.
-
-## Logging
-
-Import the logger from `src/config/logger.js`. It is using the [Winston](https://github.com/winstonjs/winston) logging library.
-
-Logging should be done according to the following severity levels (ascending order from most important to least important):
-
-```javascript
-const logger = require('<path to src>/config/logger');
-
-logger.error('message'); // level 0
-logger.warn('message'); // level 1
-logger.info('message'); // level 2
-logger.http('message'); // level 3
-logger.verbose('message'); // level 4
-logger.debug('message'); // level 5
-```
-
-In development mode, log messages of all severity levels will be printed to the console.
-
-In production mode, only `info`, `warn`, and `error` logs will be printed to the console.\
-It is up to the server (or process manager) to actually read them from the console and store them in log files.\
-This app uses pm2 in production mode, which is already configured to store the logs in log files.
-
-Note: API request information (request url, response code, timestamp, etc.) are also automatically logged (using [morgan](https://github.com/expressjs/morgan)).
-
-## Custom Mongoose Plugins
-
-The app also contains 2 custom mongoose plugins that you can attach to any mongoose model schema. You can find the plugins in `src/models/plugins`.
-
-```javascript
-const mongoose = require('mongoose');
-const { toJSON, paginate } = require('./plugins');
-
-const userSchema = mongoose.Schema(
-  {
-    /* schema definition here */
-  },
-  { timestamps: true }
-);
-
-userSchema.plugin(toJSON);
-userSchema.plugin(paginate);
-
-const User = mongoose.model('User', userSchema);
-```
-
-### toJSON
-
-The toJSON plugin applies the following changes in the toJSON transform call:
-
-- removes \_\_v, createdAt, updatedAt, and any schema path that has private: true
-- replaces \_id with id
-
-### paginate
-
-The paginate plugin adds the `paginate` static method to the mongoose schema.
-
-Adding this plugin to the `User` model schema will allow you to do the following:
-
-```javascript
-const queryUsers = async (filter, options) => {
-  const users = await User.paginate(filter, options);
-  return users;
-};
-```
-
-The `filter` param is a regular mongo filter.
-
-The `options` param can have the following (optional) fields:
-
-```javascript
-const options = {
-  sortBy: 'name:desc', // sort order
-  limit: 5, // maximum results per page
-  page: 2, // page number
-};
-```
-
-The plugin also supports sorting by multiple criteria (separated by a comma): `sortBy: name:desc,role:asc`
-
-The `paginate` method returns a Promise, which fulfills with an object having the following properties:
-
-```json
-{
-  "results": [],
-  "page": 2,
-  "limit": 5,
-  "totalPages": 10,
-  "totalResults": 48
-}
-```
-
-## Linting
-
-Linting is done using [ESLint](https://eslint.org/) and [Prettier](https://prettier.io).
-
-In this app, ESLint is configured to follow the [Airbnb JavaScript style guide](https://github.com/airbnb/javascript/tree/master/packages/eslint-config-airbnb-base) with some modifications. It also extends [eslint-config-prettier](https://github.com/prettier/eslint-config-prettier) to turn off all rules that are unnecessary or might conflict with Prettier.
-
-To modify the ESLint configuration, update the `.eslintrc.json` file. To modify the Prettier configuration, update the `.prettierrc.json` file.
-
-To prevent a certain file or directory from being linted, add it to `.eslintignore` and `.prettierignore`.
-
-To maintain a consistent coding style across different IDEs, the project contains `.editorconfig`
+## API Endpoints
+
+The API is available under the `/v2` prefix. Key endpoints include:
+
+- **Auth**: `/v2/auth`
+- **Users**: `/v2/users`
+- **Models**: `/v2/models`
+- **Prototypes**: `/v2/prototypes`
+- **APIs**: `/v2/apis`
+- **Discussions**: `/v2/discussions`
+- **Feedbacks**: `/v2/feedbacks`
+- **Permissions**: `/v2/permissions`
+- **Extended APIs**: `/v2/extendedApis`
+- **Issues**: `/v2/issues`
+- **Search**: `/v2/search`
+- **Assets**: `/v2/assets`
+- **Change Logs**: `/v2/change-logs`
+
+## Environment Variables Documentation
+
+| Variable                                | Description                                                                               | Required | Default Value                         | Format/Example                                |
+| --------------------------------------- | ----------------------------------------------------------------------------------------- | -------- | ------------------------------------- | --------------------------------------------- |
+| `ENV`                                   | Environment type for the application (e.g., prod, dev, test). Is used for container names | Yes      | None                                  | `dev`                                         |
+| `PORT`                                  | Port on which the application runs                                                        | No       | 8080                                  | `8080`                                        |
+| `KONG_PROXY_PORT`                       | Port for Kong proxy service                                                               | Yes      | None                                  | `9800`                                        |
+| `KONG_NGINX_WORKER_PROCESSES`           | Number of Nginx worker processes for Kong                                                 | No       | auto                                  | `2`                                           |
+| `MONGODB_URL`                           | MongoDB connection URL                                                                    | Yes      | None                                  | `mongodb://playground-db:27017/playground-be` |
+| `DB_CONTAINER_NAME`                     | Name of the database container                                                            | Yes      | None                                  | `${ENV}-playground-db`                        |
+| `CORS_ORIGIN`                           | Regex for allowed CORS origins                                                            | No       | `localhost:\\d+,127\\.0\\.0\\.1:\\d+` | `localhost:\\d+,127\\.0\\.0\\.1:\\d+`         |
+| `UPLOAD_PORT`                           | Port for the upload service                                                               | Yes      | None                                  | 9810                                          |
+| `UPLOAD_PATH`                           | File system path for uploaded files                                                       | Yes      | None                                  | `/opt/data/dev/upload`                        |
+| `UPLOAD_DOMAIN`                         | API endpoint for file uploads                                                             | Yes      | None                                  | `https://<your_domain>/api/upload`            |
+| `JWT_SECRET`                            | Secret key for JWT signing                                                                | Yes      | None                                  | `examplesecret`                               |
+| `JWT_ACCESS_EXPIRATION_MINUTES`         | Minutes after which access tokens expire                                                  | No       | `30`                                  | `30`                                          |
+| `JWT_REFRESH_EXPIRATION_DAYS`           | Days after which refresh tokens expire                                                    | No       | `30`                                  | `30`                                          |
+| `JWT_RESET_PASSWORD_EXPIRATION_MINUTES` | Minutes after which reset password tokens expire                                          | No       | `10`                                  | `10`                                          |
+| `JWT_VERIFY_EMAIL_EXPIRATION_MINUTES`   | Minutes after which verify email tokens expire                                            | No       | `10`                                  | `10`                                          |
+| `JWT_COOKIE_NAME`                       | Name of the cookie storing the refresh token                                              | No       | `token`                               | `refresh-token`                               |
+| `JWT_COOKIE_DOMAIN`                     | Domain for the JWT cookie (used in production)                                            | No       | `''`                                  | `yourdomain.com`                              |
+| `AUTH_URL`                              | URL for the authentication service                                                        | No       | None                                  | `auth_service_url`                            |
+| `STRICT_AUTH`                           | Enable strict authentication mode (true/false)                                            | No       | None                                  | `true`                                        |
+| `CACHE_URL`                             | URL for the cache service                                                                 | No       | None                                  | `your_cache_url`                              |
+| `LOG_URL`                               | URL for the logging service                                                               | No       | None                                  | `your_log_url`                                |
+| `CLIENT_BASE_URL`                       | Base URL for the client application                                                       | No       | `http://localhost:3000`               | `your_client_base_url`                        |
+| `EMAIL_URL`                             | URL for a custom email service                                                            | No       | None                                  | `custom_email_service_url`                    |
+| `EMAIL_API_KEY`                         | API key for the email service (default: Brevo)                                            | No       | None                                  | `youremailkey`                                |
+| `EMAIL_ENDPOINT_URL`                    | Endpoint URL for the email service (default: Brevo)                                       | No       | None                                  | `email_api_endpoint_url`                      |
+| `GITHUB_CLIENT_ID`                      | Client ID for GitHub OAuth authentication                                                 | No       | None                                  | `github_client_id`                            |
+| `GITHUB_CLIENT_SECRET`                  | Client secret for GitHub OAuth authentication                                             | No       | None                                  | `github_client_secret`                        |
+| `HOMOLOGATION_URL`                      | URL for the homologation service                                                          | No       | None                                  | `homologation_service_url`                    |
+| `GENAI_URL`                             | URL for the GenAI service                                                                 | No       | None                                  | `genai_service_url`                           |
+| `ADMIN_EMAILS`                          | Comma-separated list of admin email addresses. Use for auto provisioning admin users.     | No       | None                                  | `admin1@example.com,admin2@example.com`       |
+| `ADMIN_PASSWORD`                        | Password for admin access                                                                 | No       | None                                  | `admin_password`                              |
+| `LOGS_MAX_SIZE`                         | Maximum size of change logs in megabytes                                                  | No       | `100`                                 | `100`                                         |
+
+## Notes
+
+- **Validation**: The application uses Joi to validate environment variables. Missing required variables or invalid formats will throw a configuration error on startup.
+- **CORS Configuration**: The `CORS_ORIGIN` variable accepts a comma-separated list of regex patterns for allowed origins. Ensure patterns are valid regex.
+- **JWT Configuration**: The `JWT_COOKIE_DOMAIN` is only applied in production (`NODE_ENV=production`). Set it to the appropriate domain for your application.
+- **Development Mode**: In `NODE_ENV=development`, JWT access token expiration is set to days instead of minutes for convenience.
+
+## Troubleshooting
+
+- **Validation Errors**: If the application fails to start with a "Config validation error," check that all required variables are set and match the expected format.
+- **CORS Issues**: Verify that `CORS_ORIGIN` regex patterns are correct and include all necessary client origins.
 
 ## Contributing
 
-Contributions are more than welcome! Please check out the [contributing guide](CONTRIBUTING.md).
-
-## Inspirations
-
-- [danielfsousa/express-rest-es2017-boilerplate](https://github.com/danielfsousa/express-rest-es2017-boilerplate)
-- [madhums/node-express-mongoose](https://github.com/madhums/node-express-mongoose)
-- [kunalkapadia/express-mongoose-es6-rest-api](https://github.com/kunalkapadia/express-mongoose-es6-rest-api)
+This project is part of the open-source digital.auto initiative. Contributions are welcome.
 
 ## License
 
-[MIT](LICENSE)
+**License: [CC BY 4.0 (Creative Commons)](https://creativecommons.org/licenses/by/4.0/)**
+You are free to share and adapt the material for any purpose, even commercially, with appropriate attribution.
