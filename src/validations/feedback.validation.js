@@ -3,12 +3,12 @@ const { objectId } = require('./custom.validation');
 
 const createFeedback = {
   body: Joi.object().keys({
-    description: Joi.string().max(2000),
+    description: Joi.string().max(2000).allow(''),
     ref: Joi.string().required().custom(objectId),
     ref_type: Joi.string().required(),
     model_id: Joi.string().custom(objectId),
-    question: Joi.string().max(2000),
-    recommendation: Joi.string().max(2000),
+    question: Joi.string().max(2000).allow(''),
+    recommendation: Joi.string().max(2000).allow(''),
     score: Joi.object().keys({
       easy_to_use: Joi.number().integer().min(1).max(5),
       need_address: Joi.number().integer().min(1).max(5),
@@ -44,12 +44,12 @@ const updateFeedback = {
   }),
   body: Joi.object()
     .keys({
-      description: Joi.string().max(2000),
+      description: Joi.string().max(2000).allow(''),
       ref: Joi.string().custom(objectId),
       ref_type: Joi.string(),
       model_id: Joi.string().custom(objectId),
-      question: Joi.string().max(2000),
-      recommendation: Joi.string().max(2000),
+      question: Joi.string().max(2000).allow(''),
+      recommendation: Joi.string().max(2000).allow(''),
       score: Joi.object().keys({
         easy_to_use: Joi.number().integer().min(1).max(5),
         need_address: Joi.number().integer().min(1).max(5),

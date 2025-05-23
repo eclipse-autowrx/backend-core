@@ -9,6 +9,37 @@ const calcAvgScoreOfPrototype = async (prototype) => {
 };
 
 /**
+ *
+ * @param {string[]} prototypeIds
+ * @returns {Promise<{[key: string]: number}>}
+ */
+const calcAvgScoreOfPrototypes = async (prototypeIds) => {
+  const feedbacks = await Feedback.find({
+    ref: {
+      $in: prototypeIds,
+    },
+  });
+  const result = feedbacks.reduce((acc, cur) => {
+    if (acc[cur.ref]) {
+      acc[cur.ref].total += cur.avg_score;
+      acc[cur.ref].count += 1;
+    } else {
+      acc[cur.ref] = {
+        total: cur.avg_score,
+        count: 1,
+      };
+    }
+    return acc;
+  }, {});
+
+  Object.keys(result).forEach((key) => {
+    result[key] = result[key].total / result[key].count;
+  });
+
+  return result;
+};
+
+/**
  * @param {Feedback.Score} score
  */
 const calcAvgScore = async (score) => {
@@ -102,4 +133,5 @@ module.exports = {
   updateFeedbackById,
   deleteFeedbackById,
   calcAvgScoreOfPrototype,
+  calcAvgScoreOfPrototypes,
 };
