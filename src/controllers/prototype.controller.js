@@ -5,6 +5,7 @@ const pick = require('../utils/pick');
 const { PERMISSIONS } = require('../config/roles');
 const ApiError = require('../utils/ApiError');
 const FeedbackPrototypeDecorator = require('../decorators/FeedbackPrototypeDecorator');
+const FeedbackPrototypeListDecorator = require('../decorators/FeedbackPrototypeListDecorator');
 
 const createPrototype = catchAsync(async (req, res) => {
   if (!(await permissionService.hasPermission(req.user.id, PERMISSIONS.READ_MODEL, req.body.model_id))) {
@@ -47,6 +48,9 @@ const listPrototypes = catchAsync(async (req, res) => {
     ...options,
     populate: ['created_by', 'name image_file'],
   });
+
+  prototypes.results = await new FeedbackPrototypeListDecorator(prototypes.results).getPrototypeList();
+
   res.send(prototypes);
 });
 
