@@ -16,7 +16,7 @@ end
 -- Authenticate and authorize the user
 local function auth_user(conf, authorization_header)
   local client = http.new()
-  kong.log("Validating identity and permissions with custom auth service url: ", conf.url)
+  kong.log.info("Validating identity and permissions with custom auth service url: ", conf.url)
   local res, err = client:request_uri(conf.url, {
     method = "POST",
     ssl_verify = false,
