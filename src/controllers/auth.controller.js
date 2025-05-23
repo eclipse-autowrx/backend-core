@@ -1,9 +1,30 @@
 const httpStatus = require('http-status');
 const catchAsync = require('../utils/catchAsync');
-const { authService, userService, tokenService, emailService, logService } = require('../services');
+const { authService, userService, tokenService, emailService, logService, permissionService } = require('../services');
 const config = require('../config/config');
 const ApiError = require('../utils/ApiError');
 const logger = require('../config/logger');
+const pick = require('../utils/pick');
+
+const check = catchAsync(async (req, res) => {
+  const filter = pick(req.body, ['permissions']);
+  filter.permissions = filter.permissions || '';
+
+  if (filter.permissions) {
+    const permissionQueries = filter.permissions.split(',').map((permission) => permission.split(':'));
+    const results = await Promise.all(
+      permissionQueries.map((query) => permissionService.hasPermission(req.user.id, query[0], query[1]))
+    );
+
+    if (!results.every(Boolean)) {
+      throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
+    }
+  }
+
+  return res.status(httpStatus.OK).json({
+    user: req.user,
+  });
+});
 
 const register = catchAsync(async (req, res) => {
   const user = await userService.createUser({
@@ -175,6 +196,7 @@ const sso = catchAsync(async (req, res) => {
 });
 
 module.exports = {
+  check,
   register,
   login,
   logout,

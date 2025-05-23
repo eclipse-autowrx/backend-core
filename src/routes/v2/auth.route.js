@@ -7,6 +7,9 @@ const config = require('../../config/config');
 
 const router = express.Router();
 
+// This route acts as centralized route to check in microservices
+router.post('/check', auth(), validate(authValidation.check), authController.check);
+
 router.get('/github/callback', authController.githubCallback);
 router.post('/sso', validate(authValidation.sso), authController.sso);
 if (!config.strictAuth) {

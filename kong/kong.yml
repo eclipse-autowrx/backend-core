@@ -2,10 +2,31 @@ _format_version: '3.0'
 _transform: true
 
 services:
+  - host: inventory
+    name: inventory
+    port: 3001
+    protocol: http
+    read_timeout: 180000
+    routes:
+      - name: inventory_route
+        methods:
+          - GET
+          - PUT
+          - POST
+          - PATCH
+          - DELETE
+          - OPTIONS
+          - HEAD
+          - CONNECT
+          - TRACE
+        paths:
+          - /v2/inventory
+
   - host: playground-be
     name: main
     port: 8080
     protocol: http
+    read_timeout: 180000
     routes:
       - name: main_route
         methods:
@@ -18,7 +39,6 @@ services:
           - HEAD
           - CONNECT
           - TRACE
-    read_timeout: 180000
 plugins:
   - name: rate-limiting
     enabled: true
@@ -35,3 +55,9 @@ plugins:
       header_name: x-forwarded-for
       policy: local
       sync_rate: -1
+  - name: custom-auth
+    enabled: true
+    config:
+      url: http://playground-be:8080/v2/auth/check
+      protected_paths:
+        - ^/v2/inventory/.*$
