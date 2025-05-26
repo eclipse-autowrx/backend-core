@@ -7,7 +7,7 @@ local AuthHandler = {
   PRIORITY = 1000,
 }
 
-local function satinize_header(conf)
+local function sanitize_header(conf)
   kong.service.request.clear_header("X-User-Id")
   kong.service.request.clear_header("X-User-Email")
 end
@@ -66,7 +66,7 @@ local function auth_user(conf, authorization_header)
 end
 
 function AuthHandler:access(conf)
-  satinize_header(conf)
+  sanitize_header(conf)
 
   -- Check if the request path is in the public paths
   local path = kong.request.get_path()
