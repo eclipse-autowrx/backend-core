@@ -1,11 +1,13 @@
 const Joi = require('joi');
 const { password } = require('./custom.validation');
 
-const check = {
-  body: Joi.object().keys({
-    permissions: Joi.string().allow(''),
-    permissionQuery: Joi.string().allow(''),
-  }),
+const authorize = {
+  body: Joi.object()
+    .keys({
+      permissions: Joi.string(),
+      permissionQuery: Joi.string(),
+    })
+    .min(1),
 };
 
 const register = {
@@ -70,7 +72,7 @@ const sso = {
 };
 
 module.exports = {
-  check,
+  authorize,
   register,
   login,
   refreshTokens,

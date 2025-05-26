@@ -9,6 +9,7 @@ services:
     read_timeout: 180000
     routes:
       - name: inventory_route
+        strip_path: false
         methods:
           - GET
           - PUT
@@ -28,6 +29,15 @@ services:
     protocol: http
     read_timeout: 180000
     routes:
+      - name: deny_authorization_route
+        paths:
+          - /v2/auth/authorize
+        plugins:
+          - name: request-termination
+            config:
+              status_code: 403
+              message: "Forbidden"
+
       - name: main_route
         methods:
           - GET
@@ -55,9 +65,10 @@ plugins:
       header_name: x-forwarded-for
       policy: local
       sync_rate: -1
+# Custom auth plugin. Check custom-auth folder to see the implementation.
   - name: custom-auth
     enabled: true
     config:
-      url: http://playground-be:8080/v2/auth/check
+      url: http://playground-be:8080/v2/auth/authenticate
       protected_paths:
         - ^/v2/inventory/.*$

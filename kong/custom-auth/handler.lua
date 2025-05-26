@@ -7,6 +7,11 @@ local AuthHandler = {
   PRIORITY = 1000,
 }
 
+local function sanitize_header(conf)
+  kong.service.request.clear_header("X-User-Id")
+  kong.service.request.clear_header("X-User-Email")
+end
+
 -- TODO: This function needs to include logic to extract permissions from the request
 -- for different entities: models, prototypes, inventory/instances, inventory/schemas, assets, ...
 -- For now, it is a placeholder.
@@ -24,10 +29,6 @@ local function auth_user(conf, authorization_header)
     headers = {
       ["Authorization"] = authorization_header,
     },
-    body = utils.encode_args({
-      permissionQuery = extract_permissions_string(conf),
-      permissions = extract_permissions_string(conf), -- Include legacy permissions field
-    }),
   })
 
   if not res then
@@ -65,6 +66,8 @@ local function auth_user(conf, authorization_header)
 end
 
 function AuthHandler:access(conf)
+  sanitize_header(conf)
+
   -- Check if the request path is in the public paths
   local path = kong.request.get_path()
   local protected_paths = conf.protected_paths or {}
