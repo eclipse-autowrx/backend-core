@@ -1,17 +1,14 @@
 services:
   kong:
     platform: linux/amd64
-    image: kong:3.7.1-ubuntu
+    image: boschvn/playground-kong:latest
     container_name: ${ENV:-dev}-kong
     environment:
       KONG_ADMIN_ACCESS_LOG: /dev/stdout
       KONG_ADMIN_ERROR_LOG: /dev/stderr
       KONG_PROXY_ACCESS_LOG: /dev/stdout
       KONG_PROXY_ERROR_LOG: /dev/stderr
-      KONG_DATABASE: 'off'
-      KONG_DECLARATIVE_CONFIG: /kong/declarative/kong.yml
       KONG_NGINX_WORKER_PROCESSES: ${KONG_NGINX_WORKER_PROCESSES:-auto}
-      KONG_PLUGINS: bundled,custom-auth
     ports:
       - '${KONG_PROXY_PORT}:8000'
 
