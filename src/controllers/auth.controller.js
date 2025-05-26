@@ -7,9 +7,11 @@ const logger = require('../config/logger');
 const pick = require('../utils/pick');
 
 const check = catchAsync(async (req, res) => {
-  const filter = pick(req.body, ['permissions']);
+  const filter = pick(req.body, ['permissions', 'permissionQuery']);
   filter.permissions = filter.permissions || '';
+  filter.permissionQuery = filter.permissionQuery || '';
 
+  // Legacy permission check. This is permission check version 1 using self-implemented authorization
   if (filter.permissions) {
     const permissionQueries = filter.permissions.split(',').map((permission) => permission.split(':'));
     const results = await Promise.all(
@@ -17,6 +19,15 @@ const check = catchAsync(async (req, res) => {
     );
 
     if (!results.every(Boolean)) {
+      throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
+    }
+  }
+
+  // New permission check. This is permission check version 2 using casbin library. Only support 1 query for now.
+  if (filter.permissionQuery) {
+    const [sub, act, obj] = filter.permissionQuery.split('#');
+    const allowed = await permissionService.hasPermission({ sub, act, obj });
+    if (!allowed) {
       throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
     }
   }

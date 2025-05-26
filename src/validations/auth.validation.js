@@ -4,6 +4,7 @@ const { password } = require('./custom.validation');
 const check = {
   body: Joi.object().keys({
     permissions: Joi.string().allow(''),
+    permissionQuery: Joi.string().allow(''),
   }),
 };
 

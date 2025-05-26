@@ -1,5 +1,6 @@
 local http = require "resty.http"
 local utils = require "kong.tools.utils"
+local cjson = require "cjson"
 
 local AuthHandler = {
   VERSION = "1.0.0",
@@ -24,7 +25,7 @@ local function auth_user(conf, authorization_header)
       ["Authorization"] = authorization_header,
     },
     body = utils.encode_args({
-      permissions = extract_permissions_string(conf),
+      permissionQuery = extract_permissions_string(conf),
     }),
   })
 
@@ -39,6 +40,24 @@ local function auth_user(conf, authorization_header)
   if res.status ~= 200 then
     kong.log.err("Failed to authenticate user: ", res.body)
     return kong.response.exit(401, { message = "Please authenticate" })
+  end
+
+  local user_data
+  pcall(function()
+    user_data = cjson.decode(res.body)
+  end)
+
+  if not user_data then
+    kong.log.err("Failed to decode user data from auth service response:", res.body)
+    return kong.response.exit(500, { message = "Internal Server Error" })
+  end
+
+  if user_data.id then
+    kong.service.request.set_header("X-User-Id", user_data.id)
+  end
+
+  if user_data.email then
+    kong.service.request.set_header("X-User-Email", user_data.email)
   end
 
   return true

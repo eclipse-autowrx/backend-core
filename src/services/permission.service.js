@@ -3,6 +3,7 @@ const { UserRole, Model, Prototype, Role, Asset } = require('../models');
 const ApiError = require('../utils/ApiError');
 const roleModel = require('../models/role.model');
 const { PERMISSIONS, ROLES } = require('../config/roles');
+const { getRolesClient } = require('../config/rolesV2');
 
 /**
  *
@@ -273,6 +274,45 @@ const canAccessModel = async (userId, modelId) => {
   return hasPermission(userId, PERMISSIONS.READ_MODEL, modelId);
 };
 
+// V2 services logic
+/**
+ *
+ * @param {{
+ *  sub: string,
+ *  act: string,
+ *  obj?: string,
+ * }} query
+ * @returns {Promise<boolean>}
+ */
+const hasPermissionV2 = async (query) => {
+  const { sub, act, obj } = query || {};
+  const rolesClient = getRolesClient();
+
+  const params = [sub, act, obj].filter(Boolean);
+
+  const allowed = await rolesClient.enforce(...params);
+  return allowed;
+};
+
+/**
+ *
+ * @param {{
+ *  sub: string,
+ *  act: string,
+ *  obj?: string,
+ * }} policy
+ * @returns {Promise<void>}
+ */
+const assignRoleToUserV2 = async (policy) => {
+  const { sub, act, obj } = policy || {};
+  const rolesClient = getRolesClient();
+
+  const success = await rolesClient.addPolicy(sub, act, obj);
+  if (!success) {
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Failed to assign role to user');
+  }
+};
+
 module.exports.listAuthorizedUser = listAuthorizedUser;
 module.exports.assignRoleToUser = assignRoleToUser;
 module.exports.getUserRoles = getUserRoles;
@@ -285,3 +325,7 @@ module.exports.getRoles = getRoles;
 module.exports.getPermissions = getPermissions;
 module.exports.listReadableModelIds = listReadableModelIds;
 module.exports.canAccessModel = canAccessModel;
+
+// V2 services
+module.exports.hasPermissionV2 = hasPermissionV2;
+module.exports.assignRoleToUserV2 = assignRoleToUserV2;
