@@ -53,6 +53,8 @@
     "axios": "^1.6.8",
     "bcryptjs": "^2.4.3",
     "bufferutil": "^4.0.8",
+    "casbin": "^5.38.0",
+    "casbin-mongoose-adapter": "^5.3.1",
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
