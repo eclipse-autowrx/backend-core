@@ -26,6 +26,7 @@ local function auth_user(conf, authorization_header)
     },
     body = utils.encode_args({
       permissionQuery = extract_permissions_string(conf),
+      permissions = extract_permissions_string(conf), -- Include legacy permissions field
     }),
   })
 
