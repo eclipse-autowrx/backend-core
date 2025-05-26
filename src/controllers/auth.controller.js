@@ -26,7 +26,7 @@ const check = catchAsync(async (req, res) => {
   // New permission check. This is permission check version 2 using casbin library. Only support 1 query for now.
   if (filter.permissionQuery) {
     const [sub, act, obj] = filter.permissionQuery.split('#');
-    const allowed = await permissionService.hasPermission({ sub, act, obj });
+    const allowed = await permissionService.hasPermissionV2({ sub, act, obj });
     if (!allowed) {
       throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
     }
