@@ -15,9 +15,6 @@ services:
     restart: always
     networks:
       - node-network
-    volumes:
-      - './kong/kong.yml:/kong/declarative/kong.yml'
-      - './kong/custom-auth:/usr/local/share/lua/5.1/kong/plugins/custom-auth'
     depends_on:
       - playground-be
 
