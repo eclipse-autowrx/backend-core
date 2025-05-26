@@ -7,8 +7,10 @@ const config = require('../../config/config');
 
 const router = express.Router();
 
-// This route acts as centralized route to check in microservices
-router.post('/check', auth(), validate(authValidation.check), authController.check);
+// This route is used to authenticate the user
+router.post('/authenticate', auth(), authController.authenticate);
+// This route is used to authorize the user, it doesn't need authentication. This can only be accessed from internal services
+router.post('/authorize', validate(authValidation.authorize), authController.authorize);
 
 router.get('/github/callback', authController.githubCallback);
 router.post('/sso', validate(authValidation.sso), authController.sso);

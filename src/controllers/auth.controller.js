@@ -6,10 +6,14 @@ const ApiError = require('../utils/ApiError');
 const logger = require('../config/logger');
 const pick = require('../utils/pick');
 
-const check = catchAsync(async (req, res) => {
+const authenticate = catchAsync(async (req, res) => {
+  res.status(httpStatus.OK).json({
+    user: req.user,
+  });
+});
+
+const authorize = catchAsync(async (req, res) => {
   const filter = pick(req.body, ['permissions', 'permissionQuery']);
-  filter.permissions = filter.permissions || '';
-  filter.permissionQuery = filter.permissionQuery || '';
 
   // Legacy permission check. This is permission check version 1 using self-implemented authorization
   if (filter.permissions) {
@@ -32,8 +36,8 @@ const check = catchAsync(async (req, res) => {
     }
   }
 
-  return res.status(httpStatus.OK).json({
-    user: req.user,
+  res.status(httpStatus.OK).json({
+    message: 'Authorized',
   });
 });
 
@@ -207,7 +211,8 @@ const sso = catchAsync(async (req, res) => {
 });
 
 module.exports = {
-  check,
+  authenticate,
+  authorize,
   register,
   login,
   logout,
