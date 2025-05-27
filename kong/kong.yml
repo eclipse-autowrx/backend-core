@@ -2,8 +2,8 @@ _format_version: '3.0'
 _transform: true
 
 services:
-  - host: inventory
-    name: inventory
+  - host: inventory-be
+    name: inventory-be
     port: 3001
     protocol: http
     read_timeout: 180000
