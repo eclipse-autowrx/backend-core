@@ -54,12 +54,14 @@ local function auth_user(conf, authorization_header)
     return kong.response.exit(500, { message = "Internal Server Error" })
   end
 
-  if user_data.id then
-    kong.service.request.set_header("X-User-Id", user_data.id)
-  end
+  if user_data.user then
+    if user_data.user.id then
+      kong.service.request.set_header("X-User-Id", user_data.user.id)
+    end
 
-  if user_data.email then
-    kong.service.request.set_header("X-User-Email", user_data.email)
+    if user_data.user.email then
+      kong.service.request.set_header("X-User-Email", user_data.user.email)
+    end
   end
 
   return true
