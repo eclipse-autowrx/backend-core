@@ -1,7 +1,7 @@
 services:
   playground-be:
     build:
-        context: .
+      context: .
     image: ghcr.io/${GITHUB_REPOSITORY_OWNER:-eclipse-autowrx}/playground-be:${TAG:-latest}
     command: yarn dev -L
     volumes:
@@ -53,3 +53,7 @@ services:
     environment:
       - HOMOLOGATION_AUTH_CLIENT_ID=${HOMOLOGATION_AUTH_CLIENT_ID}
       - HOMOLOGATION_AUTH_CLIENT_SECRET=${HOMOLOGATION_AUTH_CLIENT_SECRET}
+
+  inventory-be:
+    command: yarn dev -L
+    restart: no

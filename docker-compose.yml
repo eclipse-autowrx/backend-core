@@ -17,6 +17,7 @@ services:
       - node-network
     depends_on:
       - playground-be
+      - inventory-be
 
   playground-be:
     platform: linux/amd64
@@ -65,8 +66,34 @@ services:
       - HOMOLOGATION_AUTH_CLIENT_ID=${HOMOLOGATION_AUTH_CLIENT_ID}
       - HOMOLOGATION_AUTH_CLIENT_SECRET=${HOMOLOGATION_AUTH_CLIENT_SECRET}
 
+  inventory-be:
+    platform: linux/amd64
+    container_name: ${ENV:-dev}-inventory-be
+    image: boschvn/inventory-be:latest
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - MONGODB_URL=mongodb://inventory-db:27017/inventory
+      - AUTHORIZATION_URL=http://playground-be:8080/v2/auth/authorize
+    networks:
+      - node-network
+    restart: ${RESTART_POLICY:-always}
+    command: yarn start
+    depends_on:
+      - inventory-db
+
+  inventory-db:
+    platform: linux/amd64
+    container_name: ${ENV:-dev}-inventory-db
+    image: mongo:4.4.6-bionic
+    volumes:
+      - inventorydata:/data/db
+    restart: ${RESTART_POLICY:-always}
+    networks:
+      - node-network
+
 volumes:
   dbdata:
+  inventorydata:
 
 networks:
   node-network:
