@@ -74,6 +74,7 @@ services:
       - NODE_ENV=${NODE_ENV:-production}
       - MONGODB_URL=mongodb://inventory-db:27017/inventory
       - AUTHORIZATION_URL=http://playground-be:8080/v2/auth/authorize
+      - CORS_ORIGIN=${CORS_ORIGIN}
     networks:
       - node-network
     restart: ${RESTART_POLICY:-always}
