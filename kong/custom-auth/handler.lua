@@ -67,7 +67,60 @@ local function auth_user(conf, authorization_header)
   return true
 end
 
+-- Handle CORS preflight OPTIONS request
+local function handle_options_request()
+  -- Get the Origin header
+  local origin = kong.request.get_header("Origin")
+  if not origin then
+    kong.response.exit(403, { message = "Origin header is required" })
+  end
+
+  -- Strip the scheme for pattern matching (e.g., "https://playground.digital.auto" -> "playground.digital.auto")
+  local origin_without_scheme = origin:match("^https?://(.+)$") or origin
+
+  -- Get allowed origins from CORS_ORIGIN environment variable
+  local cors_origin = "localhost:%d+,.*%.digitalauto%.tech,.*%.digitalauto%.asia,.*%.digital%.auto,https://digitalauto.netlify.app,127%.0%.0%.1:%d+"
+  local origins = {}
+  for pattern in cors_origin:gmatch("[^,]+") do
+    table.insert(origins, pattern)
+  end
+
+
+  -- Check if the origin matches any allowed pattern
+  local is_allowed = false
+  for _, pattern in ipairs(origins) do
+    if pattern:match("^https?://") then
+      -- Exact match for patterns with scheme
+      if origin == pattern then
+        is_allowed = true
+        break
+      end
+    else
+      -- Lua pattern match for patterns without scheme
+      if origin_without_scheme:match("^" .. pattern .. "$") then
+        is_allowed = true
+        break
+      end
+    end
+  end
+
+  -- If no match, reject the request
+  if not is_allowed then
+    kong.response.exit(403, { message = "Origin not allowed" })
+  end
+
+  -- Set CORS headers
+  kong.response.set_header("Access-Control-Allow-Origin", origin)
+  kong.response.set_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+  kong.response.set_header("Access-Control-Allow-Headers", "Content-Type")
+  kong.response.exit(204)
+end
+
 function AuthHandler:access(conf)
+  if kong.request.get_method() == "OPTIONS" then
+    return handle_options_request()
+  end
+
   sanitize_header(conf)
 
   -- Check if the request path is in the public paths
