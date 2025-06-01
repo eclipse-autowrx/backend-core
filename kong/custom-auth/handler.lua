@@ -113,14 +113,11 @@ local function handle_options_request()
   kong.response.set_header("Access-Control-Allow-Origin", origin)
   kong.response.set_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
   kong.response.set_header("Access-Control-Allow-Headers", "Content-Type")
+  kong.response.set_header("Access-Control-Allow-Credentials", "true")
   kong.response.exit(204)
 end
 
 function AuthHandler:access(conf)
-  if kong.request.get_method() == "OPTIONS" then
-    return handle_options_request()
-  end
-
   sanitize_header(conf)
 
   -- Check if the request path is in the public paths
@@ -139,6 +136,10 @@ function AuthHandler:access(conf)
   if not required_auth then
     -- If the request path is not in the public paths, skip authentication
     return
+  end
+
+  if kong.request.get_method() == "OPTIONS" then
+    return true
   end
 
   -- Throw an error if no access_token in header

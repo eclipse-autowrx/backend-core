@@ -65,6 +65,35 @@ plugins:
       header_name: x-forwarded-for
       policy: local
       sync_rate: -1
+
+  - name: cors
+    config:
+      origins:
+        - localhost:\d+
+        - \.digitalauto\.tech$
+        - \.digitalauto\.asia$
+        - \.digital\.auto$
+        - 127\.0\.0\.1:\d+
+      methods:
+        - OPTIONS
+      headers:
+        - Accept
+        - Accept-Version
+        - Content-Length
+        - Content-MD5
+        - Content-Type
+        - Date
+        - X-Auth-Token
+        - Authorization
+        - Origin
+        - Access-Control-Request-Method
+        - Access-Control-Request-Headers
+      exposed_headers:
+        - X-Auth-Token
+      credentials: true
+      max_age: 3600
+      preflight_continue: true
+
 # Custom auth plugin. Check custom-auth folder to see the implementation.
   - name: custom-auth
     enabled: true
