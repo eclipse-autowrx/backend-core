@@ -24,6 +24,9 @@ const PERMISSIONS = {
 
   // deploy hardware
   DEPLOY_HARDWARE: 'deployHardware',
+
+  // learn
+  LEARNING_MODE: 'learningMode',
 };
 
 const PERMISSIONS_DESCRIPTION = {
@@ -33,6 +36,7 @@ const PERMISSIONS_DESCRIPTION = {
   [PERMISSIONS.WRITE_MODEL]: 'Write model',
   [PERMISSIONS.GENERATIVE_AI]: 'Generative AI',
   [PERMISSIONS.DEPLOY_HARDWARE]: 'Deploy hardware',
+  [PERMISSIONS.LEARNING_MODE]: 'Learning Mode',
 };
 
 // The role here is applied for the resources that the user is not the owner of
@@ -87,6 +91,11 @@ const ROLES = {
     permissions: [PERMISSIONS.DEPLOY_HARDWARE],
     ref: 'deploy_hardware',
     name: 'Deploy hardware',
+  },
+  learning_mode: {
+    permissions: [PERMISSIONS.LEARNING_MODE],
+    ref: 'learning_mode',
+    name: 'Learning Mode',
   },
 };
 
