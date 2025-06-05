@@ -26,12 +26,27 @@ const createAsset = (data) => {
  * @param {string} [options.userId]
  */
 const queryAssets = async (filter, options, userId) => {
+  const finalFilter = {
+    $and: [],
+  };
+
   if (filter.name) {
-    filter.name = new RegExp(filter.name, 'i');
+    finalFilter.$and.push({
+      name: new RegExp(filter.name, 'i'),
+    });
   }
+
   if (filter.type) {
-    filter.type = new RegExp(filter.type, 'i');
+    finalFilter.$and.push({
+      type: {
+        $in: filter.type
+          .split(',')
+          .map((type) => type.trim())
+          .filter(Boolean),
+      },
+    });
   }
+
   if (userId) {
     let accessibleIds = [];
     try {
@@ -50,19 +65,21 @@ const queryAssets = async (filter, options, userId) => {
       logger.error(`Error while find accessible assetIds for user ${userId}: ${error}`);
     }
 
-    filter.$or = [
-      {
-        _id: {
-          $in: accessibleIds,
+    finalFilter.$and.push({
+      $or: [
+        {
+          _id: {
+            $in: accessibleIds,
+          },
         },
-      },
-      {
-        created_by: userId,
-      },
-    ];
+        {
+          created_by: userId,
+        },
+      ],
+    });
   }
 
-  return Asset.paginate(filter, options);
+  return Asset.paginate(finalFilter, options);
 };
 
 /**
