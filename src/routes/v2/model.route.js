@@ -25,6 +25,7 @@ router.route('/all').get(
   auth({
     optional: !config.strictAuth,
   }),
+  validate(modelValidation.listAllModels),
   modelController.listAllModels
 );
 

@@ -35,6 +35,12 @@ const createModel = {
   }),
 };
 
+const listAllModels = {
+  query: Joi.object().keys({
+    fields: Joi.string().allow(''),
+  }),
+};
+
 const listModels = {
   query: Joi.object().keys({
     name: Joi.string(),
@@ -139,4 +145,5 @@ module.exports = {
   deleteAuthorizedUser,
   getApiByModelId,
   replaceApi,
+  listAllModels,
 };
