@@ -27,6 +27,9 @@ const PERMISSIONS = {
 
   // learn
   LEARNING_MODE: 'learningMode',
+
+  //  AI agent
+  AI_AGENT: 'aiAgent',
 };
 
 const PERMISSIONS_DESCRIPTION = {
@@ -37,6 +40,7 @@ const PERMISSIONS_DESCRIPTION = {
   [PERMISSIONS.GENERATIVE_AI]: 'Generative AI',
   [PERMISSIONS.DEPLOY_HARDWARE]: 'Deploy hardware',
   [PERMISSIONS.LEARNING_MODE]: 'Learning Mode',
+  [PERMISSIONS.AI_AGENT]: 'AI Agent',
 };
 
 // The role here is applied for the resources that the user is not the owner of
@@ -96,6 +100,11 @@ const ROLES = {
     permissions: [PERMISSIONS.LEARNING_MODE],
     ref: 'learning_mode',
     name: 'Learning Mode',
+  },
+  ai_agent: {
+    permissions: [PERMISSIONS.AI_AGENT],
+    ref: 'ai_agent',
+    name: 'AI Agent',
   },
 };
 
