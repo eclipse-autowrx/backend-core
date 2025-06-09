@@ -90,11 +90,14 @@ const listModels = catchAsync(async (req, res) => {
 });
 
 const listAllModels = catchAsync(async (req, res) => {
+  const options = pick(req.query, ['fields']);
+
   const ownedModels = await modelService.queryModels(
     {
       created_by: req.user?.id,
     },
     {
+      ...options,
       limit: 1000,
     },
     {},
@@ -105,6 +108,7 @@ const listAllModels = catchAsync(async (req, res) => {
     ? await modelService.queryModels(
         {},
         {
+          ...options,
           limit: 1000,
         },
         {
@@ -120,6 +124,7 @@ const listAllModels = catchAsync(async (req, res) => {
       state: 'released',
     },
     {
+      ...options,
       limit: 1000,
     },
     {},
