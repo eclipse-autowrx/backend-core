@@ -131,6 +131,20 @@ const listAllModels = catchAsync(async (req, res) => {
     req.user?.id
   );
 
+  if (options.fields) {
+    return res.status(200).send({
+      ownedModels: {
+        results: ownedModels.results,
+      },
+      contributedModels: {
+        results: contributedModels.results,
+      },
+      publicReleasedModels: {
+        results: publicReleasedModels.results,
+      },
+    });
+  }
+
   const cacheResult = new Map();
 
   const processStats = async (model) => {
