@@ -30,6 +30,15 @@ const createModel = async (userId, modelBody) => {
     }
   }
 
+  if (modelBody.extend && typeof modelBody.extend === 'string') {
+    try {
+      const parsedExtend = JSON.parse(modelBody.extend);
+      modelBody.extend = parsedExtend;
+    } catch (error) {
+      logger.warn(`Failed while parsing extend field: ${error}`);
+    }
+  }
+
   const model = await Model.create({
     ...modelBody,
     created_by: userId,
@@ -323,6 +332,16 @@ const updateModelById = async (id, updateBody, actionOwner) => {
   }
 
   updateBody.action_owner = actionOwner;
+
+  if (updateBody.extend && typeof updateBody.extend === 'string') {
+    try {
+      const parsedExtend = JSON.parse(updateBody.extend);
+      updateBody.extend = parsedExtend;
+    } catch (error) {
+      logger.warn(`Failed while parsing extend field: ${error}`);
+    }
+  }
+
   Object.assign(model, updateBody);
   await model.save();
   return model._id;

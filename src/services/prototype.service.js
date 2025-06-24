@@ -23,6 +23,15 @@ const createPrototype = async (userId, prototypeBody) => {
     );
   }
 
+  if (prototypeBody.extend && typeof prototypeBody.extend === 'string') {
+    try {
+      const parsedExtend = JSON.parse(prototypeBody.extend);
+      prototypeBody.extend = parsedExtend;
+    } catch (error) {
+      logger.warn(`Failed to parse 'extend' field: ${error}`);
+    }
+  }
+
   const prototype = await Prototype.create({
     ...prototypeBody,
     created_by: userId,
@@ -123,6 +132,15 @@ const updatePrototypeById = async (id, updateBody, actionOwner) => {
       httpStatus.BAD_REQUEST,
       `Duplicate prototype name '${updateBody.name}' in model ${prototype.model_id}`
     );
+  }
+
+  if (updateBody.extend && typeof updateBody.extend === 'string') {
+    try {
+      const parsedExtend = JSON.parse(updateBody.extend);
+      updateBody.extend = parsedExtend;
+    } catch (error) {
+      logger.warn(`Failed to parse 'extend' field: ${error}`);
+    }
   }
 
   updateBody.action_owner = actionOwner;
