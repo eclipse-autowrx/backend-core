@@ -6,6 +6,7 @@ const authorize = {
     .keys({
       permissions: Joi.string(),
       permissionQuery: Joi.string(),
+      userId: Joi.string(),
     })
     .min(1),
 };

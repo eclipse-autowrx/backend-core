@@ -12,14 +12,15 @@ const authenticate = catchAsync(async (req, res) => {
   });
 });
 
+// This controller is INTERNAL ONLY. DO NOT EXPOSE THIS ENDPOINT TO THE PUBLIC.
 const authorize = catchAsync(async (req, res) => {
-  const filter = pick(req.body, ['permissions', 'permissionQuery']);
+  const bodyData = pick(req.body, ['permissions', 'permissionQuery', 'userId']);
 
   // Legacy permission check. This is permission check version 1 using self-implemented authorization
-  if (filter.permissions) {
-    const permissionQueries = filter.permissions.split(',').map((permission) => permission.split(':'));
+  if (bodyData.permissions) {
+    const permissionQueries = bodyData.permissions.split(',').map((permission) => permission.split(':'));
     const results = await Promise.all(
-      permissionQueries.map((query) => permissionService.hasPermission(req.user.id, query[0], query[1]))
+      permissionQueries.map((query) => permissionService.hasPermission(req.user.id ?? bodyData.userId, query[0], query[1]))
     );
 
     if (!results.every(Boolean)) {
@@ -28,8 +29,8 @@ const authorize = catchAsync(async (req, res) => {
   }
 
   // New permission check. This is permission check version 2 using casbin library. Only support 1 query for now.
-  if (filter.permissionQuery) {
-    const [sub, act, obj] = filter.permissionQuery.split('#');
+  if (bodyData.permissionQuery) {
+    const [sub, act, obj] = bodyData.permissionQuery.split('#');
     const allowed = await permissionService.hasPermissionV2({ sub, act, obj });
     if (!allowed) {
       throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
