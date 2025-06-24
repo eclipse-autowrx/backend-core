@@ -32,6 +32,15 @@ const createPrototype = async (userId, prototypeBody) => {
     }
   }
 
+  if (prototypeBody.requirements_data && typeof prototypeBody.requirements_data === 'string') {
+    try {
+      const parsedRequirementsData = JSON.parse(prototypeBody.requirements_data);
+      prototypeBody.requirements_data = parsedRequirementsData;
+    } catch (error) {
+      logger.warn(`Failed to parse 'requirements_data' field: ${error}`);
+    }
+  }
+
   const prototype = await Prototype.create({
     ...prototypeBody,
     created_by: userId,
@@ -140,6 +149,15 @@ const updatePrototypeById = async (id, updateBody, actionOwner) => {
       updateBody.extend = parsedExtend;
     } catch (error) {
       logger.warn(`Failed to parse 'extend' field: ${error}`);
+    }
+  }
+
+  if (updateBody.requirements_data && typeof updateBody.requirements_data === 'string') {
+    try {
+      const parsedRequirementsData = JSON.parse(updateBody.requirements_data);
+      updateBody.requirements_data = parsedRequirementsData;
+    } catch (error) {
+      logger.warn(`Failed to parse 'requirements_data' field: ${error}`);
     }
   }
 

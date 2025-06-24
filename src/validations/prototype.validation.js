@@ -4,6 +4,7 @@ const { objectId, jsonString, slug } = require('./custom.validation');
 
 const bodyValidation = Joi.object().keys({
   extend: Joi.any(),
+  requirements_data: Joi.any(),
   flow: Joi.any(),
   state: Joi.string().allow(...Object.values(stateTypes)),
   apis: Joi.object().keys({
@@ -80,6 +81,7 @@ const updatePrototype = {
   body: Joi.object().keys({
     flow: Joi.any(),
     extend: Joi.any(),
+    requirements_data: Joi.any(),
     state: Joi.string().allow(...Object.values(stateTypes)),
     apis: Joi.object().keys({
       VSC: Joi.array().items(Joi.string()),

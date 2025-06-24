@@ -197,6 +197,9 @@ const prototypeSchema = new mongoose.Schema(
     requirements: {
       type: String,
     },
+    requirements_data: {
+      type: mongoose.SchemaTypes.Mixed,
+    },
     flow: {
       type: mongoose.SchemaTypes.Mixed,
     },
