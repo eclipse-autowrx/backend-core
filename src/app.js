@@ -38,13 +38,7 @@ app.use(express.urlencoded({ extended: true, limit: '50mb', parameterLimit: 1000
 app.use(mongoSanitize());
 
 // gzip compression
-app.use((req, res, next) => {
-  if (req.path.includes('/v2/genai/generation')) {
-    next();
-  } else {
-    compression()(req, res, next);
-  }
-});
+app.use(compression());
 
 // enable cors
 app.use(
