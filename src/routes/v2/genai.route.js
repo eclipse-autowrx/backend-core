@@ -14,6 +14,18 @@ const proxyMiddleware = config.services.genAI.url
       changeOrigin: true,
       on: {
         proxyReq: fixRequestBody,
+        proxyRes: (proxyRes, req, res) => {
+          // Handle specific proxy response modifications if needed
+          if (proxyRes.headers['content-type'].includes('text/event-stream')) {
+            if (res.flush && typeof res.flush === 'function') {
+              proxyRes.on('data', () => {
+                setImmediate(() => {
+                  res.flush();
+                });
+              });
+            }
+          }
+        },
       },
     })
   : null;
