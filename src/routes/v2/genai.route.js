@@ -1,5 +1,5 @@
 // Copyright (c) 2025 Eclipse Foundation.
-// 
+//
 // This program and the accompanying materials are made available under the
 // terms of the MIT License which is available at
 // https://opensource.org/licenses/MIT.
@@ -24,7 +24,7 @@ const proxyMiddleware = config.services.genAI.url
         proxyReq: fixRequestBody,
         proxyRes: (proxyRes, req, res) => {
           // Handle specific proxy response modifications if needed
-          if (proxyRes.headers['content-type'].includes('text/event-stream')) {
+          if (proxyRes.headers['content-type']?.includes('text/event-stream')) {
             if (res.flush && typeof res.flush === 'function') {
               proxyRes.on('data', () => {
                 setImmediate(() => {
