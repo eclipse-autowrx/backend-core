@@ -17,6 +17,7 @@ services:
       KONG_PROXY_ACCESS_LOG: /dev/stdout
       KONG_PROXY_ERROR_LOG: /dev/stderr
       KONG_NGINX_WORKER_PROCESSES: ${KONG_NGINX_WORKER_PROCESSES:-auto}
+      CORS_ORIGINS: ${CORS_ORIGINS}
     ports:
       - '${KONG_PROXY_PORT}:8000'
 
