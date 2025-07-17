@@ -9,6 +9,7 @@
 const express = require('express');
 const helmet = require('helmet');
 const cookies = require('cookie-parser');
+const cors = require('cors');
 const mongoSanitize = require('express-mongo-sanitize');
 const compression = require('compression');
 const passport = require('passport');
@@ -46,6 +47,10 @@ app.use(mongoSanitize());
 
 // gzip compression
 app.use(compression());
+
+// Enable for development cors
+app.use(cors('*'));
+app.options('*', cors());
 
 // jwt authentication
 app.use(passport.initialize());
