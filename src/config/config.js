@@ -1,5 +1,5 @@
 // Copyright (c) 2025 Eclipse Foundation.
-// 
+//
 // This program and the accompanying materials are made available under the
 // terms of the MIT License which is available at
 // https://opensource.org/licenses/MIT.
@@ -17,8 +17,6 @@ const envVarsSchema = Joi.object()
     NODE_ENV: Joi.string().valid('production', 'development', 'test').required(),
     PORT: Joi.number().default(8080),
     MONGODB_URL: Joi.string().required().description('Mongo DB url'),
-    // CORS Settings
-    CORS_ORIGIN: Joi.string().description('CORS regex'),
     // JWT
     JWT_SECRET: Joi.string().description('JWT secret key'),
     JWT_ACCESS_EXPIRATION_MINUTES: Joi.number().default(30).description('minutes after which access tokens expire'),
@@ -81,13 +79,6 @@ const config = {
   env: envVars.NODE_ENV,
   port: envVars.PORT,
   strictAuth: envVars.STRICT_AUTH,
-  cors: {
-    regex: (envVars.CORS_ORIGIN || 'localhost:\\d+,127\\.0\\.0\\.1:\\d+')
-      .split(',')
-      .map((i) => i.trim())
-      .filter(Boolean)
-      .map((i) => new RegExp(i)),
-  },
   mongoose: {
     url: envVars.MONGODB_URL + (envVars.NODE_ENV === 'test' ? '-test' : ''),
     options: {

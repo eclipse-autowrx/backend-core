@@ -1,5 +1,5 @@
 // Copyright (c) 2025 Eclipse Foundation.
-// 
+//
 // This program and the accompanying materials are made available under the
 // terms of the MIT License which is available at
 // https://opensource.org/licenses/MIT.
@@ -9,9 +9,9 @@
 const express = require('express');
 const helmet = require('helmet');
 const cookies = require('cookie-parser');
+const cors = require('cors');
 const mongoSanitize = require('express-mongo-sanitize');
 const compression = require('compression');
-const cors = require('cors');
 const passport = require('passport');
 const httpStatus = require('http-status');
 const config = require('./config/config');
