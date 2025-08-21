@@ -64,7 +64,7 @@ const ROLES = {
     name: 'Generative AI',
   },
   model_contributor: {
-    permissions: [PERMISSIONS.READ_MODEL],
+    permissions: [PERMISSIONS.READ_MODEL, PERMISSIONS.WRITE_MODEL],
     ref: 'model_contributor',
     name: 'Model contributor',
     not_feature: true,
