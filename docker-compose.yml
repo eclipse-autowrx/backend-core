@@ -17,6 +17,7 @@ services:
       KONG_PROXY_ACCESS_LOG: /dev/stdout
       KONG_PROXY_ERROR_LOG: /dev/stderr
       KONG_NGINX_WORKER_PROCESSES: ${KONG_NGINX_WORKER_PROCESSES:-auto}
+      CORS_ORIGINS: ${KONG_SVC_CORS_ORIGINS}
     ports:
       - '${KONG_PROXY_PORT}:8000'
 
@@ -82,7 +83,7 @@ services:
       - NODE_ENV=${NODE_ENV:-production}
       - MONGODB_URL=mongodb://inventory-db:27017/inventory
       - AUTHORIZATION_URL=http://playground-be:8080/v2/auth/authorize
-      - CORS_ORIGIN=${CORS_ORIGIN}
+      - CORS_ORIGIN=${CORS_ORIGINS}
     networks:
       - node-network
     restart: ${RESTART_POLICY:-always}
