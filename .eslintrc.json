@@ -2,12 +2,12 @@
   "env": {
     "node": true,
     "jest": true,
-    "commonjs": true,
+    "commonjs": true
   },
   "extends": [
     "airbnb-base",
     "plugin:jest/recommended",
-    "plugin:security/recommended",
+    "plugin:security/recommended-legacy",
     "plugin:prettier/recommended"
   ],
   "plugins": [
@@ -16,8 +16,8 @@
     "prettier"
   ],
   "parserOptions": {
-    "ecmaVersion": 2023,
-    "sourceType": "commonjs"
+    "ecmaVersion": 2020,
+    "sourceType": "script"
   },
   "rules": {
     // "no-console": "off",
